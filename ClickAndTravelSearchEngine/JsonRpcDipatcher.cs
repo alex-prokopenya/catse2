@@ -19,7 +19,7 @@ namespace ClickAndTravelSearchEngine
     {
         public JsonRpcDispatcher(IService service):base(service)
         {
-             
+             //
         }
         
         protected override IDictionary CreateResponse(IDictionary request, object result, object error)
