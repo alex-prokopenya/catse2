@@ -1,0 +1,20 @@
+C:\Documents and Settings\Alex\My Documents\Visual Studio 2010\Projects\CATSE\ClickAndTravelSearchEngine\bin\ClickAndTravelSearchEngine.dll
+C:\Documents and Settings\Alex\My Documents\Visual Studio 2010\Projects\CATSE\ClickAndTravelSearchEngine\bin\ClickAndTravelSearchEngine.pdb
+C:\Documents and Settings\Alex\My Documents\Visual Studio 2010\Projects\CATSE\ClickAndTravelSearchEngine\bin\Megatec.MasterTour.BusinessRules.dll
+C:\Documents and Settings\Alex\My Documents\Visual Studio 2010\Projects\CATSE\ClickAndTravelSearchEngine\bin\Megatec.MasterTour.DataAccess.dll
+C:\Documents and Settings\Alex\My Documents\Visual Studio 2010\Projects\CATSE\ClickAndTravelSearchEngine\bin\nunit.framework.dll
+C:\Documents and Settings\Alex\My Documents\Visual Studio 2010\Projects\CATSE\ClickAndTravelSearchEngine\bin\nunit.mocks.dll
+C:\Documents and Settings\Alex\My Documents\Visual Studio 2010\Projects\CATSE\ClickAndTravelSearchEngine\bin\pnunit.framework.dll
+C:\Documents and Settings\Alex\My Documents\Visual Studio 2010\Projects\CATSE\ClickAndTravelSearchEngine\bin\Sider.dll
+C:\Documents and Settings\Alex\My Documents\Visual Studio 2010\Projects\CATSE\ClickAndTravelSearchEngine\bin\nunit.framework.xml
+C:\Documents and Settings\Alex\My Documents\Visual Studio 2010\Projects\CATSE\ClickAndTravelSearchEngine\obj\Release\ResolveAssemblyReference.cache
+C:\Documents and Settings\Alex\My Documents\Visual Studio 2010\Projects\CATSE\ClickAndTravelSearchEngine\obj\Release\ClickAndTravelSearchEngine.dll
+C:\Documents and Settings\Alex\My Documents\Visual Studio 2010\Projects\CATSE\ClickAndTravelSearchEngine\obj\Release\ClickAndTravelSearchEngine.pdb
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\ClickAndTravelSearchEngine\bin\ClickAndTravelSearchEngine.dll.config
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\ClickAndTravelSearchEngine\bin\ClickAndTravelSearchEngine.dll
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\ClickAndTravelSearchEngine\bin\ClickAndTravelSearchEngine.pdb
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\ClickAndTravelSearchEngine\bin\Megatec.MasterTour.BusinessRules.dll
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\ClickAndTravelSearchEngine\bin\Megatec.MasterTour.DataAccess.dll
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\ClickAndTravelSearchEngine\obj\Release\ClickAndTravelSearchEngine.dll
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\ClickAndTravelSearchEngine\obj\Release\ClickAndTravelSearchEngine.pdb
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\ClickAndTravelSearchEngine\obj\Release\ClickAndTravelSearchEngine.csprojResolveAssemblyReference.cache
