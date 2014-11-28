@@ -17,12 +17,12 @@ namespace ClickAndTravelSearchEngine.Containers.Excursions
         //    set { _details = value; }
         //}
 
-        private int _excursionDetails;
+        private int _id;
         [JsonMemberName("id")]
-        public int ExcursionDetails
+        public int Id
         {
-            get { return _excursionDetails; }
-            set { _excursionDetails = value; }
+            get { return _id; }
+            set { _id = value; }
         }
 
         private KeyValuePair<string, decimal>[] _prices;
@@ -39,7 +39,15 @@ namespace ClickAndTravelSearchEngine.Containers.Excursions
 
                 return pr;
             }
-            set { }
+            set {
+                List<KeyValuePair<string, decimal>> prices = new List<KeyValuePair<string, decimal>>();
+            
+                JsonObject vl = value;
+                foreach (string name in vl.Names)
+                    prices.Add(new KeyValuePair<string,decimal>(name,Convert.ToDecimal(vl[name])));
+
+                _prices = prices.ToArray();
+            }
         }
 
         [JsonIgnore]
@@ -66,9 +74,16 @@ namespace ClickAndTravelSearchEngine.Containers.Excursions
             for (int i = 0; i < _dates.Length; i++)
                 jAr.Add( _dates[i].ToString("yyyy-MM-dd"));
 
-            return jAr;
+                return jAr;
             }
-            set {  }
+            set {
+                List<DateTime> dates = new List<DateTime>();
+
+                foreach (string date in value)
+                    dates.Add(Convert.ToDateTime(date));
+
+                _dates = dates.ToArray();
+            }
         }
     }
 }

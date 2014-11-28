@@ -145,7 +145,7 @@ namespace ClickAndTravelSearchEngine
 
         [JsonRpcMethod("flight_get_ticket_rules")]
 	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"flight_get_ticket_rules\",\"params\":[\"srch_id\", 1],\"id\":0}")]
-        public object flight_get_ticket_rules(string search_id, string ticket_id, params object[] args)
+        public object flight_get_ticket_rules(string search_id, string ticket_id, string book_id, params object[] args)
         {
             SegmentRule res = this.search_engine.FlightGetTicketRules(search_id, ticket_id);
 
@@ -715,7 +715,7 @@ namespace ClickAndTravelSearchEngine
 
         [JsonRpcMethod("hotel_get_penalties")]
 	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"hotel_get_penalties\",\"params\":[\"srch_id\",1,[1,2,3]],\"id\":0}")]
-        public object hotel_get_penalties(string search_id, int hotel_id, JsonArray variant_ids)
+        public object hotel_get_penalties(string search_id, int hotel_id, JsonArray variant_ids, string book_id)
         {
             try{
                 return (this.search_engine.HotelGetPenalties(search_id, hotel_id, jsonArrayToStringArray(variant_ids)));

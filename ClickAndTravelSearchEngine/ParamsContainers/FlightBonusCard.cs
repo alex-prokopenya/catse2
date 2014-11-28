@@ -20,7 +20,7 @@ namespace ClickAndTravelSearchEngine.ParamsContainers
         {
             try
             {
-                _airlineCode = inp["airline_code"].ToString();
+                _airlineCode = (inp["airline_code"] is JsonNull) ? "" : inp["airline_code"].ToString().Replace("null", "");
                 _cardNumber = (inp["card_number"] is JsonNull) ? "" : inp["card_number"].ToString().Replace("null","");
             }
             catch (Exception)

@@ -14,6 +14,8 @@ using ClickAndTravelSearchEngine.Helpers;
 using ClickAndTravelSearchEngine.ParamsContainers;
 using System.Text.RegularExpressions;
 using ClickAndTravelSearchEngine.Containers.Hotels;
+using ClickAndTravelSearchEngine.Containers.Excursions;
+
 
 using Jayrock.Json;
 using Jayrock.Json.Conversion;
@@ -61,7 +63,7 @@ namespace ClickAndTravelSearchEngine.MasterTour
 
                     if (kvps.Length == res.Length)
                     {
-                        Logger.WriteToLog("from redis");
+                        Logger.WriteToLog("from redis" + kvps[0].Value);
                         return kvps;
                     }
                 }
@@ -92,9 +94,6 @@ namespace ClickAndTravelSearchEngine.MasterTour
 
         private static decimal getCourse(string rate1, string rate2, DateTime date)
         {
- 
-            Logger.WriteToLog(Manager.ConnectionString);
-
             try
             {
                 RealCourses rcs = new RealCourses(new DataCache());
@@ -182,7 +181,7 @@ namespace ClickAndTravelSearchEngine.MasterTour
                     Id = Convert.ToInt32( reader["ts_id"]),
                     Name = reader["ts_name"].ToString(),
                     PassportDate = Convert.ToDateTime(reader["ts_passportdate"]),
-                    PassportNum = reader["ts_passportdate"].ToString(),
+                    PassportNum = reader["ts_passport"].ToString(),
                     Sex = Convert.ToInt32(reader["ts_gender"]) +1
                 });
             }
@@ -258,6 +257,32 @@ namespace ClickAndTravelSearchEngine.MasterTour
             }
         }
 
+        public static int SaveExcursionBookingToCache(ExcursionBooking excb)
+        {
+            SqlConnection con = new SqlConnection(Manager.ConnectionString);
+            con.Open();
+            
+            try
+            {
+                SqlCommand com = new SqlCommand(String.Format("insert into [CATSE_excursions](ex_hash) OUTPUT INSERTED.ex_id  values('{0}')", Jayrock.Json.Conversion.JsonConvert.ExportToString(excb)), con);
+
+                Int32 newId = (Int32)com.ExecuteScalar();
+
+                com = new SqlCommand(String.Format("insert into [CATSE_book_id] ([service_type],[service_id]) OUTPUT INSERTED.book_id " +
+                                                        "VALUES ('{0}','{1}')", "CATSE_excursions", newId), con);
+
+                newId = Convert.ToInt32(com.ExecuteScalar());
+
+                con.Close();
+                return newId;
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteToLog(ex.Message + " " + ex.StackTrace);
+                con.Close();
+                return 0;
+            }
+        }
         private static string AntiInject(string inp)
         {
             Dictionary<string, string> pairs = new Dictionary<string, string>();

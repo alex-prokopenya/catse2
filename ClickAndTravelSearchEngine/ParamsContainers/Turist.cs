@@ -36,6 +36,7 @@ namespace ClickAndTravelSearchEngine.ParamsContainers
                 #region BONUS_CARD
                 JsonObject bonusCard = inp["bonus_card"] as JsonObject;
                 _bonusCard = new FlightBonusCard(bonusCard);
+
                 #endregion
 
                 #region CITIZEN
@@ -54,8 +55,11 @@ namespace ClickAndTravelSearchEngine.ParamsContainers
                 #endregion
 
                 #region MIDDLENAME
-                _middlename = inp["middle_name"].ToString();
-                if (!Validator.CheckString(_name, @"^[А-Я,а-я]{0,25}$")) throw new CatseException("Cann't parse middle_name", ErrorCodes.TuristCanntParseName);
+                if (inp.Contains("middle_name"))
+                {
+                    _middlename = inp["middle_name"].ToString();
+                    if (!Validator.CheckString(_name, @"^[А-Я,а-я]{0,25}$")) throw new CatseException("Cann't parse middle_name", ErrorCodes.TuristCanntParseName);
+                }
                 #endregion
 
                 #region PASSPORTNUM

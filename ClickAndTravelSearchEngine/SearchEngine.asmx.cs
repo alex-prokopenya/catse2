@@ -498,7 +498,6 @@ namespace ClickAndTravelSearchEngine
 
                 for (int i = 0; i < turists.Length; i++)
                 {
-
                     int turistAge = turists[i].GetAge(lastFlightDate);
 
                     if (turistAge > 12)
@@ -544,7 +543,7 @@ namespace ClickAndTravelSearchEngine
                         Name = tsc.FirstName,
                         
                         Gender = ((tsc.Sex == 1)? "M":"F"),
-                        Passport_expire_date = tsc.PassportDate,
+                        Passport_expire_date = (tsc.PassportDate < DateTime.Today ? new DateTime(2050, 1, 1) : tsc.PassportDate),
                         Pasport = tsc.PassportNum,
                         FrequentFlyerAirline = "",
                         FrequentFlyerNumber = ""
@@ -589,24 +588,83 @@ namespace ClickAndTravelSearchEngine
 
         //поиск экскурсий по городу
         [WebMethod]
-        public ExcursionSearchResult ExcursionSearch(int CityCode, DateTime MinDate, DateTime MaxDate, int TuristsCount)
+        public ExcursionSearchResult ExcursionSearch(int CityId, DateTime MinDate, DateTime MaxDate, int TuristsCount)
         {
             //TODO: проверить код города, проверить даты, количество туристов
             //ErrorCode 41: город неизвестен
             //ErrorCode 42: ошибка в датах (меньше сегодня, больше сегодня + год, минимальная дата больше максимальной)
             //ErrorCode 43: туристов должно быть больше 0 и не больше 10
 
-            return new ExcursionSearchResult()
+            string searchId = "";
+
+            #region generate_search_id
+            searchId = MinDate.ToString("ddMM") + MaxDate.ToString("ddMM") + "-" + CityId + "-" + TuristsCount;
+            
+            #endregion
+
+            #region результат проверки из кэша
+            string redis_verify_key = "res_" + searchId;
+
+            string redis_hash = RedisHelper.GetString(redis_verify_key);
+
+            if ((redis_hash != null) && (redis_hash.Length > 0))
+                return JsonConvert.Import<ExcursionSearchResult>(redis_hash);
+            #endregion
+
+
+            if((MaxDate < MinDate) || (MaxDate < DateTime.Today) || (MaxDate>DateTime.Today.AddYears(1)))
+                throw new Exceptions.CatseException("Check dates", 42);
+
+            if ((TuristsCount <1) || (TuristsCount > 10))
+                throw new Exceptions.CatseException("Check turists count", 43);
+
+
+            //получаем курсы валют
+            KeyValuePair<string, decimal>[] _courses = null;
+
+            _courses = MtHelper.GetCourses(MtHelper.rate_codes, "RUB", DateTime.Today);
+
+
+            //генерируем ответ
+            int[] excs = new int[] { 1,7,5,8};
+            Random rnd = new Random();
+            int datesRange = (MaxDate - MinDate).Days;
+
+            var listResult = new List<ExcursionVariant>();
+
+            foreach (int i in excs)
             {
-                SearchId = "exc_code",
-                ExcursionVariants = new ExcursionVariant[]{
-                                                new ExcursionVariant(){
-                                                    Dates = new DateTime[] {DateTime.Today.AddDays(10), DateTime.Today.AddDays(15)},
-                                                    ExcursionDetails = 1,
-                                                    Prices = new KeyValuePair<string,decimal>[]{new KeyValuePair<string, decimal>("EUR", 10), new KeyValuePair<string, decimal >("RUB", 400)}
-                                                }
-                                }
+                HashSet<DateTime> dates = new HashSet<DateTime>();
+
+                var datesArr = dates.ToArray();
+				
+				Array.Sort(datesArr);
+
+                for (int j = 0; j <= datesRange; j++)
+                    dates.Add(MinDate.AddDays(rnd.Next(datesRange)));
+
+                
+                listResult.Add(
+                         new ExcursionVariant()
+                         {
+                             Dates = dates.ToArray(),
+                             Id = i,
+                             Prices = MtHelper.ApplyCourses(10+rnd.Next(10), _courses)// new KeyValuePair<string,decimal>[]{new KeyValuePair<string, decimal>("EUR", 10), new KeyValuePair<string, decimal >("RUB", 400)}
+                         }
+                    );
+            }
+
+            var resp = new ExcursionSearchResult()
+            {
+                SearchId = searchId,
+                ExcursionVariants = listResult.ToArray()
             };
+
+            RedisHelper.SetString("res_" + searchId, JsonConvert.ExportToString(resp), new TimeSpan(HOTELS_RESULTS_LIFETIME));
+
+            RedisHelper.SetString("res_book_" + searchId, JsonConvert.ExportToString(resp), new TimeSpan(2*HOTELS_RESULTS_LIFETIME));
+
+            return resp;
         }
 
         [WebMethod]
@@ -637,12 +695,71 @@ namespace ClickAndTravelSearchEngine
             //ErrorCode 98: невалидный и-мэйл пользователя
             //ErrorCode 99: невалидный телефон пользователя
 
-            return new BookResult()
-            {
-                BookingNumber = 2,
-                Prices = new KeyValuePair<string, decimal>[] {  new KeyValuePair<string, decimal>("USD", new Decimal(3.2)),
-                                                                new KeyValuePair<string, decimal>("RUB", new Decimal(101.2))}
-            };
+            if (DateTime.Today >= ExcursionDate)
+                throw new CatseException("wrong date", 44);
+
+            #region результат проверки из кэша
+            string redis_verify_key = "res_book_" + SearchId;
+
+            string redis_hash = RedisHelper.GetString(redis_verify_key);
+
+            if ((redis_hash == null) && (redis_hash.Length == 0))
+                throw new CatseException("unknown searchId", 47);
+
+            var exRes = JsonConvert.Import<ExcursionSearchResult>(redis_hash);
+
+            foreach(ExcursionVariant vr in exRes.ExcursionVariants)
+                if (vr.Id == ExcursionId)
+                    foreach(DateTime date in vr.Dates)
+                        if (date == ExcursionDate)
+                        {
+                            KeyValuePair<string, decimal>[] _courses = null;
+
+                            _courses = MtHelper.GetCourses(MtHelper.rate_codes, "RUB", DateTime.Today);
+
+                            //сохранить туристов
+                            List<string> turistsIds = new List<string>();
+                            List<string> turistsHashes = new List<string>();
+
+                            for (int i = 0; i < turists.Length; i++)
+                            {
+
+                                MtHelper.SaveTuristToCache(turists[i]);
+
+                                if ((turists[i].PassportDate > new DateTime(1970, 1, 2)) && (turists[i].PassportDate < date.AddDays(passpotDaysLimit)))
+                                    throw new CatseException("pasport date limit", ErrorCodes.TuristCanntPaspDate);
+
+                                string turistHash = turists[i].HashSumm;
+
+                                if ((!turistsIds.Contains(turists[i].Id.ToString())) && (!turistsIds.Contains(turistHash)))
+                                {
+                                    turistsIds.Add(turists[i].Id.ToString());
+                                    turistsHashes.Add(turistHash);
+                                }
+                                else
+                                    throw new CatseException("turist duplcate", ErrorCodes.TuristDuplicate);
+                            }
+                        
+                            //сохранить экскурсию
+
+                            return new BookResult()
+                            {
+                                BookingNumber = MtHelper.SaveExcursionBookingToCache(new ExcursionBooking() { 
+                                
+                                        ExcVariant = vr,
+                                        SearchId = SearchId,
+                                        SelectedDate = date.ToString("yyyy-MM-dd"),
+                                        Turists =  turistsIds.ToArray()
+                                }),
+                                Prices = vr.Prices
+                            };
+                        }
+
+            #endregion
+            throw new CatseException("unknown ExcursionId", 48);
+
+
+      
         }
         #endregion
 
@@ -1400,7 +1517,7 @@ namespace ClickAndTravelSearchEngine
 
                 int max_iterations_cnt = 20;
 
-                while (true)//проийтись по всем серчерам
+                while (true)//пройтись по всем серчерам
                 {
                     Logger.WriteToLog("iteration " + (20 - max_iterations_cnt) + " started");
 
@@ -1416,14 +1533,14 @@ namespace ClickAndTravelSearchEngine
                             if (findedRooms != null) //если что-то нашлось
                             {
                                 if (findedRooms.Length > 0)//если что-то нашлось
+                                {
                                     res = ComposeRoomsResults(res, findedRooms);
 
-                                Logger.WriteToLog("" +  findedRooms[0].Variants.Length);
-                                //  roomsToAdd.AddRange(findedRooms);
+                                    Logger.WriteToLog("rf =  " + findedRooms[0].Variants.Length);
+                                }
 
                                 searcher.SetAdded();//отмечаем, что поиск по воркеру закончен
                             }
-
                             need_wait = true;
                         }
                     }
@@ -1435,7 +1552,6 @@ namespace ClickAndTravelSearchEngine
                     if (!need_wait) break; // если не нужно больше ждать -- уходим
                 }
 
-                Logger.WriteToLog("" + (10 - max_iterations_cnt) + " done");
                 //положить в редис
                 RedisHelper.SetString(SearchId + "_hotel_rooms_" + HotelId, JsonConvert.ExportToString(res), new TimeSpan(HOTELS_RESULTS_LIFETIME));
                 //отдать результат

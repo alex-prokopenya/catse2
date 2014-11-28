@@ -132,7 +132,67 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <Content Include="Web.config" />
+    <Content Include="Service References\VizitMaster\ClickAndTravelSearchEngine.VizitMaster.BackDogovorInfo.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\VizitMaster\ClickAndTravelSearchEngine.VizitMaster.CloneOfDogovor.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\VizitMaster\ClickAndTravelSearchEngine.VizitMaster.CloneOfHotelRoom.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\VizitMaster\ClickAndTravelSearchEngine.VizitMaster.DogovorDescription.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\VizitMaster\ClickAndTravelSearchEngine.VizitMaster.DogovorHeader.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\VizitMaster\ClickAndTravelSearchEngine.VizitMaster.ExcursionInfo.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\VizitMaster\ClickAndTravelSearchEngine.VizitMaster.FlightsDictionary.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\VizitMaster\ClickAndTravelSearchEngine.VizitMaster.FormInfo.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\VizitMaster\ClickAndTravelSearchEngine.VizitMaster.MasterCourses.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\VizitMaster\ClickAndTravelSearchEngine.VizitMaster.MyDogovor.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\VizitMaster\ClickAndTravelSearchEngine.VizitMaster.MyReis.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\VizitMaster\ClickAndTravelSearchEngine.VizitMaster.sHotel.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\VizitMaster\ClickAndTravelSearchEngine.VizitMaster.Tour.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\VizitMaster\ClickAndTravelSearchEngine.VizitMaster.TourBasket.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\VizitMaster\ClickAndTravelSearchEngine.VizitMaster.TourDate.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\VizitMaster\ClickAndTravelSearchEngine.VizitMaster.TourItem.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\VizitMaster\ClickAndTravelSearchEngine.VizitMaster.TransportInfo.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <None Include="Service References\VizitMaster\ServiceFormParams.disco" />
+    <None Include="Service References\VizitMaster\configuration91.svcinfo" />
+    <None Include="Service References\VizitMaster\configuration.svcinfo" />
+    <None Include="Service References\VizitMaster\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
@@ -140,6 +200,7 @@
       <DependentUpon>Web.config</DependentUpon>
     </Content>
     <None Include="Service References\SF_service\sf_service.wsdl" />
+    <None Include="Service References\VizitMaster\ServiceFormParams.wsdl" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Containers\CarRent\CarRentBookExtra.cs" />
@@ -150,6 +211,7 @@
     <Compile Include="Containers\CarRent\CarRentStation.cs" />
     <Compile Include="Containers\CarRent\CarRentStationDetails.cs" />
     <Compile Include="Containers\CarRent\CarRentVariant.cs" />
+    <Compile Include="Containers\Excursions\ExcursionBooking.cs" />
     <Compile Include="Containers\Excursions\ExcursionDetails.cs" />
     <Compile Include="Containers\Excursions\ExcursionType.cs" />
     <Compile Include="Containers\Excursions\ExcursionVariant.cs" />
@@ -232,12 +294,17 @@
     <Compile Include="Responses\TransferSearchResult.cs" />
     <Compile Include="Responses\VisaSearchResult.cs" />
     <Compile Include="Responses\_Response.cs" />
-    <Content Include="SearchEngine.asmx.cs">
+    <None Include="SearchEngine.asmx.cs">
       <DependentUpon>SearchEngine.asmx</DependentUpon>
       <SubType>Component</SubType>
-    </Content>
+    </None>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service References\SF_service\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\VizitMaster\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
@@ -255,6 +322,7 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\SF_service\" />
+    <WCFMetadataStorage Include="Service References\VizitMaster\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

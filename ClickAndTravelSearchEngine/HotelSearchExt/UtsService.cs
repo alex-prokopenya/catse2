@@ -59,7 +59,8 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
         private Dictionary<int, int> pansionsLib = new Dictionary<int, int>();
 
 
-        private Decimal HOTELBOOK_COEF = 1.15M;
+        private Decimal HOTELBOOK_COEF = Convert.ToDecimal(ConfigurationManager.AppSettings["HotelBookMargin"]);
+
         
         private string GetTime() //получаем время для авторизации
         {
@@ -366,9 +367,12 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
 
         private RoomVariant[] RoomApplyCourses(Room room, KeyValuePair<string, decimal>[] courses)
         {
-            for (int i = 0; i < room.Variants.Length; i++ )
+            for (int i = 0; i < room.Variants.Length; i++)
+            {
+                Logger.WriteToLog("after " + room.Variants[i].Prices[0].Value);
                 room.Variants[i].Prices = MtHelper.ApplyCourses(room.Variants[i].Prices[0].Value, courses);
-
+                Logger.WriteToLog("before " + room.Variants[i].Prices[0].Value);
+            }
             return room.Variants;
         }
         //
@@ -759,12 +763,12 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
                     {
                         DateBegin = this.startDate.ToString("yyyy-MM-dd"),
                         NightsCnt = (this.endDate - this.startDate).Days,
-                        PartnerBookId = orderID,// DateTime.Now.ToString("yyMMddHHmm"),
+                        PartnerBookId = orderID,
                         PartnerPrefix = id_prefix,
                         SearchId = searchId,
                         Prices = hvr.Prices,
                         Title = "some_title",
-                        Turists = operatorTurists[i].ToArray()//!!!!!
+                        Turists = operatorTurists[i].ToArray()
                     });
                 }
                 //бронирование комнаты

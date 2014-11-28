@@ -1,0 +1,2230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://viziteurope.eu/webservice_form/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://viziteurope.eu/webservice_form/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://viziteurope.eu/webservice_form/">
+      <s:element name="GetCitiesFromWithCountries">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetCitiesFromWithCountriesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetCitiesFromWithCountriesResult" type="tns:ArrayOfString" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfString">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetCitiesFrom">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="countryCode" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCitiesFromResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetCitiesFromResult" type="tns:ArrayOfString" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetFormInfo">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="countryCode" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="cityFrom" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="types" type="tns:ArrayOfInt" />
+            <s:element minOccurs="1" maxOccurs="1" name="city" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfInt">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="int" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetFormInfoResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetFormInfoResult" type="tns:FormInfo" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="FormInfo">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="cities" type="tns:ArrayOfString" />
+          <s:element minOccurs="0" maxOccurs="1" name="dates" type="tns:ArrayOfString" />
+          <s:element minOccurs="0" maxOccurs="1" name="nights" type="tns:ArrayOfInt" />
+          <s:element minOccurs="0" maxOccurs="1" name="types" type="tns:ArrayOfString" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="getHotFlights">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="cityFrom" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="cityTo" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="dateFrom" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="dateTo" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getHotFlightsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="getHotFlightsResult" type="tns:ArrayOfFlightsDictionary" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfFlightsDictionary">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="FlightsDictionary" nillable="true" type="tns:FlightsDictionary" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="FlightsDictionary">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="flightPrices" type="tns:ArrayOfFlightPrice" />
+        </s:sequence>
+        <s:attribute name="route" type="s:string" />
+      </s:complexType>
+      <s:complexType name="ArrayOfFlightPrice">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="FlightPrice" nillable="true" type="tns:FlightPrice" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="FlightPrice">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="routes" type="tns:ArrayOfRoute" />
+        </s:sequence>
+        <s:attribute name="price" type="s:double" use="required" />
+        <s:attribute name="days_long" type="s:int" use="required" />
+      </s:complexType>
+      <s:complexType name="ArrayOfRoute">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Route" nillable="true" type="tns:Route" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Route">
+        <s:attribute name="flight_num" type="s:string" />
+        <s:attribute name="time_from" type="s:string" />
+        <s:attribute name="time_to" type="s:string" />
+        <s:attribute name="date" type="s:string" />
+        <s:attribute name="city_from" type="s:string" />
+        <s:attribute name="city_to" type="s:string" />
+        <s:attribute name="ac_code" type="s:string" />
+        <s:attribute name="tour_key" type="s:int" use="required" />
+      </s:complexType>
+      <s:element name="getBronniObject">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="pricekey" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getBronniObjectResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="getBronniObjectResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getTourMinPrice">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="tour_list" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getTourMinPriceResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="getTourMinPriceResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getTransportInfo">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="key" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getTransportInfoResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="getTransportInfoResult" type="tns:TransportInfo" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="TransportInfo">
+        <s:attribute name="tr_name" type="s:string" />
+        <s:attribute name="tr_key" type="s:int" use="required" />
+      </s:complexType>
+      <s:element name="getExcursionInfo">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="key" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getExcursionInfoResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="getExcursionInfoResult" type="tns:ExcursionInfo" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ExcursionInfo">
+        <s:attribute name="ex_name" type="s:string" />
+        <s:attribute name="ct_name" type="s:string" />
+        <s:attribute name="ct_key" type="s:int" use="required" />
+        <s:attribute name="cn_name" type="s:string" />
+        <s:attribute name="cn_key" type="s:int" use="required" />
+      </s:complexType>
+      <s:element name="getDogovorDetails">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="code" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="login" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getDogovorDetailsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="getDogovorDetailsResult" type="tns:CloneOfDogovor" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CloneOfDogovor">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="services" type="tns:ArrayOfCloneOfService" />
+          <s:element minOccurs="0" maxOccurs="1" name="turists" type="tns:ArrayOfMyTurist" />
+        </s:sequence>
+        <s:attribute name="code" type="s:string" />
+        <s:attribute name="country_key" type="s:int" use="required" />
+        <s:attribute name="country_name" type="s:string" />
+        <s:attribute name="city_key" type="s:int" use="required" />
+        <s:attribute name="city_name" type="s:string" />
+        <s:attribute name="turdate" type="s:string" />
+        <s:attribute name="price" type="s:double" use="required" />
+        <s:attribute name="discount" type="s:double" use="required" />
+        <s:attribute name="ndays" type="s:int" use="required" />
+        <s:attribute name="rate_code" type="s:string" />
+        <s:attribute name="tour_key" type="s:int" use="required" />
+        <s:attribute name="tour_name" type="s:string" />
+      </s:complexType>
+      <s:complexType name="ArrayOfCloneOfService">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="CloneOfService" nillable="true" type="tns:CloneOfService" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="CloneOfService">
+        <s:attribute name="begin_date" type="s:string" />
+        <s:attribute name="begin_day" type="s:int" use="required" />
+        <s:attribute name="ndays" type="s:int" use="required" />
+        <s:attribute name="brutto" type="s:double" use="required" />
+        <s:attribute name="netto" type="s:double" use="required" />
+        <s:attribute name="city_key" type="s:int" use="required" />
+        <s:attribute name="city_name" type="s:string" />
+        <s:attribute name="country_key" type="s:int" use="required" />
+        <s:attribute name="country_name" type="s:string" />
+        <s:attribute name="service_key" type="s:int" use="required" />
+        <s:attribute name="service_name" type="s:string" />
+        <s:attribute name="dl_code" type="s:int" use="required" />
+        <s:attribute name="dl_name" type="s:string" />
+        <s:attribute name="hotel_stars" type="s:string" />
+        <s:attribute name="dl_subcode1" type="s:int" use="required" />
+        <s:attribute name="dl_subcode1_name" type="s:string" />
+        <s:attribute name="dl_subcode2" type="s:int" use="required" />
+        <s:attribute name="dl_subcode2_name" type="s:string" />
+        <s:attribute name="dl_comment" type="s:string" />
+      </s:complexType>
+      <s:complexType name="ArrayOfMyTurist">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="MyTurist" nillable="true" type="tns:MyTurist" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="MyTurist">
+        <s:attribute name="name" type="s:string" />
+        <s:attribute name="sName" type="s:string" />
+        <s:attribute name="fName" type="s:string" />
+        <s:attribute name="birthDate" type="s:string" />
+        <s:attribute name="passport_ser" type="s:string" />
+        <s:attribute name="passport_num" type="s:string" />
+        <s:attribute name="passport_exp" type="s:string" />
+        <s:attribute name="citizenship" type="s:string" />
+        <s:attribute name="gender" type="s:string" />
+        <s:attribute name="room" type="s:int" use="required" />
+      </s:complexType>
+      <s:element name="getHotelRoomDetails">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="key" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getHotelRoomDetailsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="getHotelRoomDetailsResult" type="tns:CloneOfHotelRoom" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CloneOfHotelRoom">
+        <s:attribute name="ac_key" type="s:int" use="required" />
+        <s:attribute name="ac_name" type="s:string" />
+        <s:attribute name="ac_code" type="s:string" />
+        <s:attribute name="rm_key" type="s:int" use="required" />
+        <s:attribute name="rm_name" type="s:string" />
+        <s:attribute name="rm_code" type="s:string" />
+        <s:attribute name="rc_key" type="s:int" use="required" />
+        <s:attribute name="rc_name" type="s:string" />
+        <s:attribute name="rc_code" type="s:string" />
+      </s:complexType>
+      <s:element name="findToursList">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="dateFrom" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="dateTo" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="cityKey" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="cityFromKey" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="room1_adlCount" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room1_childCount" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room1_age1" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room1_age2" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="long_from" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="long_to" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="stars_map" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="mealgroup" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="findToursListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="findToursListResult" type="tns:ArrayOfTourItem" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfTourItem">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="TourItem" nillable="true" type="tns:TourItem" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="TourItem">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="dates" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="price" type="s:int" />
+        </s:sequence>
+        <s:attribute name="name" type="s:string" />
+        <s:attribute name="key" type="s:string" />
+        <s:attribute name="tlkey" type="s:int" use="required" />
+        <s:attribute name="type_key" type="s:int" use="required" />
+        <s:attribute name="price_key" type="s:int" use="required" />
+        <s:attribute name="long" type="s:int" use="required" />
+      </s:complexType>
+      <s:element name="getTourByPriceTour">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getTourByPriceTourResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="getTourByPriceTourResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getOrderInfo">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="id" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="resId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getOrderInfoResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="getOrderInfoResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetActualCourses">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetActualCoursesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetActualCoursesResult" type="tns:ArrayOfMasterCourses" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfMasterCourses">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="MasterCourses" nillable="true" type="tns:MasterCourses" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="MasterCourses">
+        <s:attribute name="ru_course" type="s:double" use="required" />
+        <s:attribute name="by_course" type="s:double" use="required" />
+        <s:attribute name="kz_course" type="s:double" use="required" />
+        <s:attribute name="us_course" type="s:double" use="required" />
+        <s:attribute name="ua_course" type="s:double" use="required" />
+      </s:complexType>
+      <s:element name="CheckPricekey">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pricekey" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CheckPricekeyResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="CheckPricekeyResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTourBasket">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="pack" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="tourdate" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pricekey" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTourBasketResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetTourBasketResult" type="tns:ArrayOfTourBasket" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfTourBasket">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="TourBasket" nillable="true" type="tns:TourBasket" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="TourBasket">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="services" type="tns:ArrayOfTourBasketService" />
+          <s:element minOccurs="0" maxOccurs="1" name="reises" type="tns:ArrayOfMyReis" />
+        </s:sequence>
+        <s:attribute name="tour_name" type="s:string" />
+        <s:attribute name="tour_date" type="s:string" />
+      </s:complexType>
+      <s:complexType name="ArrayOfTourBasketService">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="TourBasketService" nillable="true" type="tns:TourBasketService" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="TourBasketService">
+        <s:attribute name="sc_day" type="s:string" />
+        <s:attribute name="sc_name" type="s:string" />
+      </s:complexType>
+      <s:complexType name="ArrayOfMyReis">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="MyReis" nillable="true" type="tns:MyReis" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="MyReis">
+        <s:attribute name="date_to" type="s:string" />
+        <s:attribute name="reis" type="s:string" />
+        <s:attribute name="ac" type="s:string" />
+        <s:attribute name="date" type="s:string" />
+        <s:attribute name="from" type="s:string" />
+        <s:attribute name="to" type="s:string" />
+        <s:attribute name="t_from" type="s:string" />
+        <s:attribute name="t_to" type="s:string" />
+        <s:attribute name="day" type="s:string" />
+      </s:complexType>
+      <s:element name="GetAviaTourInfo">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="pack" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="tourdate" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAviaTourInfoResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetAviaTourInfoResult" type="tns:ArrayOfMyReis" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AnnulateUserDogovor">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="code" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AnnulateUserDogovorResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="AnnulateUserDogovorResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserBookingInfo">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="code" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserBookingInfoResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserBookingInfoResult" type="tns:ArrayOfBackDogovorInfo" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfBackDogovorInfo">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="BackDogovorInfo" nillable="true" type="tns:BackDogovorInfo" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="BackDogovorInfo">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="turists" type="tns:ArrayOfMyTurist" />
+          <s:element minOccurs="0" maxOccurs="1" name="services" type="tns:ArrayOfMyBackService" />
+        </s:sequence>
+        <s:attribute name="eu_price" type="s:string" />
+        <s:attribute name="ru_price" type="s:string" />
+        <s:attribute name="by_price" type="s:string" />
+        <s:attribute name="ua_price" type="s:string" />
+        <s:attribute name="tg_price" type="s:string" />
+        <s:attribute name="us_price" type="s:string" />
+        <s:attribute name="eu_paid" type="s:string" />
+        <s:attribute name="ru_paid" type="s:string" />
+        <s:attribute name="by_paid" type="s:string" />
+        <s:attribute name="ua_paid" type="s:string" />
+        <s:attribute name="tg_paid" type="s:string" />
+        <s:attribute name="us_paid" type="s:string" />
+        <s:attribute name="code" type="s:string" />
+        <s:attribute name="date" type="s:string" />
+        <s:attribute name="turdates" type="s:string" />
+        <s:attribute name="status" type="s:string" />
+        <s:attribute name="key" type="s:string" />
+      </s:complexType>
+      <s:complexType name="ArrayOfMyBackService">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="MyBackService" nillable="true" type="tns:MyBackService" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="MyBackService">
+        <s:attribute name="name" type="s:string" />
+        <s:attribute name="type" type="s:string" />
+        <s:attribute name="eu_price" type="s:string" />
+        <s:attribute name="ru_price" type="s:string" />
+        <s:attribute name="by_price" type="s:string" />
+        <s:attribute name="ua_price" type="s:string" />
+        <s:attribute name="tg_price" type="s:string" />
+        <s:attribute name="us_price" type="s:string" />
+        <s:attribute name="penalties" type="s:string" />
+        <s:attribute name="datebegin" type="s:string" />
+      </s:complexType>
+      <s:element name="GetUserBookings">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="codes" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="is_client" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserBookingsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserBookingsResult" type="tns:ArrayOfDogovorHeader" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfDogovorHeader">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="DogovorHeader" nillable="true" type="tns:DogovorHeader" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DogovorHeader">
+        <s:attribute name="num" type="s:string" />
+        <s:attribute name="date" type="s:string" />
+        <s:attribute name="turdate" type="s:string" />
+        <s:attribute name="status" type="s:string" />
+        <s:attribute name="us_price" type="s:string" />
+        <s:attribute name="ru_price" type="s:string" />
+        <s:attribute name="ua_price" type="s:string" />
+        <s:attribute name="by_price" type="s:string" />
+        <s:attribute name="tg_price" type="s:string" />
+        <s:attribute name="eu_price" type="s:string" />
+        <s:attribute name="eu_paid" type="s:string" />
+        <s:attribute name="us_paid" type="s:string" />
+        <s:attribute name="ru_paid" type="s:string" />
+        <s:attribute name="ua_paid" type="s:string" />
+        <s:attribute name="by_paid" type="s:string" />
+        <s:attribute name="tg_paid" type="s:string" />
+      </s:complexType>
+      <s:element name="addBooking">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="code" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="access" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="apply" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="login" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pass" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="addBookingResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="addBookingResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getDogovorDescription">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="code" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="access" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getDogovorDescriptionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="getDogovorDescriptionResult" type="tns:ArrayOfDogovorDescription" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfDogovorDescription">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="DogovorDescription" nillable="true" type="tns:DogovorDescription" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DogovorDescription">
+        <s:attribute name="country" type="s:string" />
+        <s:attribute name="fromDate" type="s:string" />
+        <s:attribute name="toDate" type="s:string" />
+        <s:attribute name="price" type="s:string" />
+        <s:attribute name="main" type="s:string" />
+      </s:complexType>
+      <s:element name="ToursList2">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="from" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="dest" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ToursList2Response">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ToursList2Result" type="tns:ArrayOfTour" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfTour">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Tour" nillable="true" type="tns:Tour" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Tour">
+        <s:attribute name="updated" type="s:dateTime" use="required" />
+        <s:attribute name="name" type="s:string" />
+        <s:attribute name="key" type="s:string" />
+        <s:attribute name="c_key" type="s:string" />
+        <s:attribute name="packet_id" type="s:string" />
+        <s:attribute name="tourtype" type="s:string" />
+        <s:attribute name="nights" type="s:string" />
+      </s:complexType>
+      <s:element name="TourDates">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="tour" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="TourDatesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="TourDatesResult" type="tns:ArrayOfTourDate" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfTourDate">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="TourDate" nillable="true" type="tns:TourDate" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="TourDate">
+        <s:attribute name="key" type="s:string" />
+        <s:attribute name="name" type="s:string" />
+      </s:complexType>
+      <s:element name="findHotelsPrices">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="dateFrom" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="dateTo" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="cityKey" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="tourTip" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room1_adlCount" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room1_childCount" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room1_age1" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room1_age2" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room2_adlCount" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room2_childCount" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room2_age1" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room2_age2" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="findHotelsPricesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="findHotelsPricesResult" type="tns:ArrayOfSHotel" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfSHotel">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="sHotel" nillable="true" type="tns:sHotel" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="sHotel">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="rooms" type="tns:ArrayOfArrayOfHotelRoom" />
+        </s:sequence>
+        <s:attribute name="name" type="s:string" />
+        <s:attribute name="key" type="s:int" use="required" />
+      </s:complexType>
+      <s:complexType name="ArrayOfArrayOfHotelRoom">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="ArrayOfHotelRoom" nillable="true" type="tns:ArrayOfHotelRoom" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfHotelRoom">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="hotelRoom" nillable="true" type="tns:hotelRoom" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="hotelRoom">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="prices" type="tns:ArrayOfNightPrice" />
+        </s:sequence>
+        <s:attribute name="pnkey" type="s:int" use="required" />
+        <s:attribute name="pnname" type="s:string" />
+        <s:attribute name="c_name" type="s:string" />
+        <s:attribute name="name" type="s:string" />
+        <s:attribute name="key" type="s:int" use="required" />
+        <s:attribute name="totalPrice" type="s:decimal" use="required" />
+        <s:attribute name="toPayPrice" type="s:decimal" use="required" />
+      </s:complexType>
+      <s:complexType name="ArrayOfNightPrice">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="nightPrice" nillable="true" type="tns:nightPrice" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="nightPrice">
+        <s:attribute name="price" type="s:decimal" use="required" />
+      </s:complexType>
+      <s:element name="getActualTourDate">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="tourKey" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="tourList" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getActualTourDateResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="getActualTourDateResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="findTourPrices">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="dateFrom" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="tourKey" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room1_adlCount" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room1_childCount" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room1_age1" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room1_age2" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="stars" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="turList" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="mealgroup" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="findTourPricesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="findTourPricesResult" type="tns:ArrayOfSHotel" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="chosedHotelPrices">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="dateFrom" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="dateTo" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="hotelKey" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="tourTip" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room1_adlCount" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room1_childCount" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room1_age1" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room1_age2" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room2_adlCount" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room2_childCount" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room2_age1" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room2_age2" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="chosedHotelPricesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="chosedHotelPricesResult" type="tns:ArrayOfSHotel" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="chosedHotelTourPrices">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="dateFrom" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="hotelKey" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="tourKey" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room1_adlCount" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room1_childCount" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room1_age1" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room1_age2" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="chosedHotelTourPricesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="chosedHotelTourPricesResult" type="tns:ArrayOfSHotel" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="chosedHotelTourPrices2">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="dateFrom" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="hotelKey" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="tourKey" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room1_adlCount" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room1_childCount" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room1_age1" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="room1_age2" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="login" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="chosedHotelTourPrices2Response">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="chosedHotelTourPrices2Result" type="tns:ArrayOfSHotel" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateUtsAviaDogovor">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="info" type="tns:DogovorInfo" />
+            <s:element minOccurs="0" maxOccurs="1" name="login" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="agent_coef" type="s:decimal" />
+            <s:element minOccurs="1" maxOccurs="1" name="client_coef" type="s:decimal" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DogovorInfo">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="turists" type="tns:ArrayOfMyTurist" />
+          <s:element minOccurs="0" maxOccurs="1" name="flights" type="tns:ArrayOfMyFlight" />
+          <s:element minOccurs="0" maxOccurs="1" name="services" type="tns:ArrayOfMyService" />
+          <s:element minOccurs="0" maxOccurs="1" name="visas" type="tns:ArrayOfMyVisa" />
+          <s:element minOccurs="0" maxOccurs="1" name="transfers" type="tns:ArrayOfMyTransfer" />
+        </s:sequence>
+        <s:attribute name="phone" type="s:string" />
+        <s:attribute name="mail" type="s:string" />
+        <s:attribute name="manager" type="s:string" />
+        <s:attribute name="priceBrutto" type="s:double" use="required" />
+        <s:attribute name="code" type="s:string" />
+      </s:complexType>
+      <s:complexType name="ArrayOfMyFlight">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="MyFlight" nillable="true" type="tns:MyFlight" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="MyFlight">
+        <s:attribute name="name" type="s:string" />
+        <s:attribute name="order_id" type="s:string" />
+        <s:attribute name="price" type="s:int" use="required" />
+        <s:attribute name="date" type="s:string" />
+      </s:complexType>
+      <s:complexType name="ArrayOfMyService">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="MyService" nillable="true" type="tns:MyService" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="MyService">
+        <s:attribute name="svkey" type="s:int" use="required" />
+        <s:attribute name="key" type="s:long" use="required" />
+        <s:attribute name="dopKey1" type="s:int" use="required" />
+        <s:attribute name="dopKey2" type="s:int" use="required" />
+        <s:attribute name="dateBegin" type="s:string" />
+        <s:attribute name="dateEnd" type="s:string" />
+        <s:attribute name="priceBrutto" type="s:double" use="required" />
+        <s:attribute name="agent_brutto" type="s:double" use="required" />
+        <s:attribute name="priceNetto" type="s:double" use="required" />
+        <s:attribute name="room" type="s:int" use="required" />
+        <s:attribute name="is_vizit" type="s:string" />
+      </s:complexType>
+      <s:complexType name="ArrayOfMyVisa">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="MyVisa" nillable="true" type="tns:MyVisa" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="MyVisa">
+        <s:attribute name="price_netto" type="s:int" use="required" />
+        <s:attribute name="price" type="s:int" use="required" />
+        <s:attribute name="room" type="s:int" use="required" />
+        <s:attribute name="man" type="s:int" use="required" />
+      </s:complexType>
+      <s:complexType name="ArrayOfMyTransfer">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="MyTransfer" nillable="true" type="tns:MyTransfer" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="MyTransfer">
+        <s:attribute name="price" type="s:int" use="required" />
+        <s:attribute name="netto" type="s:double" use="required" />
+        <s:attribute name="agent_price" type="s:double" use="required" />
+        <s:attribute name="name" type="s:string" />
+        <s:attribute name="comment" type="s:string" />
+        <s:attribute name="date" type="s:string" />
+        <s:attribute name="code" type="s:int" use="required" />
+        <s:attribute name="vehicle" type="s:int" use="required" />
+      </s:complexType>
+      <s:element name="CreateUtsAviaDogovorResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CreateUtsAviaDogovorResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateBronniDogovor">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="info" type="tns:DogovorInfo" />
+            <s:element minOccurs="0" maxOccurs="1" name="login" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateBronniDogovorResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CreateBronniDogovorResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateUtsDogovor">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="info" type="tns:DogovorInfo" />
+            <s:element minOccurs="0" maxOccurs="1" name="login" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="agent_coef" type="s:decimal" />
+            <s:element minOccurs="1" maxOccurs="1" name="client_coef" type="s:decimal" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateUtsDogovorResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CreateUtsDogovorResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateHotelAviaDogovor">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="info" type="tns:DogovorInfo" />
+            <s:element minOccurs="0" maxOccurs="1" name="login" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="agent_coef" type="s:decimal" />
+            <s:element minOccurs="1" maxOccurs="1" name="client_coef" type="s:decimal" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateHotelAviaDogovorResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CreateHotelAviaDogovorResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateAviaDogovorPopup">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="info" type="tns:DogovorInfo" />
+            <s:element minOccurs="0" maxOccurs="1" name="login" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateAviaDogovorPopupResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CreateAviaDogovorPopupResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateAviaDogovor">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="info" type="tns:DogovorInfo" />
+            <s:element minOccurs="0" maxOccurs="1" name="login" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateAviaDogovorResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CreateAviaDogovorResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateTourDogovor">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="info" type="tns:DogovorInfo" />
+            <s:element minOccurs="0" maxOccurs="1" name="login" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateTourDogovorResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CreateTourDogovorResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateDogovor">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="info" type="tns:DogovorInfo" />
+            <s:element minOccurs="0" maxOccurs="1" name="login" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="agent_coef" type="s:decimal" />
+            <s:element minOccurs="1" maxOccurs="1" name="client_coef" type="s:decimal" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateDogovorResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CreateDogovorResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateTransferDogovor">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="info" type="tns:DogovorInfo" />
+            <s:element minOccurs="0" maxOccurs="1" name="login" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateTransferDogovorResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CreateTransferDogovorResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserDogovors">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserDogovorsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserDogovorsResult" type="tns:ArrayOfMyDogovor" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfMyDogovor">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="MyDogovor" nillable="true" type="tns:MyDogovor" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="MyDogovor">
+        <s:attribute name="code" type="s:string" />
+        <s:attribute name="crdate" type="s:string" />
+        <s:attribute name="turdate" type="s:string" />
+        <s:attribute name="status" type="s:string" />
+        <s:attribute name="topay" type="s:string" />
+        <s:attribute name="paid" type="s:string" />
+      </s:complexType>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="GetCitiesFromWithCountriesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetCitiesFromWithCountries" />
+  </wsdl:message>
+  <wsdl:message name="GetCitiesFromWithCountriesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetCitiesFromWithCountriesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetCitiesFromSoapIn">
+    <wsdl:part name="parameters" element="tns:GetCitiesFrom" />
+  </wsdl:message>
+  <wsdl:message name="GetCitiesFromSoapOut">
+    <wsdl:part name="parameters" element="tns:GetCitiesFromResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetFormInfoSoapIn">
+    <wsdl:part name="parameters" element="tns:GetFormInfo" />
+  </wsdl:message>
+  <wsdl:message name="GetFormInfoSoapOut">
+    <wsdl:part name="parameters" element="tns:GetFormInfoResponse" />
+  </wsdl:message>
+  <wsdl:message name="getHotFlightsSoapIn">
+    <wsdl:part name="parameters" element="tns:getHotFlights" />
+  </wsdl:message>
+  <wsdl:message name="getHotFlightsSoapOut">
+    <wsdl:part name="parameters" element="tns:getHotFlightsResponse" />
+  </wsdl:message>
+  <wsdl:message name="getBronniObjectSoapIn">
+    <wsdl:part name="parameters" element="tns:getBronniObject" />
+  </wsdl:message>
+  <wsdl:message name="getBronniObjectSoapOut">
+    <wsdl:part name="parameters" element="tns:getBronniObjectResponse" />
+  </wsdl:message>
+  <wsdl:message name="getTourMinPriceSoapIn">
+    <wsdl:part name="parameters" element="tns:getTourMinPrice" />
+  </wsdl:message>
+  <wsdl:message name="getTourMinPriceSoapOut">
+    <wsdl:part name="parameters" element="tns:getTourMinPriceResponse" />
+  </wsdl:message>
+  <wsdl:message name="getTransportInfoSoapIn">
+    <wsdl:part name="parameters" element="tns:getTransportInfo" />
+  </wsdl:message>
+  <wsdl:message name="getTransportInfoSoapOut">
+    <wsdl:part name="parameters" element="tns:getTransportInfoResponse" />
+  </wsdl:message>
+  <wsdl:message name="getExcursionInfoSoapIn">
+    <wsdl:part name="parameters" element="tns:getExcursionInfo" />
+  </wsdl:message>
+  <wsdl:message name="getExcursionInfoSoapOut">
+    <wsdl:part name="parameters" element="tns:getExcursionInfoResponse" />
+  </wsdl:message>
+  <wsdl:message name="getDogovorDetailsSoapIn">
+    <wsdl:part name="parameters" element="tns:getDogovorDetails" />
+  </wsdl:message>
+  <wsdl:message name="getDogovorDetailsSoapOut">
+    <wsdl:part name="parameters" element="tns:getDogovorDetailsResponse" />
+  </wsdl:message>
+  <wsdl:message name="getHotelRoomDetailsSoapIn">
+    <wsdl:part name="parameters" element="tns:getHotelRoomDetails" />
+  </wsdl:message>
+  <wsdl:message name="getHotelRoomDetailsSoapOut">
+    <wsdl:part name="parameters" element="tns:getHotelRoomDetailsResponse" />
+  </wsdl:message>
+  <wsdl:message name="findToursListSoapIn">
+    <wsdl:part name="parameters" element="tns:findToursList" />
+  </wsdl:message>
+  <wsdl:message name="findToursListSoapOut">
+    <wsdl:part name="parameters" element="tns:findToursListResponse" />
+  </wsdl:message>
+  <wsdl:message name="getTourByPriceTourSoapIn">
+    <wsdl:part name="parameters" element="tns:getTourByPriceTour" />
+  </wsdl:message>
+  <wsdl:message name="getTourByPriceTourSoapOut">
+    <wsdl:part name="parameters" element="tns:getTourByPriceTourResponse" />
+  </wsdl:message>
+  <wsdl:message name="getOrderInfoSoapIn">
+    <wsdl:part name="parameters" element="tns:getOrderInfo" />
+  </wsdl:message>
+  <wsdl:message name="getOrderInfoSoapOut">
+    <wsdl:part name="parameters" element="tns:getOrderInfoResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetActualCoursesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetActualCourses" />
+  </wsdl:message>
+  <wsdl:message name="GetActualCoursesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetActualCoursesResponse" />
+  </wsdl:message>
+  <wsdl:message name="CheckPricekeySoapIn">
+    <wsdl:part name="parameters" element="tns:CheckPricekey" />
+  </wsdl:message>
+  <wsdl:message name="CheckPricekeySoapOut">
+    <wsdl:part name="parameters" element="tns:CheckPricekeyResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetTourBasketSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTourBasket" />
+  </wsdl:message>
+  <wsdl:message name="GetTourBasketSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTourBasketResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetAviaTourInfoSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAviaTourInfo" />
+  </wsdl:message>
+  <wsdl:message name="GetAviaTourInfoSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAviaTourInfoResponse" />
+  </wsdl:message>
+  <wsdl:message name="AnnulateUserDogovorSoapIn">
+    <wsdl:part name="parameters" element="tns:AnnulateUserDogovor" />
+  </wsdl:message>
+  <wsdl:message name="AnnulateUserDogovorSoapOut">
+    <wsdl:part name="parameters" element="tns:AnnulateUserDogovorResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserBookingInfoSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserBookingInfo" />
+  </wsdl:message>
+  <wsdl:message name="GetUserBookingInfoSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserBookingInfoResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserBookingsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserBookings" />
+  </wsdl:message>
+  <wsdl:message name="GetUserBookingsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserBookingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="addBookingSoapIn">
+    <wsdl:part name="parameters" element="tns:addBooking" />
+  </wsdl:message>
+  <wsdl:message name="addBookingSoapOut">
+    <wsdl:part name="parameters" element="tns:addBookingResponse" />
+  </wsdl:message>
+  <wsdl:message name="getDogovorDescriptionSoapIn">
+    <wsdl:part name="parameters" element="tns:getDogovorDescription" />
+  </wsdl:message>
+  <wsdl:message name="getDogovorDescriptionSoapOut">
+    <wsdl:part name="parameters" element="tns:getDogovorDescriptionResponse" />
+  </wsdl:message>
+  <wsdl:message name="ToursList2SoapIn">
+    <wsdl:part name="parameters" element="tns:ToursList2" />
+  </wsdl:message>
+  <wsdl:message name="ToursList2SoapOut">
+    <wsdl:part name="parameters" element="tns:ToursList2Response" />
+  </wsdl:message>
+  <wsdl:message name="TourDatesSoapIn">
+    <wsdl:part name="parameters" element="tns:TourDates" />
+  </wsdl:message>
+  <wsdl:message name="TourDatesSoapOut">
+    <wsdl:part name="parameters" element="tns:TourDatesResponse" />
+  </wsdl:message>
+  <wsdl:message name="findHotelsPricesSoapIn">
+    <wsdl:part name="parameters" element="tns:findHotelsPrices" />
+  </wsdl:message>
+  <wsdl:message name="findHotelsPricesSoapOut">
+    <wsdl:part name="parameters" element="tns:findHotelsPricesResponse" />
+  </wsdl:message>
+  <wsdl:message name="getActualTourDateSoapIn">
+    <wsdl:part name="parameters" element="tns:getActualTourDate" />
+  </wsdl:message>
+  <wsdl:message name="getActualTourDateSoapOut">
+    <wsdl:part name="parameters" element="tns:getActualTourDateResponse" />
+  </wsdl:message>
+  <wsdl:message name="findTourPricesSoapIn">
+    <wsdl:part name="parameters" element="tns:findTourPrices" />
+  </wsdl:message>
+  <wsdl:message name="findTourPricesSoapOut">
+    <wsdl:part name="parameters" element="tns:findTourPricesResponse" />
+  </wsdl:message>
+  <wsdl:message name="chosedHotelPricesSoapIn">
+    <wsdl:part name="parameters" element="tns:chosedHotelPrices" />
+  </wsdl:message>
+  <wsdl:message name="chosedHotelPricesSoapOut">
+    <wsdl:part name="parameters" element="tns:chosedHotelPricesResponse" />
+  </wsdl:message>
+  <wsdl:message name="chosedHotelTourPricesSoapIn">
+    <wsdl:part name="parameters" element="tns:chosedHotelTourPrices" />
+  </wsdl:message>
+  <wsdl:message name="chosedHotelTourPricesSoapOut">
+    <wsdl:part name="parameters" element="tns:chosedHotelTourPricesResponse" />
+  </wsdl:message>
+  <wsdl:message name="chosedHotelTourPrices2SoapIn">
+    <wsdl:part name="parameters" element="tns:chosedHotelTourPrices2" />
+  </wsdl:message>
+  <wsdl:message name="chosedHotelTourPrices2SoapOut">
+    <wsdl:part name="parameters" element="tns:chosedHotelTourPrices2Response" />
+  </wsdl:message>
+  <wsdl:message name="CreateUtsAviaDogovorSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateUtsAviaDogovor" />
+  </wsdl:message>
+  <wsdl:message name="CreateUtsAviaDogovorSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateUtsAviaDogovorResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateBronniDogovorSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateBronniDogovor" />
+  </wsdl:message>
+  <wsdl:message name="CreateBronniDogovorSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateBronniDogovorResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateUtsDogovorSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateUtsDogovor" />
+  </wsdl:message>
+  <wsdl:message name="CreateUtsDogovorSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateUtsDogovorResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateHotelAviaDogovorSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateHotelAviaDogovor" />
+  </wsdl:message>
+  <wsdl:message name="CreateHotelAviaDogovorSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateHotelAviaDogovorResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateAviaDogovorPopupSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateAviaDogovorPopup" />
+  </wsdl:message>
+  <wsdl:message name="CreateAviaDogovorPopupSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateAviaDogovorPopupResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateAviaDogovorSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateAviaDogovor" />
+  </wsdl:message>
+  <wsdl:message name="CreateAviaDogovorSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateAviaDogovorResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateTourDogovorSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateTourDogovor" />
+  </wsdl:message>
+  <wsdl:message name="CreateTourDogovorSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateTourDogovorResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateDogovorSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateDogovor" />
+  </wsdl:message>
+  <wsdl:message name="CreateDogovorSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateDogovorResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateTransferDogovorSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateTransferDogovor" />
+  </wsdl:message>
+  <wsdl:message name="CreateTransferDogovorSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateTransferDogovorResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserDogovorsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserDogovors" />
+  </wsdl:message>
+  <wsdl:message name="GetUserDogovorsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserDogovorsResponse" />
+  </wsdl:message>
+  <wsdl:portType name="MasterWebServiceFormSoap">
+    <wsdl:operation name="GetCitiesFromWithCountries">
+      <wsdl:input message="tns:GetCitiesFromWithCountriesSoapIn" />
+      <wsdl:output message="tns:GetCitiesFromWithCountriesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCitiesFrom">
+      <wsdl:input message="tns:GetCitiesFromSoapIn" />
+      <wsdl:output message="tns:GetCitiesFromSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetFormInfo">
+      <wsdl:input message="tns:GetFormInfoSoapIn" />
+      <wsdl:output message="tns:GetFormInfoSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getHotFlights">
+      <wsdl:input message="tns:getHotFlightsSoapIn" />
+      <wsdl:output message="tns:getHotFlightsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getBronniObject">
+      <wsdl:input message="tns:getBronniObjectSoapIn" />
+      <wsdl:output message="tns:getBronniObjectSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getTourMinPrice">
+      <wsdl:input message="tns:getTourMinPriceSoapIn" />
+      <wsdl:output message="tns:getTourMinPriceSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getTransportInfo">
+      <wsdl:input message="tns:getTransportInfoSoapIn" />
+      <wsdl:output message="tns:getTransportInfoSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getExcursionInfo">
+      <wsdl:input message="tns:getExcursionInfoSoapIn" />
+      <wsdl:output message="tns:getExcursionInfoSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getDogovorDetails">
+      <wsdl:input message="tns:getDogovorDetailsSoapIn" />
+      <wsdl:output message="tns:getDogovorDetailsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getHotelRoomDetails">
+      <wsdl:input message="tns:getHotelRoomDetailsSoapIn" />
+      <wsdl:output message="tns:getHotelRoomDetailsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="findToursList">
+      <wsdl:input message="tns:findToursListSoapIn" />
+      <wsdl:output message="tns:findToursListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getTourByPriceTour">
+      <wsdl:input message="tns:getTourByPriceTourSoapIn" />
+      <wsdl:output message="tns:getTourByPriceTourSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getOrderInfo">
+      <wsdl:input message="tns:getOrderInfoSoapIn" />
+      <wsdl:output message="tns:getOrderInfoSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetActualCourses">
+      <wsdl:input message="tns:GetActualCoursesSoapIn" />
+      <wsdl:output message="tns:GetActualCoursesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckPricekey">
+      <wsdl:input message="tns:CheckPricekeySoapIn" />
+      <wsdl:output message="tns:CheckPricekeySoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTourBasket">
+      <wsdl:input message="tns:GetTourBasketSoapIn" />
+      <wsdl:output message="tns:GetTourBasketSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAviaTourInfo">
+      <wsdl:input message="tns:GetAviaTourInfoSoapIn" />
+      <wsdl:output message="tns:GetAviaTourInfoSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AnnulateUserDogovor">
+      <wsdl:input message="tns:AnnulateUserDogovorSoapIn" />
+      <wsdl:output message="tns:AnnulateUserDogovorSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserBookingInfo">
+      <wsdl:input message="tns:GetUserBookingInfoSoapIn" />
+      <wsdl:output message="tns:GetUserBookingInfoSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserBookings">
+      <wsdl:input message="tns:GetUserBookingsSoapIn" />
+      <wsdl:output message="tns:GetUserBookingsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="addBooking">
+      <wsdl:input message="tns:addBookingSoapIn" />
+      <wsdl:output message="tns:addBookingSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getDogovorDescription">
+      <wsdl:input message="tns:getDogovorDescriptionSoapIn" />
+      <wsdl:output message="tns:getDogovorDescriptionSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ToursList2">
+      <wsdl:input message="tns:ToursList2SoapIn" />
+      <wsdl:output message="tns:ToursList2SoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="TourDates">
+      <wsdl:input message="tns:TourDatesSoapIn" />
+      <wsdl:output message="tns:TourDatesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="findHotelsPrices">
+      <wsdl:input message="tns:findHotelsPricesSoapIn" />
+      <wsdl:output message="tns:findHotelsPricesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getActualTourDate">
+      <wsdl:input message="tns:getActualTourDateSoapIn" />
+      <wsdl:output message="tns:getActualTourDateSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="findTourPrices">
+      <wsdl:input message="tns:findTourPricesSoapIn" />
+      <wsdl:output message="tns:findTourPricesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="chosedHotelPrices">
+      <wsdl:input message="tns:chosedHotelPricesSoapIn" />
+      <wsdl:output message="tns:chosedHotelPricesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="chosedHotelTourPrices">
+      <wsdl:input message="tns:chosedHotelTourPricesSoapIn" />
+      <wsdl:output message="tns:chosedHotelTourPricesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="chosedHotelTourPrices2">
+      <wsdl:input message="tns:chosedHotelTourPrices2SoapIn" />
+      <wsdl:output message="tns:chosedHotelTourPrices2SoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateUtsAviaDogovor">
+      <wsdl:input message="tns:CreateUtsAviaDogovorSoapIn" />
+      <wsdl:output message="tns:CreateUtsAviaDogovorSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateBronniDogovor">
+      <wsdl:input message="tns:CreateBronniDogovorSoapIn" />
+      <wsdl:output message="tns:CreateBronniDogovorSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateUtsDogovor">
+      <wsdl:input message="tns:CreateUtsDogovorSoapIn" />
+      <wsdl:output message="tns:CreateUtsDogovorSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateHotelAviaDogovor">
+      <wsdl:input message="tns:CreateHotelAviaDogovorSoapIn" />
+      <wsdl:output message="tns:CreateHotelAviaDogovorSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateAviaDogovorPopup">
+      <wsdl:input message="tns:CreateAviaDogovorPopupSoapIn" />
+      <wsdl:output message="tns:CreateAviaDogovorPopupSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateAviaDogovor">
+      <wsdl:input message="tns:CreateAviaDogovorSoapIn" />
+      <wsdl:output message="tns:CreateAviaDogovorSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateTourDogovor">
+      <wsdl:input message="tns:CreateTourDogovorSoapIn" />
+      <wsdl:output message="tns:CreateTourDogovorSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateDogovor">
+      <wsdl:input message="tns:CreateDogovorSoapIn" />
+      <wsdl:output message="tns:CreateDogovorSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateTransferDogovor">
+      <wsdl:input message="tns:CreateTransferDogovorSoapIn" />
+      <wsdl:output message="tns:CreateTransferDogovorSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserDogovors">
+      <wsdl:input message="tns:GetUserDogovorsSoapIn" />
+      <wsdl:output message="tns:GetUserDogovorsSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="MasterWebServiceFormSoap" type="tns:MasterWebServiceFormSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetCitiesFromWithCountries">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/GetCitiesFromWithCountries" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCitiesFrom">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/GetCitiesFrom" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetFormInfo">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/GetFormInfo" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getHotFlights">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/getHotFlights" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getBronniObject">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/getBronniObject" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getTourMinPrice">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/getTourMinPrice" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getTransportInfo">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/getTransportInfo" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getExcursionInfo">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/getExcursionInfo" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getDogovorDetails">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/getDogovorDetails" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getHotelRoomDetails">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/getHotelRoomDetails" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="findToursList">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/findToursList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getTourByPriceTour">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/getTourByPriceTour" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getOrderInfo">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/getOrderInfo" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetActualCourses">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/GetActualCourses" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckPricekey">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/CheckPricekey" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTourBasket">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/GetTourBasket" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAviaTourInfo">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/GetAviaTourInfo" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AnnulateUserDogovor">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/AnnulateUserDogovor" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserBookingInfo">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/GetUserBookingInfo" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserBookings">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/GetUserBookings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="addBooking">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/addBooking" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getDogovorDescription">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/getDogovorDescription" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ToursList2">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/ToursList2" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="TourDates">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/TourDates" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="findHotelsPrices">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/findHotelsPrices" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getActualTourDate">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/getActualTourDate" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="findTourPrices">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/findTourPrices" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="chosedHotelPrices">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/chosedHotelPrices" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="chosedHotelTourPrices">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/chosedHotelTourPrices" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="chosedHotelTourPrices2">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/chosedHotelTourPrices2" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateUtsAviaDogovor">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/CreateUtsAviaDogovor" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateBronniDogovor">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/CreateBronniDogovor" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateUtsDogovor">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/CreateUtsDogovor" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateHotelAviaDogovor">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/CreateHotelAviaDogovor" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateAviaDogovorPopup">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/CreateAviaDogovorPopup" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateAviaDogovor">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/CreateAviaDogovor" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateTourDogovor">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/CreateTourDogovor" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateDogovor">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/CreateDogovor" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateTransferDogovor">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/CreateTransferDogovor" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserDogovors">
+      <soap:operation soapAction="http://viziteurope.eu/webservice_form/GetUserDogovors" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="MasterWebServiceFormSoap12" type="tns:MasterWebServiceFormSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetCitiesFromWithCountries">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/GetCitiesFromWithCountries" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCitiesFrom">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/GetCitiesFrom" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetFormInfo">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/GetFormInfo" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getHotFlights">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/getHotFlights" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getBronniObject">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/getBronniObject" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getTourMinPrice">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/getTourMinPrice" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getTransportInfo">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/getTransportInfo" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getExcursionInfo">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/getExcursionInfo" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getDogovorDetails">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/getDogovorDetails" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getHotelRoomDetails">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/getHotelRoomDetails" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="findToursList">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/findToursList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getTourByPriceTour">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/getTourByPriceTour" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getOrderInfo">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/getOrderInfo" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetActualCourses">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/GetActualCourses" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckPricekey">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/CheckPricekey" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTourBasket">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/GetTourBasket" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAviaTourInfo">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/GetAviaTourInfo" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AnnulateUserDogovor">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/AnnulateUserDogovor" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserBookingInfo">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/GetUserBookingInfo" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserBookings">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/GetUserBookings" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="addBooking">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/addBooking" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getDogovorDescription">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/getDogovorDescription" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ToursList2">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/ToursList2" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="TourDates">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/TourDates" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="findHotelsPrices">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/findHotelsPrices" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getActualTourDate">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/getActualTourDate" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="findTourPrices">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/findTourPrices" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="chosedHotelPrices">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/chosedHotelPrices" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="chosedHotelTourPrices">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/chosedHotelTourPrices" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="chosedHotelTourPrices2">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/chosedHotelTourPrices2" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateUtsAviaDogovor">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/CreateUtsAviaDogovor" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateBronniDogovor">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/CreateBronniDogovor" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateUtsDogovor">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/CreateUtsDogovor" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateHotelAviaDogovor">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/CreateHotelAviaDogovor" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateAviaDogovorPopup">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/CreateAviaDogovorPopup" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateAviaDogovor">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/CreateAviaDogovor" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateTourDogovor">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/CreateTourDogovor" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateDogovor">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/CreateDogovor" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateTransferDogovor">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/CreateTransferDogovor" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserDogovors">
+      <soap12:operation soapAction="http://viziteurope.eu/webservice_form/GetUserDogovors" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="MasterWebServiceForm">
+    <wsdl:port name="MasterWebServiceFormSoap" binding="tns:MasterWebServiceFormSoap">
+      <soap:address location="http://188.65.209.177/webServiceE4u2009/ServiceFormParams.asmx" />
+    </wsdl:port>
+    <wsdl:port name="MasterWebServiceFormSoap12" binding="tns:MasterWebServiceFormSoap12">
+      <soap12:address location="http://188.65.209.177/webServiceE4u2009/ServiceFormParams.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
