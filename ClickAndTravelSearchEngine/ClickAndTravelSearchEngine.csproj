@@ -239,6 +239,8 @@
     <Compile Include="Containers\Visa\VisaDetails.cs" />
     <Compile Include="ErrorCodes.cs" />
     <Compile Include="Exceptions\CatseException.cs" />
+    <Compile Include="ExcursionSearchExt\ClickExcSearcher.cs" />
+    <Compile Include="ExcursionSearchExt\VizitExcSearcher.cs" />
     <Compile Include="Helpers\AirportsChecker.cs" />
     <Compile Include="Helpers\DB.cs" />
     <Compile Include="Helpers\HashSumm.cs" />

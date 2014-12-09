@@ -30,10 +30,9 @@ using ClickAndTravelSearchEngine.Exceptions;
 using ClickAndTravelSearchEngine.HotelSearchExt;
 
 using Jayrock.Json.Conversion;
-
 using System.Threading;
-//using System.Collections.ObjectModel;
 using System.Collections;
+using ClickAndTravelSearchEngine.ExcursionSearchExt;
 
 namespace ClickAndTravelSearchEngine
 {
@@ -76,9 +75,6 @@ namespace ClickAndTravelSearchEngine
 
             return rateCourses.ToArray();
         }
-
-
-
         #endregion
 
         #region поиск и бронирование авиабилетов
@@ -618,7 +614,28 @@ namespace ClickAndTravelSearchEngine
             if ((TuristsCount <1) || (TuristsCount > 10))
                 throw new Exceptions.CatseException("Check turists count", 43);
 
+#if DEBUG
+            var resp = ReturnFakeExcursionsResult(MinDate, MaxDate, searchId);
+#else
+            var excSearcher = new VizitExcSearcher();
+            var resp = new ExcursionSearchResult()
+                            {
+                                SearchId = searchId,
+                                ExcursionVariants = excSearcher.SearchExcursions(CityId, MinDate, MaxDate, TuristsCount)
+                            };
+#endif
 
+
+            RedisHelper.SetString("res_" + searchId, JsonConvert.ExportToString(resp), new TimeSpan(HOTELS_RESULTS_LIFETIME));
+
+            RedisHelper.SetString("res_book_" + searchId, JsonConvert.ExportToString(resp), new TimeSpan(2*HOTELS_RESULTS_LIFETIME));
+
+            return resp;
+        }
+
+        //формирует "фейковый" результат для дебага
+        private static ExcursionSearchResult ReturnFakeExcursionsResult(DateTime MinDate, DateTime MaxDate, string searchId)
+        {
             //получаем курсы валют
             KeyValuePair<string, decimal>[] _courses = null;
 
@@ -626,7 +643,7 @@ namespace ClickAndTravelSearchEngine
 
 
             //генерируем ответ
-            int[] excs = new int[] { 1,7,5,8};
+            int[] excs = new int[] { 1, 7, 5, 8 };
             Random rnd = new Random();
             int datesRange = (MaxDate - MinDate).Days;
 
@@ -637,19 +654,19 @@ namespace ClickAndTravelSearchEngine
                 HashSet<DateTime> dates = new HashSet<DateTime>();
 
                 var datesArr = dates.ToArray();
-				
-				Array.Sort(datesArr);
+
+                Array.Sort(datesArr);
 
                 for (int j = 0; j <= datesRange; j++)
                     dates.Add(MinDate.AddDays(rnd.Next(datesRange)));
 
-                
+
                 listResult.Add(
                          new ExcursionVariant()
                          {
                              Dates = dates.ToArray(),
                              Id = i,
-                             Prices = MtHelper.ApplyCourses(10+rnd.Next(10), _courses)// new KeyValuePair<string,decimal>[]{new KeyValuePair<string, decimal>("EUR", 10), new KeyValuePair<string, decimal >("RUB", 400)}
+                             Prices = MtHelper.ApplyCourses(10 + rnd.Next(10), _courses)// new KeyValuePair<string,decimal>[]{new KeyValuePair<string, decimal>("EUR", 10), new KeyValuePair<string, decimal >("RUB", 400)}
                          }
                     );
             }
@@ -659,11 +676,6 @@ namespace ClickAndTravelSearchEngine
                 SearchId = searchId,
                 ExcursionVariants = listResult.ToArray()
             };
-
-            RedisHelper.SetString("res_" + searchId, JsonConvert.ExportToString(resp), new TimeSpan(HOTELS_RESULTS_LIFETIME));
-
-            RedisHelper.SetString("res_book_" + searchId, JsonConvert.ExportToString(resp), new TimeSpan(2*HOTELS_RESULTS_LIFETIME));
-
             return resp;
         }
 
@@ -757,9 +769,6 @@ namespace ClickAndTravelSearchEngine
 
             #endregion
             throw new CatseException("unknown ExcursionId", 48);
-
-
-      
         }
         #endregion
 

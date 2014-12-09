@@ -83,7 +83,7 @@ namespace ClickAndTravelSearchEngine.Containers.Hotels
 
             set
             {
-                List<KeyValuePair<string, decimal>> temp = new List<KeyValuePair<string, decimal>>();//[value.Count];
+                List<KeyValuePair<string, decimal>> temp = new List<KeyValuePair<string, decimal>>();
 
                 foreach (string key in value.Names)
                 {

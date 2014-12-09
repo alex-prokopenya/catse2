@@ -40,6 +40,8 @@ namespace ClickAndTravelSearchEngine.MasterTour
 
         public static KeyValuePair<string, decimal>[] GetCourses(string[] iso_codes, string base_rate, DateTime date)
         {
+            
+
             //check redis cache
             string key_for_redis = "courses_"+base_rate+"b"+iso_codes.Aggregate((a,b)=> a+","+b) + "d"+date.ToString();
 
