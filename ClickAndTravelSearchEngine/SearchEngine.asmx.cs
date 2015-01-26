@@ -249,7 +249,6 @@ namespace ClickAndTravelSearchEngine
             //TODO: проверить наличие searchId
             //ErrorCode 17 -- не найден searchId
 
-
             SF_serviceSoapClient sf_client = new SF_serviceSoapClient();
 
             SF_service.SearchResultFlights res = sf_client.GetCurrentResultsFlights(SearchId);
@@ -547,14 +546,20 @@ namespace ClickAndTravelSearchEngine
                     });
                 }
 
-
+#if !DEBUG
                 var bookResult = sf_client.BookFlight(TicketId, //бронирование перелета
                         new Customer() { Mail = "info@clickandtravel.ru", Name = "Nastasia", Phone = "4957846256" },
                         pasangers.ToArray(),
                         lastFlightDate
                     );
-
                 TicketId = bookResult.code;
+#else
+
+                TicketId = "" + DateTime.Now.Ticks;
+#endif
+
+
+
 
                 if (TicketId == "Exception") return new BookResult()
                 {
@@ -617,14 +622,22 @@ namespace ClickAndTravelSearchEngine
 #if DEBUG
             var resp = ReturnFakeExcursionsResult(MinDate, MaxDate, searchId);
 #else
-            var excSearcher = new VizitExcSearcher();
-            var resp = new ExcursionSearchResult()
-                            {
-                                SearchId = searchId,
-                                ExcursionVariants = excSearcher.SearchExcursions(CityId, MinDate, MaxDate, TuristsCount)
-                            };
-#endif
+            var res = new VizitExcSearcher().SearchExcursions(CityId, MinDate, MaxDate, TuristsCount);
 
+            ExcursionSearchResult resp = null;
+            if(res.Length > 0)
+                resp = new ExcursionSearchResult()
+                                {
+                                    SearchId = searchId,
+                                    ExcursionVariants = res 
+                                };
+            else
+                resp = new ExcursionSearchResult()
+                {
+                    SearchId = searchId,
+                    ExcursionVariants = new ClickExcSearcher().SearchExcursions(CityId, MinDate, MaxDate, TuristsCount)
+                };
+#endif
 
             RedisHelper.SetString("res_" + searchId, JsonConvert.ExportToString(resp), new TimeSpan(HOTELS_RESULTS_LIFETIME));
 

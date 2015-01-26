@@ -246,6 +246,7 @@
     <Compile Include="Helpers\HashSumm.cs" />
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="HotelSearchExt\IHotelExt.cs" />
+    <Compile Include="HotelSearchExt\OktogoService.cs" />
     <Compile Include="HotelSearchExt\UtsService.cs" />
     <Compile Include="HotelSearchExt\VizitHotelsSearch.cs" />
     <Compile Include="JsonRpcDipatcher.cs" />

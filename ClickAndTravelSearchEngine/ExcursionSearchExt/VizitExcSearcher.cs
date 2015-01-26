@@ -32,6 +32,15 @@ namespace ClickAndTravelSearchEngine.ExcursionSearchExt
             citiesLib.Add(281, 227);//ч. крумлов
             citiesLib.Add(980, 222);//яхимов
             citiesLib.Add(283, 594);//ш.млын
+
+            citiesLib.Add(1194, 568);//будапешт
+            citiesLib.Add(1463, 739);//хевиз
+
+            citiesLib.Add(1169, 841);//лондон
+            citiesLib.Add(683, 162);//мюнхен
+            citiesLib.Add(1106, 726);//мадрид
+            citiesLib.Add(1095, 653);//барса
+
             #endregion
         }
 
@@ -50,7 +59,7 @@ namespace ClickAndTravelSearchEngine.ExcursionSearchExt
 
             cityId = citiesLib[cityId];
 
-            string selectQuery = " select CS_DATE, CS_DATEEND, cs_type, cs_subcode, CS_COSTNETTO, tr_nmen, CS_COST, CS_WEEK, ED_NAME, ED_StdKey " +
+            string selectQuery = " select CS_DATE, CS_DATEEND,CS_RATE, isnull(cs_type,0) as cs_type, CS_COSTNETTO, CS_COST, CS_WEEK, ED_NAME, ED_StdKey " +
                                  " FROM [dbo].tbl_Costs, dbo.ExcurDictionary, dbo.[Transport] " +
                                  " where CS_SVKEY = 4 and " +
                                  " ((CS_DATE between '{0:yyyy-MM-dd}' and '{1:yyyy-MM-dd}') or (CS_DATEend between '{0:yyyy-MM-dd}' and '{1:yyyy-MM-dd}') or ('{0:yyyy-MM-dd}' between CS_DATE and CS_DATEEND)) and "  +
@@ -59,7 +68,11 @@ namespace ClickAndTravelSearchEngine.ExcursionSearchExt
                                  " and cs_subcode1 = tr_key and isnull(tr_nmen,100) >= " + nMen +
                                  " order by CS_COST asc";
 
+
             selectQuery = String.Format(selectQuery, beginDate, endDate, cityId, sourcePack);
+
+
+         //   Helpers.Logger.WriteToLog(selectQuery);
 
             var conn = GetConnection();
             var com = conn.CreateCommand();
@@ -84,7 +97,7 @@ namespace ClickAndTravelSearchEngine.ExcursionSearchExt
                 string stdKey = reader["ED_StdKey"].ToString();
 
                 //для всех дат проверить, есть ли экскурсия
-                string key = string.Format("{0}*{1}*rateCode", stdKey, price);
+                string key = string.Format("{0}*{1}*{2}", stdKey, price, rateCode);
 
                 //если в результатах еще нет такой экскурсии по такой цене
                 if (!dictionary.ContainsKey(key)) 
@@ -97,6 +110,7 @@ namespace ClickAndTravelSearchEngine.ExcursionSearchExt
                                                     Convert.ToDateTime(reader["CS_DATEEnd"]),
                                                     reader["CS_WEEK"].ToString()));
             }
+          //  Helpers.Logger.WriteToLog("cnt = " + dictionary.Count);
 
             if(dictionary.Count == 0) return new ExcursionVariant[0];
 
@@ -116,12 +130,13 @@ namespace ClickAndTravelSearchEngine.ExcursionSearchExt
             {
                 //делим ключ, чтобы получить инфу об экскурсии
                 var part = key.Split('*');
-
+                if (part[2] == "E") part[2] = "EUR";
                 //валюта стоимости поменялась, что маловероятно
                 if (part[2] != lastRate)
                 {
                     //запоминаем валюту, для которой выгружаем курсы
                     lastRate = part[2];
+                    
                     //применяем курсы
                     _courses = MtHelper.GetCourses(MtHelper.rate_codes, lastRate, DateTime.Today);
                 }
@@ -136,6 +151,7 @@ namespace ClickAndTravelSearchEngine.ExcursionSearchExt
                 );
             }
 
+        //    Helpers.Logger.WriteToLog("cnt2 = " + respList.Count);
             return respList.ToArray();
         }
 
@@ -144,7 +160,8 @@ namespace ClickAndTravelSearchEngine.ExcursionSearchExt
         {
             var dates = new List<DateTime>();
 
-            while (excDateBegin >= excDateEnd)
+         //   Helpers.Logger.WriteToLog(excDateBegin.ToString() + excDateEnd.ToString());
+            while (excDateBegin <= excDateEnd)
             {
                 if (CheckDate(excDateBegin, costDate, costDateEnd, costWeek))
                     dates.Add(excDateBegin);
@@ -158,7 +175,11 @@ namespace ClickAndTravelSearchEngine.ExcursionSearchExt
         //проверяем конкретную дату
         private bool CheckDate(DateTime date, DateTime costDate, DateTime costDateEnd, string costWeek) 
         {
-            return (date >= costDate && date <= costDateEnd) && (costWeek == "" || costWeek.Contains(""+(date.DayOfWeek + 1)));
+            int day = ((int)date.DayOfWeek == 0) ? 7 : (int)date.DayOfWeek;
+
+         //   Helpers.Logger.WriteToLog("" + day + "  - " + costWeek + date.ToString() + costDate.ToString() + costDateEnd.ToString());
+
+            return (date >= costDate && date <= costDateEnd) && (costWeek == "" || costWeek.Contains("" + day));
         }
     }
 }

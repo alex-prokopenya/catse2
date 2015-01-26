@@ -289,9 +289,10 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
 
             Dictionary<int, int> hotelsLib = new Dictionary<int, int>();
             #region links
+
+            //прага
             hotelsLib.Add(10006143, 1062);
             hotelsLib.Add(10006146, 1140);
-
             hotelsLib.Add(10006150, 1060);
             hotelsLib.Add(10006156, 1401);
             hotelsLib.Add(10006157, 1134);
@@ -319,7 +320,6 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
             hotelsLib.Add(10006221, 2112);
             hotelsLib.Add(10006222, 1046);
             hotelsLib.Add(10006223, 1096);
-
             hotelsLib.Add(10006226, 3398);
             hotelsLib.Add(10006228, 1561);
             hotelsLib.Add(10006230, 1090);
@@ -376,14 +376,12 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
             hotelsLib.Add(10065408, 3786);
             hotelsLib.Add(10065412, 1375);
             hotelsLib.Add(10065614, 1655);
-
             hotelsLib.Add(10068583, 2113);
             hotelsLib.Add(10074326, 1846);
             hotelsLib.Add(10074363, 2146);
             hotelsLib.Add(10077209, 3275);
             hotelsLib.Add(10083474, 1937);
             hotelsLib.Add(10089380, 1504);
-
             hotelsLib.Add(10113074, 1865);
             hotelsLib.Add(10113183, 1092);
             hotelsLib.Add(10115015, 1457);
@@ -406,6 +404,37 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
             hotelsLib.Add(10305084, 1400);
             hotelsLib.Add(10438604, 4394);
             hotelsLib.Add(10006130, 1717);
+
+
+            //карловы вары 
+            hotelsLib.Add(10204308, 819);
+            hotelsLib.Add(10041079, 821);
+            hotelsLib.Add(10006079, 968);
+            hotelsLib.Add(10126863, 981);
+            hotelsLib.Add(10071525, 1016);
+            hotelsLib.Add(10305053, 1028);
+            hotelsLib.Add(10006083, 1029);
+            hotelsLib.Add(10049813, 1031);
+            hotelsLib.Add(10285799, 1183);
+            hotelsLib.Add(10006082, 1204);
+            hotelsLib.Add(10191929, 1211);
+            hotelsLib.Add(10191930, 1263);
+            hotelsLib.Add(10041080, 1432);
+            hotelsLib.Add(10172287, 1438);
+            hotelsLib.Add(10092776, 1505);
+            hotelsLib.Add(10231483, 1518);
+            hotelsLib.Add(10126859, 1523);
+            hotelsLib.Add(10231277, 1556);
+            hotelsLib.Add(10126861, 3516);
+            hotelsLib.Add(10231580, 3616);
+
+            //marianskie
+            hotelsLib.Add(10006088, 1354);
+            hotelsLib.Add(10285948, 1927);
+            hotelsLib.Add(10006089, 2273);
+            hotelsLib.Add(10231506, 3551);
+            hotelsLib.Add(10191931, 4015);
+            hotelsLib.Add(10359166, 4082);
 
 
             #endregion
@@ -792,7 +821,7 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
 
                 Dictionary<int, int> hotelsLib = new Dictionary<int, int>();
                 #region Links
-
+                //прага
                 hotelsLib.Add(1717, 10006130);
                 hotelsLib.Add(1062, 10006143);
                 hotelsLib.Add(1140, 10006146);
@@ -919,6 +948,36 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
                 hotelsLib.Add(3556, 10285933);
                 hotelsLib.Add(1400, 10305084);
                 hotelsLib.Add(4394, 10438604);
+
+                //карловы
+                hotelsLib.Add(819, 10204308);
+                hotelsLib.Add(821, 10041079);
+                hotelsLib.Add(968, 10006079);
+                hotelsLib.Add(981, 10126863);
+                hotelsLib.Add(1016, 10071525);
+                hotelsLib.Add(1028, 10305053);
+                hotelsLib.Add(1029, 10006083);
+                hotelsLib.Add(1031, 10049813);
+                hotelsLib.Add(1183, 10285799);
+                hotelsLib.Add(1204, 10006082);
+                hotelsLib.Add(1211, 10191929);
+                hotelsLib.Add(1263, 10191930);
+                hotelsLib.Add(1432, 10041080);
+                hotelsLib.Add(1438, 10172287);
+                hotelsLib.Add(1505, 10092776);
+                hotelsLib.Add(1518, 10231483);
+                hotelsLib.Add(1523, 10126859);
+                hotelsLib.Add(1556, 10231277);
+                hotelsLib.Add(3516, 10126861);
+                hotelsLib.Add(3616, 10231580);
+
+                //marianskie
+                hotelsLib.Add(1354, 10006088);
+                hotelsLib.Add(1927, 10285948);
+                hotelsLib.Add(2273, 10006089);
+                hotelsLib.Add(3551, 10231506);
+                hotelsLib.Add(4015, 10191931);
+                hotelsLib.Add(4082, 10359166);
 
                 #endregion
 

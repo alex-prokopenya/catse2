@@ -1,24 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using ClickAndTravelSearchEngine.Containers.Hotels;
 using ClickAndTravelSearchEngine.Helpers;
-using System.Net;
-using System.Data.Sql;
-using System.Data.SqlClient;
-
-using ClickAndTravelSearchEngine.Containers.Hotels;
-using ClickAndTravelSearchEngine.ParamsContainers;
-using ClickAndTravelSearchEngine.Helpers;
-using ClickAndTravelSearchEngine.Responses;
 using ClickAndTravelSearchEngine.MasterTour;
-using System.Configuration;
-
-using Jayrock.Json.Conversion;
+using ClickAndTravelSearchEngine.ParamsContainers;
+using ClickAndTravelSearchEngine.Responses;
 using Jayrock.Json;
-
+using Jayrock.Json.Conversion;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Net;
 using System.Threading;
-
 using System.Xml;
 
 namespace ClickAndTravelSearchEngine.HotelSearchExt
@@ -54,13 +47,12 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
         private RequestRoom[] rooms = new RequestRoom[0];
 
         private bool added = false;
+        private bool isFinished = false;
 
         private Dictionary<int, int[]> pansionsGroups = new Dictionary<int, int[]>();
         private Dictionary<int, int> pansionsLib = new Dictionary<int, int>();
 
-
         private Decimal HOTELBOOK_COEF = Convert.ToDecimal(ConfigurationManager.AppSettings["HotelBookMargin"]);
-
         
         private string GetTime() //получаем время для авторизации
         {
@@ -369,9 +361,7 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
         {
             for (int i = 0; i < room.Variants.Length; i++)
             {
-                Logger.WriteToLog("after " + room.Variants[i].Prices[0].Value);
                 room.Variants[i].Prices = MtHelper.ApplyCourses(room.Variants[i].Prices[0].Value, courses);
-                Logger.WriteToLog("before " + room.Variants[i].Prices[0].Value);
             }
             return room.Variants;
         }
@@ -1086,7 +1076,7 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
             return this.added;
         }
 
-        private bool isFinished = false;
+        
         public bool GetFinished()
         {
             return isFinished;
