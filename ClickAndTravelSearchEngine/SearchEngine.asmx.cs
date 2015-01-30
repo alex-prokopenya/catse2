@@ -1484,9 +1484,6 @@ namespace ClickAndTravelSearchEngine
                 else if (!need_wait)
                     res = ComposeResults(res.FoundedHotels, new Hotel[0], true);
 
-
-
-
                 if ((hotelsToAdd.Count > 0) || (!need_wait))
                 {
                     //сохраняем в редис

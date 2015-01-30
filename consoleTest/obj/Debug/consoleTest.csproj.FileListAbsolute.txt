@@ -1,0 +1,5 @@
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\consoleTest.exe
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\consoleTest.pdb
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\obj\Debug\consoleTest.csprojResolveAssemblyReference.cache
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\obj\Debug\consoleTest.exe
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\obj\Debug\consoleTest.pdb

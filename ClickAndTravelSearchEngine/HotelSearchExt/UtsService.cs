@@ -209,7 +209,7 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
             childrenAttr.Value = ages.Length.ToString();
 
             XmlAttribute cotsAttr = xDoc.CreateAttribute("cots");
-            cotsAttr.Value = (room.ChildrenAges).Where(a => (a < 3)).ToArray().Length.ToString();
+            cotsAttr.Value = room.ChildrenAges.Where(a => (a < 3)).ToArray().Length.ToString();
 
             roomElement.Attributes.Append(roomNumberAttr);
             roomElement.Attributes.Append(adultsAttr);
@@ -231,8 +231,8 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
 
             Logger.WriteToHotelBookLog(xDoc.InnerXml);
             Logger.WriteToHotelBookLog(response);
-
             Logger.WriteToLog(xDoc.InnerXml);
+
             XmlDocument respDoc = new XmlDocument();
             respDoc.LoadXml(response);
 
@@ -270,7 +270,6 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
             List<int> starsFilter = new List<int>(this.stars);
             List<int> pansionsFilter = new List<int>(this.pansions);
 
-         
             //проходимся по выборке отелей
             foreach (XmlElement el in respDoc.GetElementsByTagName("Hotel"))
             {
@@ -365,7 +364,7 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
             }
             return room.Variants;
         }
-        //
+        
         private Hotel[] ComposeHotelsResults(Dictionary<int,Dictionary<int, Room>> results)
         {
             List<Hotel> res = new List<Hotel>();
@@ -398,7 +397,7 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
                 foreach (int hotelKey in results[roomIndex].Keys) //для каждой комнаты берем найденные отели
                 {
                     //применить курсы
-                 //   results[roomIndex][hotelKey].Variants = RoomApplyCourses(results[roomIndex][hotelKey], _courses);
+                    //results[roomIndex][hotelKey].Variants = RoomApplyCourses(results[roomIndex][hotelKey], _courses);
 
                     if (roomCnt == 0)                             //если просматриваем первую комнату, добавляем отель в справочник
                     {
@@ -561,7 +560,7 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
 
             string redis_hash = RedisHelper.GetString(redis_verify_key);
 
-            if ((redis_hash != null) && (redis_hash.Length > 0))
+            if (!string.IsNullOrEmpty(redis_hash))
                 return JsonConvert.Import<HotelVerifyResult>(redis_hash);
             #endregion
 
@@ -891,28 +890,17 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
 
         private static int GetCityId(int clickCityId) //convert click cityId to uts city id
         {
-       //     #if DEBUG
-         //     return clickCityId;
-          //  #endif
-
             int utsCityId = clickCityId;
 
             SqlConnection myCon = new SqlConnection(ConfigurationManager.AppSettings["MasterTourConnectionString"]);
+            
+            myCon.Open();
 
+            SqlCommand myCom = new SqlCommand("select uts_ctkey from hb_cities where cl_ctkey = " + clickCityId, myCon);
 
-            Logger.WriteToLog("try open connection");
+            utsCityId = Convert.ToInt32(myCom.ExecuteScalar());
 
-                myCon.Open();
-
-                Logger.WriteToLog("opened");
-
-                SqlCommand myCom = new SqlCommand("select uts_ctkey from hb_cities where cl_ctkey = " + clickCityId, myCon);
-
-                utsCityId = Convert.ToInt32(myCom.ExecuteScalar());
-
-                myCon.Close();
-
-            Logger.WriteToLog("city_id = " + utsCityId);
+            myCon.Close();
 
             return utsCityId;
         }
