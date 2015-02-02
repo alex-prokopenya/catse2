@@ -273,7 +273,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="RedisHelper.cs" />
+    <Compile Include="Helpers\RedisHelper.cs" />
     <Compile Include="Responses\CarRentExtrasResult.cs" />
     <Compile Include="Responses\CarRentGetLocationsResult.cs" />
     <Compile Include="Responses\CarRentGetStationsResult.cs" />

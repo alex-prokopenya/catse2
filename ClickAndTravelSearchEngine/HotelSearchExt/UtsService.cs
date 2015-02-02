@@ -624,7 +624,6 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
             //получить данные по туристам из кэша МТ
             TuristContainer[] turists = MtHelper.GetTuristsFromCache(turistsIds.ToArray());
 
-
             //создать бронь
             //формируем запрос
             XmlDocument requestDoc = new XmlDocument();
