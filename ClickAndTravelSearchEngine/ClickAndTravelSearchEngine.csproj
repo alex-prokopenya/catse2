@@ -242,6 +242,7 @@
     <Compile Include="Containers\Inurance\Tours\TourDates.cs" />
     <Compile Include="Containers\Inurance\Tours\TourVariant.cs" />
     <Compile Include="Containers\Inurance\Tours\TourVariantsGroup.cs" />
+    <Compile Include="Containers\Transfers\TransferBooking.cs" />
     <Compile Include="Containers\Transfers\TransferDetails.cs" />
     <Compile Include="Containers\Transfers\TransferInfo.cs" />
     <Compile Include="Containers\Transfers\TransferPoint.cs" />
@@ -255,6 +256,9 @@
     <Compile Include="Helpers\AirportsChecker.cs" />
     <Compile Include="Helpers\DB.cs" />
     <Compile Include="Helpers\HashSumm.cs" />
+    <Compile Include="Helpers\JsonRpcClient.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="HotelSearchExt\IHotelExt.cs" />
     <Compile Include="HotelSearchExt\OktogoService.cs" />
@@ -308,10 +312,10 @@
     <Compile Include="Responses\TransferSearchResult.cs" />
     <Compile Include="Responses\VisaSearchResult.cs" />
     <Compile Include="Responses\_Response.cs" />
-    <None Include="SearchEngine.asmx.cs">
+    <Content Include="SearchEngine.asmx.cs">
       <DependentUpon>SearchEngine.asmx</DependentUpon>
       <SubType>Component</SubType>
-    </None>
+    </Content>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service References\OktogoService\Reference.cs">
       <AutoGen>True</AutoGen>
@@ -328,6 +332,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
+    <Compile Include="TransferSearchExt\IWaySearcher.cs" />
     <Compile Include="Validator.cs" />
   </ItemGroup>
   <ItemGroup>

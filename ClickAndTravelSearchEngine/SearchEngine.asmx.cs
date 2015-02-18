@@ -1,38 +1,32 @@
 ﻿//#define DEBUG
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Services;
-using System.Configuration;
-
-using ClickAndTravelSearchEngine.SF_service;
-using ClickAndTravelSearchEngine.ParamsContainers;
-using ClickAndTravelSearchEngine.Responses;
-using ClickAndTravelSearchEngine.Containers.Transfers;
 using ClickAndTravelSearchEngine.Containers.CarRent;
-using ClickAndTravelSearchEngine.Containers.Visa;
-using ClickAndTravelSearchEngine.Containers.Inurance;
 using ClickAndTravelSearchEngine.Containers.Excursions;
 using ClickAndTravelSearchEngine.Containers.Hotels;
-using ClickAndTravelSearchEngine.Helpers;
-using ClickAndTravelSearchEngine.MasterTour;
-
-using System.ServiceModel;
-using System.ServiceModel.Web;
-using System.Web.Script.Serialization;
-using System.Web.Script.Services;
-using System.Web.Services.Protocols;
-
-using Megatec.MasterTour.DataAccess;
+using ClickAndTravelSearchEngine.Containers.Inurance;
+using ClickAndTravelSearchEngine.Containers.Transfers;
+using ClickAndTravelSearchEngine.Containers.Visa;
 using ClickAndTravelSearchEngine.Exceptions;
+using ClickAndTravelSearchEngine.Helpers;
 using ClickAndTravelSearchEngine.HotelSearchExt;
-
-using Jayrock.Json.Conversion;
-using System.Threading;
-using System.Collections;
+using ClickAndTravelSearchEngine.TransferSearchExt;
 using ClickAndTravelSearchEngine.ExcursionSearchExt;
+
+
+using ClickAndTravelSearchEngine.MasterTour;
+using ClickAndTravelSearchEngine.ParamsContainers;
+using ClickAndTravelSearchEngine.Responses;
+using ClickAndTravelSearchEngine.SF_service;
+using Jayrock.Json.Conversion;
+using Megatec.MasterTour.DataAccess;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
+using System.ServiceModel;
+using System.Threading;
+using System.Web.Services;
 
 namespace ClickAndTravelSearchEngine
 {
@@ -57,6 +51,7 @@ namespace ClickAndTravelSearchEngine
         public SearchEngine()
             : base()
         {
+            
             Manager.ConnectionString = ConfigurationManager.AppSettings["MasterTourConnectionString"];
             //  AppDomainManager.
         }
@@ -82,6 +77,8 @@ namespace ClickAndTravelSearchEngine
         [WebMethod]
         public FlightInitSearchResult FlightInitSearch(int Adults, int Children, string ServiceClass, int[] ChildrenAges, Segment[] Segments)
         {
+           
+
             #region check inputs
             //возможные коды ошибок
             //11 - неправильно задано количество туристов
@@ -167,12 +164,15 @@ namespace ClickAndTravelSearchEngine
             string searchId = sf_client.InitSearch(route, Adults, Children, inf_count, ServiceClass);
 
             return new FlightInitSearchResult() { SearchId = searchId };
+
+            
         }
 
         //Запрос состояния поиска
         [WebMethod]
         public FlightSearchState FlightGetSearchState(string SearchId)
         {
+            
             //ErrorCode 17 -- не найден searchId
             //TODO: проверить наличие searchId
 
@@ -766,11 +766,9 @@ namespace ClickAndTravelSearchEngine
                             }
                         
                             //сохранить экскурсию
-
                             return new BookResult()
                             {
                                 BookingNumber = MtHelper.SaveExcursionBookingToCache(new ExcursionBooking() { 
-                                
                                         ExcVariant = vr,
                                         SearchId = SearchId,
                                         SelectedDate = date.ToString("yyyy-MM-dd"),
@@ -851,86 +849,107 @@ namespace ClickAndTravelSearchEngine
 
         //для выбранной начальной точки подбираем возможные конечные точки
         [WebMethod]
-        public int[] TransferGetPoints(int StartPointId)
+        public int[] TransferGetPoints(int startPointId)
         {
             //ErrorCode 21: неизвестная точка маршрута
+            return IWaySearcher.GetPoints(startPointId);
+        }
+
+        private string GenerateSearchId(int startPointId, int endPointId, DateTime transferDate, DateTime returnDate, int turistsCount)
+        { 
+            string searchId ="t-";
+
+            if (startPointId < 1 || endPointId < 1)
+                throw new CatseException("неизвестная точка маршрута", 21);
+            else
+                searchId += startPointId + "-" + endPointId;
 
 
-            return new int[] { 1, 2, 3 };
+            if (transferDate > DateTime.Today.AddYears(1) || transferDate < DateTime.Today)
+                throw new CatseException("ошибки в датах", 23);
+
+            if ((returnDate > DateTime.MinValue) && (returnDate < DateTime.Today && returnDate > DateTime.Today.AddYears(1)))
+                throw new CatseException("ошибки в датах", 23);
+
+            searchId += "-" + transferDate.ToString("ddMM") + "-";
+
+            if(returnDate > DateTime.MinValue)
+                searchId += returnDate.ToString("ddMM");
+
+            searchId += "-" + turistsCount;
+
+            return searchId;
         }
 
         //поиск трансфера из точки А в точку B 
         [WebMethod]
-        public TransferSearchResult TransferSearch(int StartPointId,
-                                                    int EndPointId,
-                                                    DateTime TransferDate,
-                                                    DateTime ReturnDate,
-                                                    int TuristsCount)
+        public TransferSearchResult TransferSearch( int startPointId,
+                                                    int endPointId,
+                                                    DateTime transferDate,
+                                                    DateTime returnDate,
+                                                    int turistsCount)
         {
             //ErrorCode 21: неизвестная точка маршрута
             //ErrorCode 22: несовместимые точки маршрута
             //ErrorCode 23: ошибки в датах (меньше сегодня, больше сегодня + год, минимальная дата больше максимальной)
-            //ErrorCode 24: количество туристов больше 10
-
+            //ErrorCode 24: количество туристов больше 6
 
             return new TransferSearchResult()
             {
-                SearchId = "search_transfer",
-                Variants = new TransferVariant[]
-                {
-                    new TransferVariant()
-                    {
-                        CarsCount = 1,
-                        DetailsId = 1,
-                        Prices = new KeyValuePair<string,decimal>[]{
-                            new KeyValuePair<string, decimal>("RUB", new Decimal(120)),
-                            new KeyValuePair<string, decimal>("USD", new Decimal(4)),
-                            new KeyValuePair<string, decimal>("EUR", new Decimal(3))
-                        }
-                    }
-                    ,
-                    new TransferVariant()
-                        {
-                            CarsCount = 2,
-                            DetailsId = 2,
-                            Prices = new KeyValuePair<string,decimal>[]{
-                                new KeyValuePair<string, decimal>("RUB", new Decimal(240)),
-                                new KeyValuePair<string, decimal>("USD", new Decimal(8)),
-                                new KeyValuePair<string, decimal>("EUR", new Decimal(6))
-                            }
-                        }
-                }
-
+                SearchId = GenerateSearchId(startPointId, endPointId, transferDate, returnDate, turistsCount),
+                Variants = IWaySearcher.GetPriceVariants(startPointId, endPointId, turistsCount, returnDate > new DateTime(2010,10,10))
             };
+        }
 
-            return null;
+        [WebMethod]
+        public Jayrock.Json.JsonObject[] TransferGetInfoMask(string transferID)
+        {
+            return IWaySearcher.GetInfoMasks(transferID);
         }
 
         //бронирование трансфера
         [WebMethod]
-        public BookResult TransferBook(string SearchId, int TransferId, TransferInfo[] TransferInfo, UserInfo UserInfo, TuristContainer[] Turists)
+        public BookResult TransferBook(string searchId, string transferId, TransferInfo[] transferInfo, UserInfo userInfo, TuristContainer[] turists)
         {
             //ErrorCode 27: не найден SearchId
             //ErrorCode 28: не найден TransferId
             //ErrorCode 29: не заполнен TransferInfo
-
-
-            //ErrorCode 90: неправильный состав туристов (неверное количество, состав взрослые/дети)
+            //ErrorCode 90: неправильный состав туристов (неверное количество)
             //ErrorCode 91: ошибка в дате рождения туриста
             //ErrorCode 92: ошибка в имени/фамилии туриста
             //ErrorCode 93: ошибка в гражданстве
             //ErrorCode 94: ошибка в номере паспорта
             //ErrorCode 95: ошибка в сроке действия паспорта
             //ErrorCode 96: дублируется турист
-
             //ErrorCode 98: невалидный и-мэйл пользователя
             //ErrorCode 99: невалидный телефон пользователя
+            //transferInfo[0]
 
+            //получить даты из searchId
+            string[] parts = searchId.Split('-');
+
+            DateTime startDate = DateTime.ParseExact(parts[3] + DateTime.Today.Year, "ddMMyyyy", null);
+
+            if (startDate < DateTime.Today)
+               startDate = startDate.AddYears(1);
+
+            DateTime endDate = DateTime.MinValue;
+
+            if (parts[4] != "")
+            {
+                endDate = DateTime.ParseExact(parts[4] + startDate.Year, "ddMMyyyy", null);
+
+                if (endDate < startDate)
+                    endDate = endDate.AddYears(1);
+            }
+
+            //создать заказ
+            var tmpBooking = IWaySearcher.BookTransfer(startDate, endDate, transferId, transferInfo, userInfo, turists, searchId);
+            
             return new BookResult()
             {
-                BookingNumber = 4,
-                Prices = new KeyValuePair<string, decimal>[] {  new KeyValuePair<string, decimal>("USD", new Decimal(3.2)),
-                                                                new KeyValuePair<string, decimal>("RUB", new Decimal(101.2))}
+                BookingNumber = MtHelper.SaveTransferBookingToCache(tmpBooking),
+                Prices = tmpBooking.TransferVariant.Prices
             };
         }
         #endregion
@@ -1443,6 +1462,10 @@ namespace ClickAndTravelSearchEngine
             if (ConfigurationManager.AppSettings["SearchHotelsInUts"] == "true")
                 searchers.Add(new UtsService(CityId, StartDate, EndDate, Stars, Pansions, Rooms, SearchId, SearchEngine.HOTELS_RESULTS_LIFETIME));
 
+            if (ConfigurationManager.AppSettings["SearchHotelsOkToGo"] == "true")
+                searchers.Add(new ClickAndTravelSearchEngine.HotelSearchExt.OktogoService(CityId, StartDate, EndDate, Stars, Pansions, Rooms, SearchId, SearchEngine.HOTELS_RESULTS_LIFETIME));
+
+
             foreach (IHotelExt searcher in searchers)
                 new Thread(new ThreadStart(searcher.FindHotels)).Start();
 
@@ -1526,6 +1549,11 @@ namespace ClickAndTravelSearchEngine
 
                 if (ConfigurationManager.AppSettings["SearchHotelsInUts"] == "true")
                     searchers.Add(new UtsService(CityId, StartDate, EndDate, Stars, Pansions, Rooms, SearchId, SearchEngine.HOTELS_RESULTS_LIFETIME));
+                else
+                    Logger.WriteToLog("not setted uts");
+
+                if (ConfigurationManager.AppSettings["SearchHotelsOkToGo"] == "true")
+                    searchers.Add(new ClickAndTravelSearchEngine.HotelSearchExt.OktogoService(CityId, StartDate, EndDate, Stars, Pansions, Rooms, SearchId, SearchEngine.HOTELS_RESULTS_LIFETIME));
                 else
                     Logger.WriteToLog("not setted uts");
 
@@ -1892,7 +1920,7 @@ namespace ClickAndTravelSearchEngine
             //сделать многопоточный поиск номеров с минимальным таймаутом
             return null;
         }
-        private Hashtable ParseHotelSearchId(string SearchId) //throws invalid search id CatseException
+        public static Hashtable ParseHotelSearchId(string SearchId) //throws invalid search id CatseException
         {
             Hashtable res = new Hashtable();
 
@@ -2128,7 +2156,6 @@ namespace ClickAndTravelSearchEngine
             List<List<int>> roomTurists = new List<List<int>>();
 
             #region//по каждой комнате сохраняем список туристов, проверяем паспорта и состав
-
             foreach (BookRoom room in bookRooms)
             {
                 int adls = 0;
@@ -2175,7 +2202,6 @@ namespace ClickAndTravelSearchEngine
                         throwException = false;
                     }
 
-                //		throw new 
                 if (throwException)
                     throw new CatseException("check rooms' turists" + checkTuristString[0] + " " + checkStr, ErrorCodes.HotelRoomsTurists);
                 else
@@ -2202,6 +2228,16 @@ namespace ClickAndTravelSearchEngine
 
                 if (ConfigurationManager.AppSettings["SearchHotelsInUts"] == "true")
                     searchers.Add(UtsService.id_prefix, new UtsService((int)pHash["cityId"],
+                                                                (DateTime)pHash["dateStart"],
+                                                                (DateTime)pHash["dateEnd"],
+                                                                pHash["stars"] as int[],
+                                                                pHash["pansions"] as int[],
+                                                                pHash["rooms"] as RequestRoom[],
+                                                                SearchId, HOTELS_RESULTS_LIFETIME
+                        ));
+
+                if (ConfigurationManager.AppSettings["SearchHotelsInOkToGo"] == "true")
+                    searchers.Add(ClickAndTravelSearchEngine.HotelSearchExt.OktogoService.id_prefix, new ClickAndTravelSearchEngine.HotelSearchExt.OktogoService((int)pHash["cityId"],
                                                                 (DateTime)pHash["dateStart"],
                                                                 (DateTime)pHash["dateEnd"],
                                                                 pHash["stars"] as int[],
@@ -2262,7 +2298,6 @@ namespace ClickAndTravelSearchEngine
             {
                 throw new CatseException(ex.Message + " " + ex.StackTrace, ErrorCodes.HotelRoomsTurists);
             }
-            //  return null;
         }
 
         #endregion

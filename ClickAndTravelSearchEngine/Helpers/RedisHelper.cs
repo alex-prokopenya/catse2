@@ -11,7 +11,6 @@ namespace ClickAndTravelSearchEngine
 {
     public class RedisHelper
     {
-   
         private static string host = ConfigurationManager.AppSettings["RedisHost"];
 
         public static void SetString(string key, string value)
@@ -34,7 +33,6 @@ namespace ClickAndTravelSearchEngine
                     catch (Exception ex)
                     {
                         Thread.Sleep(100);
-                        
                     }
                 }
         }

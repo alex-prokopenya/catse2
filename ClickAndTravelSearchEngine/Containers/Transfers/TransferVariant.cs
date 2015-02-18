@@ -18,8 +18,9 @@ namespace ClickAndTravelSearchEngine.Containers.Transfers
             {
                 JsonObject pr = new JsonObject();
 
-                foreach (KeyValuePair<string, decimal> val in _prices)
-                    pr.Add(val.Key, val.Value);
+                if (_prices != null)
+                    foreach (KeyValuePair<string, decimal> val in _prices)
+                        pr.Add(val.Key, val.Value);
 
                 return pr;
             }
@@ -34,7 +35,7 @@ namespace ClickAndTravelSearchEngine.Containers.Transfers
         }
 
         private int _detailsId;
-        [JsonMemberName("id")]
+        [JsonMemberName("details_id")]
         public int DetailsId
         {
             get { return _detailsId; }
@@ -47,6 +48,22 @@ namespace ClickAndTravelSearchEngine.Containers.Transfers
         {
             get { return _carsCount; }
             set { _carsCount = value; }
+        }
+
+        private string _priceId;
+        [JsonMemberName("price_id")]
+        public string PriceId
+        {
+            get { return _priceId; }
+            set { _priceId = value; }
+        }
+
+        private string _carsInfo;
+        [JsonMemberName("cars_info")]
+        public string CarsInfo
+        {
+            get { return _carsInfo; }
+            set { _carsInfo = value; }
         }
     }
 }

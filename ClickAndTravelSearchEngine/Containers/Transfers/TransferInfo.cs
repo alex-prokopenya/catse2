@@ -22,37 +22,55 @@ namespace ClickAndTravelSearchEngine.Containers.Transfers
         {
             try
             {
-                this._arrivalInfo = arr["arrival_info"].ToString();
-                this._departureInfo = arr["departure_info"].ToString();
-                this._time = arr["time"].ToString();
+                this._dateDeparture = arr["date_departure"].ToString();
+                this._dateArrival = arr["date_arrival"].ToString();
+                this._locationAddress = arr["location_address"].ToString();
+                this._destinationAddress = arr["destination_address"].ToString();
+                this._arrivalNumber = arr["arrival_number"].ToString();
             }
             catch (Exception)
             {
                 throw new Exception("Cann't parse transfer info");
             }
         }
-        
-        private string _departureInfo;
 
-        public string DepartureInfo
-        {
-            get { return _departureInfo; }
-            set { _departureInfo = value; }
-        }
-        private string _arrivalInfo;
 
-        public string ArrivalInfo
+        private string _dateDeparture;
+        public string DateDeparture
         {
-            get { return _arrivalInfo; }
-            set { _arrivalInfo = value; }
+            get { return _dateDeparture; }
+            set { _dateDeparture = value; }
         }
 
-        private string _time;
 
-        public string Time
+        private string _dateArrival;
+        public string DateArrival
         {
-            get { return _time; }
-            set { _time = value; }
+            get { return _dateArrival; }
+            set { _dateArrival = value; }
+        }
+
+
+        private string _arrivalNumber;
+        public string ArrivalNumber
+        {
+            get { return _arrivalNumber; }
+            set { _arrivalNumber = value; }
+        }
+
+
+        private string _locationAddress;
+        public string LocationAddress
+        {
+            get { return _locationAddress; }
+            set { _locationAddress = value; }
+        }
+
+        private string _destinationAddress;
+        public string DestinationAddress
+        {
+            get { return _destinationAddress; }
+            set { _destinationAddress = value; }
         }
     }
 }

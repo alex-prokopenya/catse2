@@ -15,6 +15,8 @@ using ClickAndTravelSearchEngine.ParamsContainers;
 using System.Text.RegularExpressions;
 using ClickAndTravelSearchEngine.Containers.Hotels;
 using ClickAndTravelSearchEngine.Containers.Excursions;
+using ClickAndTravelSearchEngine.Containers.Transfers;
+using System.Configuration;
 
 
 using Jayrock.Json;
@@ -40,8 +42,6 @@ namespace ClickAndTravelSearchEngine.MasterTour
 
         public static KeyValuePair<string, decimal>[] GetCourses(string[] iso_codes, string base_rate, DateTime date)
         {
-            
-
             //check redis cache
             string key_for_redis = "courses_"+base_rate+"b"+iso_codes.Aggregate((a,b)=> a+","+b) + "d"+date.ToString();
 
@@ -129,16 +129,19 @@ namespace ClickAndTravelSearchEngine.MasterTour
             {
                 Logger.WriteToLog(ex.Message + " " + ex.StackTrace);
             }
-
-
            
-         //   else
-                throw new CatseException("Course not founded for date and rates " + rate1 + " " + rate2 + " " + date.ToString());
+            throw new CatseException("Course not founded for date and rates " + rate1 + " " + rate2 + " " + date.ToString());
         }
 
         public static int SaveTuristToCache(TuristContainer tst)
         {
-            SqlConnection con = new SqlConnection(Manager.ConnectionString);
+            SqlConnection con = new SqlConnection();
+
+            if (Manager.ConnectionString == null)
+                con.ConnectionString = ConfigurationManager.AppSettings["MasterTourConnectionString"];
+            else
+                con.ConnectionString = Manager.ConnectionString;
+
             con.Open();
 
             SqlCommand del_com = new SqlCommand(String.Format("delete from [CATSE_Turists] where [ts_id] =" + tst.Id), con);
@@ -164,7 +167,13 @@ namespace ClickAndTravelSearchEngine.MasterTour
 
         public static TuristContainer[] GetTuristsFromCache(int[] tstId)
         {
-            SqlConnection con = new SqlConnection(Manager.ConnectionString);
+            SqlConnection con = new SqlConnection();
+
+            if (Manager.ConnectionString == null)
+                con.ConnectionString = ConfigurationManager.AppSettings["MasterTourConnectionString"];
+            else
+                con.ConnectionString = Manager.ConnectionString;
+
             con.Open();
 
             SqlCommand com = new SqlCommand("select * from  [CATSE_Turists] where [ts_id] in (" + tstId.Aggregate("-1", (sum, value) => sum += "," + value) + ") order by ts_birthdate asc", con);
@@ -196,11 +205,15 @@ namespace ClickAndTravelSearchEngine.MasterTour
         {
             Random rnd = new Random();
 
-          //  if (rnd.Next(100) > 95) return 0; //имитация фэйла при бронировании
-
             string tsts = turists_ids.Aggregate( (a,b)=> a.ToString()+ "," + b );
 
-            SqlConnection con = new SqlConnection(Manager.ConnectionString);
+            SqlConnection con = new SqlConnection();
+
+            if (Manager.ConnectionString == null)
+                con.ConnectionString = ConfigurationManager.AppSettings["MasterTourConnectionString"];
+            else
+                con.ConnectionString = Manager.ConnectionString;
+
             con.Open();
             try
             {
@@ -234,7 +247,13 @@ namespace ClickAndTravelSearchEngine.MasterTour
 
         public static int SaveHotelBookingToCache(List<HotelBooking> hotelBookings)
         {
-            SqlConnection con = new SqlConnection(Manager.ConnectionString);
+            SqlConnection con = new SqlConnection();
+
+            if (Manager.ConnectionString == null)
+                con.ConnectionString = ConfigurationManager.AppSettings["MasterTourConnectionString"];
+            else
+                con.ConnectionString = Manager.ConnectionString;
+
             con.Open();
 
             try
@@ -261,7 +280,13 @@ namespace ClickAndTravelSearchEngine.MasterTour
 
         public static int SaveExcursionBookingToCache(ExcursionBooking excb)
         {
-            SqlConnection con = new SqlConnection(Manager.ConnectionString);
+            SqlConnection con = new SqlConnection();
+
+            if (Manager.ConnectionString == null)
+                con.ConnectionString = ConfigurationManager.AppSettings["MasterTourConnectionString"];
+            else
+                con.ConnectionString = Manager.ConnectionString;
+
             con.Open();
             
             try
@@ -285,6 +310,42 @@ namespace ClickAndTravelSearchEngine.MasterTour
                 return 0;
             }
         }
+
+        public static int SaveTransferBookingToCache(TransferBooking trfb)
+        {
+            SqlConnection con = new SqlConnection();
+
+            if (Manager.ConnectionString == null)
+                con.ConnectionString = ConfigurationManager.AppSettings["MasterTourConnectionString"];
+            else
+                con.ConnectionString = Manager.ConnectionString;
+
+            con.Open();
+
+            try
+            {
+                var str = Jayrock.Json.Conversion.JsonConvert.ExportToString(trfb);
+
+                SqlCommand com = new SqlCommand(String.Format("insert into [CATSE_transfers](tr_hash) OUTPUT INSERTED.tr_id  values('{0}')", Jayrock.Json.Conversion.JsonConvert.ExportToString(trfb)), con);
+
+                Int32 newId = (Int32)com.ExecuteScalar();
+
+                com = new SqlCommand(String.Format("insert into [CATSE_book_id] ([service_type],[service_id]) OUTPUT INSERTED.book_id " +
+                                                        "VALUES ('{0}','{1}')", "CATSE_transfer", newId), con);
+
+                newId = Convert.ToInt32(com.ExecuteScalar());
+
+                con.Close();
+                return newId;
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteToLog(ex.Message + " " + ex.StackTrace);
+                con.Close();
+                return 0;
+            }
+        }
+
         private static string AntiInject(string inp)
         {
             Dictionary<string, string> pairs = new Dictionary<string, string>();

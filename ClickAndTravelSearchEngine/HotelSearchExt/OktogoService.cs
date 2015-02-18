@@ -101,7 +101,6 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
             pansionsGroups.Add("UAI", 4);
         }
 
-
         public OktogoService(int CityId, DateTime StartDate, DateTime EndDate, int[] Stars, int[] Pansions, RequestRoom[] Rooms, string SearchId, long RESULTS_LIFETIME)
         {
             this.stars = Stars;
@@ -170,16 +169,19 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
         {
             var result = new List<Hotel>();
 
-            //идем по списку результатов
-            foreach(var hotelRS  in resp.Products)
-            {
-                //парсим отели по одному
-                var hotel = ComposeHotel(hotelRS, "av");
 
-                //если удалось, добавляем в результат
-                if (hotel != null)
-                    result.Add(hotel);
-            }
+            if(resp.Products != null)
+                //идем по списку результатов
+                foreach(var hotelRS  in resp.Products)
+                {
+                    //парсим отели по одному
+                    var hotel = ComposeHotel(hotelRS, "av");
+
+                    //если удалось, добавляем в результат
+                    if (hotel != null)
+                        result.Add(hotel);
+                }
+
 
             return result.ToArray();
         }
@@ -191,7 +193,7 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
                 //создаем новый объект отеля 
                 Hotel curHotel = new Hotel()
                 {
-                    HotelId = hotelRS.HotelId, // пишем айдишник
+                    HotelId = hotelRS.HotelId + OktogoHotelIdShift, // пишем айдишник
                 };
 
                 var rooms = new List<Containers.Hotels.Room>();
@@ -205,12 +207,11 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
                     //строка для сопоставления комнат
                     var checkStr = "ad=" + reqRoom.Adults + "ch=" + reqRoom.Children + "("+ string.Join(",",reqRoom.ChildrenAges)+")";
 
-                    var tempRoom = new Containers.Hotels.Room()
-                            {
-                                Adults   = reqRoom.Adults,
-                                Children = reqRoom.Children,
-                                ChildrenAges = reqRoom.ChildrenAges
-                            };
+                    var tempRoom = new Containers.Hotels.Room() {
+                                                                    Adults   = reqRoom.Adults,
+                                                                    Children = reqRoom.Children,
+                                                                    ChildrenAges = reqRoom.ChildrenAges
+                                                                };
 
                     //варианты цен в комнате
                     var tmpVariants = new List<RoomVariant>();
@@ -511,6 +512,8 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
 
                     if(string.IsNullOrEmpty(redisVariantId))
                         throw new Exceptions.CatseException("not founded rateId", 0);
+
+                    hvr.VariantId = redisVariantId;
                 }
                     
                 res_arr.Add(new HotelBooking()
@@ -540,6 +543,12 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
             {
                 Currency = Currency.RUB,
                 ClientReservationId = dogovorCode,
+                ClientInfo = new ClientInfo() { 
+                    Email = "it@viziteurope.eu",
+                    FirstName = "alex",
+                    LastName = "prokopenya",
+                    Phone = "1234567"
+                }
             };
 
             var roomList = new List<RateInfo>();
@@ -566,7 +575,7 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
 
                     foreach(var turist in turists)
                     {
-                        var tmpGuid = new Guid();
+                        var tmpGuid = Guid.NewGuid();
 
                         guests.Add(tmpGuid);
 
@@ -588,6 +597,9 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
                     });
                 }
             }
+
+            hotelRequest.ReservationParameters.Persons = allPersons.ToArray();
+            hotelRequest.ReservationParameters.Rates = roomList.ToArray();
 
             var response = MakeOkToGoRequest(hotelRequest);
 
@@ -611,6 +623,10 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
         {
             return this.FindedHotels != null;
         }
+        public string GetSearchId()
+        {
+            return this.searchId;
+        }
 
         private RoomInfo[] PrepareRoomsForRequest()
         {
@@ -629,6 +645,8 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
                 //добавляем детей
                 foreach (int age in room.ChildrenAges)
                     guests.Add(new Guest() { Age = age, IsChild = true });
+
+                result.Add(new RoomInfo() { Guests = guests.ToArray()});
             }
 
             return result.ToArray();

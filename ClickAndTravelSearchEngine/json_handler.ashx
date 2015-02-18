@@ -350,14 +350,25 @@ namespace ClickAndTravelSearchEngine
                                         int tourists_count)
         {
             DateTime transferDate = DateTime.ParseExact(transfer_date, "yyyy-MM-dd", null);
-            DateTime returnDate = DateTime.ParseExact(return_date, "yyyy-MM-dd", null);
+            DateTime returnDate = DateTime.MinValue;
+
+            if (return_date!="")
+                  returnDate =  DateTime.ParseExact(return_date, "yyyy-MM-dd", null);
 
             return (this.search_engine.TransferSearch(start_point_id, end_point_id, transferDate, returnDate, tourists_count));
         }
 
+        [JsonRpcMethod("transfer_get_info_mask")]
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"transfer_get_info_mask\",\"params\":[\"1244_323_33\"],\"id\":0}")]
+        public object transfer_get_info_mask(string price_id)
+        {
+            return (this.search_engine.TransferGetInfoMask(price_id));
+        }
+        
+        
         [JsonRpcMethod("transfer_book")]
 	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"transfer_book\",\"params\":[\"srch_id\", 1, [{\"departure_info\":\"fdss\",\"arrival_info\":\"string\",\"time\":\"string\"}], {\"email\":\"user@test.com\", \"phone\":\"+375 29 111 22 33\"},[{\"last_name\":\"Vasia\",\"first_name\":\"Pupkin\",\"birth_date\":\"2010-06-15\",\"citizenship\":\"BY\",\"passport_num\":\"MP12211221\",\"passport_date\":\"2014-06-15\",\"bonus_card\":{\"airline_code\":\"LH\",\"card_number\":\"24352200\"}}]],\"id\":0}")]
-        public object transfer_book(string search_id, int transfer_id, JsonArray transfer_info,
+        public object transfer_book(string search_id, string price_id, JsonArray transfer_info,
                                     JsonObject user_info, JsonArray tourists)
         {
             UserInfo userInfo = null;
@@ -365,7 +376,7 @@ namespace ClickAndTravelSearchEngine
             {
                 userInfo = new UserInfo(user_info);
             }
-            catch (Exception ex )// ex)
+            catch (Exception ex )
             {
                 Logger.WriteToLog("transfer_book mehod exception while parse user info " + ex.Message + "\n" + ex.StackTrace);
                 throw new Exception("cann't parse user_info");

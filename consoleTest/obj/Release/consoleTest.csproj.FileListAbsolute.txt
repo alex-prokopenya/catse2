@@ -3,3 +3,11 @@ C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Release
 C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\obj\Release\consoleTest.csprojResolveAssemblyReference.cache
 C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\obj\Release\consoleTest.exe
 C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\obj\Release\consoleTest.pdb
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Release\consoleTest.exe.config
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Release\ClickAndTravelSearchEngine.dll
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Release\Jayrock.dll
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Release\Jayrock.Json.dll
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Release\Megatec.MasterTour.BusinessRules.dll
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Release\Sider.dll
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Release\Megatec.MasterTour.DataAccess.dll
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Release\ClickAndTravelSearchEngine.pdb
