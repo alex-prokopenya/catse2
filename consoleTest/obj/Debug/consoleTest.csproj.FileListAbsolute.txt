@@ -10,3 +10,4 @@ C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\S
 C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\Megatec.MasterTour.DataAccess.dll
 C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\ClickAndTravelSearchEngine.pdb
 C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\consoleTest.exe.config
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\ClickAndTravelSearchEngine.dll

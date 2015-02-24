@@ -108,7 +108,7 @@ namespace ClickAndTravelSearchEngine
 
         [JsonRpcMethod("flight_get_search_state")]
 	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"flight_get_search_state\",\"params\":[\"1232323453\"],\"id\":0}")]
-        public object flight_get_search_state(string search_id, params object[] args)
+        public object flight_get_search_state(string search_id, params object[] args)     
         {
             Responses._Response res = (this.search_engine.FlightGetSearchState(search_id));
 
@@ -367,8 +367,8 @@ namespace ClickAndTravelSearchEngine
         
         
         [JsonRpcMethod("transfer_book")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"transfer_book\",\"params\":[\"srch_id\", 1, [{\"departure_info\":\"fdss\",\"arrival_info\":\"string\",\"time\":\"string\"}], {\"email\":\"user@test.com\", \"phone\":\"+375 29 111 22 33\"},[{\"last_name\":\"Vasia\",\"first_name\":\"Pupkin\",\"birth_date\":\"2010-06-15\",\"citizenship\":\"BY\",\"passport_num\":\"MP12211221\",\"passport_date\":\"2014-06-15\",\"bonus_card\":{\"airline_code\":\"LH\",\"card_number\":\"24352200\"}}]],\"id\":0}")]
-        public object transfer_book(string search_id, string price_id, JsonArray transfer_info,
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"transfer_book\",\"params\":[\"srch_id\", \"341_34324#1\", [{\"DateDeparture\":\"fdss\",\"DateArrival\":\"string\",\"time\":\"string\"}], {\"email\":\"user@test.com\", \"phone\":\"+375 29 111 22 33\"},[{\"last_name\":\"Vasia\",\"first_name\":\"Pupkin\",\"birth_date\":\"2010-06-15\",\"citizenship\":\"BY\",\"passport_num\":\"MP12211221\",\"passport_date\":\"2014-06-15\",\"bonus_card\":{\"airline_code\":\"LH\",\"card_number\":\"24352200\"}}]],\"id\":0}")]
+        public object transfer_book(string search_id, string transfer_id, JsonArray transfer_info,
                                     JsonObject user_info, JsonArray tourists)
         {
             UserInfo userInfo = null;

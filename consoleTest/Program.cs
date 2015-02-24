@@ -22,6 +22,11 @@ namespace consoleTest
     {
         static void Main(string[] args)
         {
+            var res = IWaySearcher.GetPriceVariants(135, 1206, 1, true);
+
+            Console.WriteLine("" +  res.Length);
+            return;
+            /*
             //////протестировать бронирование
             var sId = "t-1301-42-2202-2502-1";
             var pId = "35200_35201#1";
@@ -71,7 +76,7 @@ namespace consoleTest
 
             Console.WriteLine("" + res.Length);
             return;
-
+            */
             int ad1 = 1;
             int ad2 = 2;
             var chAges1 = new int[]{5};

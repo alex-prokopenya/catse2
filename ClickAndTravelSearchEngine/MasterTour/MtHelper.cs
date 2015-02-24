@@ -331,11 +331,12 @@ namespace ClickAndTravelSearchEngine.MasterTour
                 Int32 newId = (Int32)com.ExecuteScalar();
 
                 com = new SqlCommand(String.Format("insert into [CATSE_book_id] ([service_type],[service_id]) OUTPUT INSERTED.book_id " +
-                                                        "VALUES ('{0}','{1}')", "CATSE_transfer", newId), con);
+                                                        "VALUES ('{0}','{1}')", "CATSE_transfers", newId), con);
 
                 newId = Convert.ToInt32(com.ExecuteScalar());
 
                 con.Close();
+
                 return newId;
             }
             catch (Exception ex)

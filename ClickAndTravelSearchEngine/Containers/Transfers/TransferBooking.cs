@@ -35,6 +35,14 @@ namespace ClickAndTravelSearchEngine.Containers.Transfers
             set { _startDate = value; }
         }
 
+        private string _endDate;
+        [JsonMemberName("endDate")]
+        public string EndDate
+        {
+            get { return _endDate; }
+            set { _endDate = value; }
+        }
+
         private string[] _turists;
         [JsonMemberName("turists")]
         public string[] Turists

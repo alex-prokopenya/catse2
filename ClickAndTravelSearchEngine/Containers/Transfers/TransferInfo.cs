@@ -22,11 +22,20 @@ namespace ClickAndTravelSearchEngine.Containers.Transfers
         {
             try
             {
-                this._dateDeparture = arr["date_departure"].ToString();
-                this._dateArrival = arr["date_arrival"].ToString();
-                this._locationAddress = arr["location_address"].ToString();
-                this._destinationAddress = arr["destination_address"].ToString();
-                this._arrivalNumber = arr["arrival_number"].ToString();
+                if (arr.Contains("DateDeparture"))
+                    this._dateDeparture = arr["DateDeparture"].ToString();
+
+                if (arr.Contains("DateArrival"))
+                    this._dateArrival = arr["DateArrival"].ToString();
+
+                if (arr.Contains("LocationAddress"))
+                    this._locationAddress = arr["LocationAddress"].ToString();
+
+                if (arr.Contains("DestinationAddress"))
+                    this._destinationAddress = arr["DestinationAddress"].ToString();
+
+                if (arr.Contains("ArrivalNumber"))
+                    this._arrivalNumber = arr["ArrivalNumber"].ToString();
             }
             catch (Exception)
             {

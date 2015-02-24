@@ -1,2 +1,26 @@
 _______________________________________
+2015-02-18 17:15:51 from redis1
+_______________________________________
+2015-02-18 17:15:51 Значение не может быть неопределенным.
+Имя параметра: s    в System.IO.StringReader..ctor(String s)
+   в Jayrock.Json.Conversion.JsonConvert.Import(Type type, String text)
+   в Jayrock.Json.Conversion.JsonConvert.Import[T](String text)
+   в ClickAndTravelSearchEngine.TransferSearchExt.IWaySearcher.GetPriceVariants(Int32 startPoint, Int32 endPoint, Int32 turistCnt, Boolean isRoundTrip) в c:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\ClickAndTravelSearchEngine\TransferSearchExt\IWaySearcher.cs:строка 78
+_______________________________________
+2015-02-18 17:14:11 from redis1
+_______________________________________
+2015-02-18 17:14:11 Значение не может быть неопределенным.
+Имя параметра: s    в System.IO.StringReader..ctor(String s)
+   в Jayrock.Json.Conversion.JsonConvert.Import(Type type, String text)
+   в Jayrock.Json.Conversion.JsonConvert.Import[T](String text)
+   в ClickAndTravelSearchEngine.TransferSearchExt.IWaySearcher.GetPriceVariants(Int32 startPoint, Int32 endPoint, Int32 turistCnt, Boolean isRoundTrip) в c:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\ClickAndTravelSearchEngine\TransferSearchExt\IWaySearcher.cs:строка 78
+_______________________________________
+2015-02-18 17:12:58 from redis1
+_______________________________________
+2015-02-18 17:12:58 Значение не может быть неопределенным.
+Имя параметра: s    в System.IO.StringReader..ctor(String s)
+   в Jayrock.Json.Conversion.JsonConvert.Import(Type type, String text)
+   в Jayrock.Json.Conversion.JsonConvert.Import[T](String text)
+   в ClickAndTravelSearchEngine.TransferSearchExt.IWaySearcher.GetPriceVariants(Int32 startPoint, Int32 endPoint, Int32 turistCnt, Boolean isRoundTrip) в c:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\ClickAndTravelSearchEngine\TransferSearchExt\IWaySearcher.cs:строка 78
+_______________________________________
 2015-02-18 15:44:02 from redis1

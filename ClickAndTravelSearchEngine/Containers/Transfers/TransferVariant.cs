@@ -24,7 +24,15 @@ namespace ClickAndTravelSearchEngine.Containers.Transfers
 
                 return pr;
             }
-            set { }
+            set {
+                List<KeyValuePair<string, decimal>> prices = new List<KeyValuePair<string, decimal>>();
+
+                JsonObject vl = value;
+                foreach (string name in vl.Names)
+                    prices.Add(new KeyValuePair<string, decimal>(name, Convert.ToDecimal(vl[name])));
+
+                _prices = prices.ToArray();
+            }
         }
 
         [JsonIgnore]

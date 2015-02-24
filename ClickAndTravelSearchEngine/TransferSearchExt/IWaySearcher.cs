@@ -72,7 +72,7 @@ namespace ClickAndTravelSearchEngine.TransferSearchExt
             var redisCache = RedisHelper.GetString(redisKey);
 
             //если что-то есть, пробуем вернуть из кэша
-            if (redisKey != null)
+            if (!string.IsNullOrEmpty(redisCache))
                 try
                 {
                     return JsonConvert.Import<TransferVariant[]>(redisCache);
@@ -241,7 +241,7 @@ namespace ClickAndTravelSearchEngine.TransferSearchExt
             TransferBooking resp = new TransferBooking();
             resp.SearchId = searchId;
             resp.StartDate = startDate.ToString("yyyy-MM-dd");
-
+            resp.EndDate = endDate == DateTime.MinValue ?  startDate.ToString("yyyy-MM-dd"):endDate.ToString("yyyy-MM-dd"); 
             resp.TransactionId = transactionId.ToString();
             
             //заполнить TransferVariant
