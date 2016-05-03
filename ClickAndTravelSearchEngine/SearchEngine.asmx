@@ -1,1 +1,0 @@
-﻿<%@ WebService Language="C#" CodeFile="SearchEngine.asmx.cs" Class="ClickAndTravelSearchEngine.SearchEngine" %>

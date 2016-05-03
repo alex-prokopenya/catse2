@@ -33,7 +33,6 @@ namespace ClickAndTravelSearchEngine
                 error2["code"] = -32000 - Convert.ToInt32((error as JsonObject)["code"]);
                 error2["message"] = (error as IDictionary)["message"];
                 error2["data"] = (error as IDictionary)["errors"];
-                //  (  error as IDictionary)["code"] = -32000;
             }
 
             var response = base.CreateResponse(request, result, error2);
@@ -47,10 +46,13 @@ namespace ClickAndTravelSearchEngine
 
             try
             {
+                var resp = JsonConvert.ExportToString(response2);
+
                 #if DEBUG
-                           Logger.WriteToLog(JsonConvert.ExportToString(response2));
+                if (resp.Length > 500)
+                           Logger.WriteToInOutLog(resp.Substring(0, 500));
                 #else
-                           Logger.WriteToLog(JsonConvert.ExportToString(response2).Substring(0, 100));
+                           Logger.WriteToInOutLog(resp.Substring(0, 100));
                 #endif
             }
             catch (Exception) { }
@@ -148,7 +150,7 @@ namespace ClickAndTravelSearchEngine
 
                 try
                 {
-                    Logger.WriteToLog(JsonConvert.ExportToString(request));
+                    Logger.WriteToInOutLog(JsonConvert.ExportToString(request));
                 }
                 catch (Exception) { }
                 

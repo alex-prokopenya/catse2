@@ -35,7 +35,7 @@ namespace ClickAndTravelSearchEngine.Helpers
             JsonObject jsonresponse = (JsonObject)jsonresponse_;
 
             if (jsonresponse["error"] != null)
-                throw new Exception(jsonresponse["error"].ToString());
+                throw new JsonException(jsonresponse["error"].ToString());
 
             webRequest.Abort();
 

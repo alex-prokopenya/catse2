@@ -30,11 +30,16 @@ namespace ClickAndTravelSearchEngine.MasterTour
 
         public static KeyValuePair<string, decimal>[] ApplyCourses(decimal price, KeyValuePair<string, decimal>[] courses)
         {
+            price = Math.Round(price);
+
             KeyValuePair<string, decimal>[] res = new KeyValuePair<string, decimal>[courses.Length];
 
             for (int i = 0; i < courses.Length; i++)
             {
-                res[i] = new KeyValuePair<string, decimal>(courses[i].Key, Math.Round(price / courses[i].Value));
+                if(courses[i].Key != "BYR")
+                    res[i] = new KeyValuePair<string, decimal>(courses[i].Key, Math.Round(price / courses[i].Value));
+                else
+                    res[i] = new KeyValuePair<string, decimal>(courses[i].Key, Math.Round(price / courses[i].Value / 1000) * 1000);
             }
 
             return res;
@@ -96,6 +101,9 @@ namespace ClickAndTravelSearchEngine.MasterTour
 
         private static decimal getCourse(string rate1, string rate2, DateTime date)
         {
+            Manager.ConnectionString = ConfigurationManager.AppSettings["MasterTourConnectionString"];
+
+            Console.WriteLine(Manager.ConnectionString);
             try
             {
                 RealCourses rcs = new RealCourses(new DataCache());
@@ -149,7 +157,6 @@ namespace ClickAndTravelSearchEngine.MasterTour
 
             SqlCommand com = new SqlCommand(String.Format("insert into [CATSE_Turists]  ([ts_name] ,[ts_fname] ,[ts_gender] ,[ts_id] ,[ts_passport] ,[ts_passportdate] ,[ts_birthdate]  ,[ts_citizenship]) "+
                                                     "VALUES ('{0}','{1}','{2}',{3},'{4}','{5}', '{6}', '{7}')", AntiInject(tst.Name), AntiInject(tst.FirstName), (tst.Sex - 1), tst.Id,   tst.PassportNum, tst.PassportDate.ToString("yyyy-MM-dd"), tst.BirthDate.ToString("yyyy-MM-dd"), tst.Citizenship), con);
-
             try
             {
                 com.ExecuteNonQuery();
@@ -217,12 +224,14 @@ namespace ClickAndTravelSearchEngine.MasterTour
             con.Open();
             try
             {
-                SqlCommand com = new SqlCommand(String.Format("insert into [CATSE_Flights] ([ft_ticketid],[ft_route],[ft_date] ,[ft_price],[ft_turists]) OUTPUT INSERTED.ft_id " +
+                
+                SqlCommand com = new SqlCommand(String.Format("insert into [CATSE_Flights] ([ft_ticketid],[ft_route],[ft_date],[ft_price],[ft_turists],[ft_lastdate]) OUTPUT INSERTED.ft_id " +
                                                         "VALUES ('{0}','{1}','{2}',{3},'{4}')", AntiInject(ticket_id),
                                                                                                 searchId,//   ticket.RouteItems[0].Legs[0].DepartureCode + " - " + ticket.RouteItems[0].Legs[0].ArrivalCode,
-                                                                                                ticket.Parts[0].Legs[0].DateBegin.ToString("yyyy-MM-dd"),
+                                                                                                ticket.Parts[0].Legs[0].DateBegin.ToString("yyyy-MM-dd"), //дата ПЕРВОГО вылета
                                                                                                 ticket.Price,
-                                                                                                tsts
+                                                                                                tsts,
+                                                                                                ticket.Parts.Last().Legs[0].DateBegin.ToString("yyyy-MM-dd")//дата ПОСЛЕДНЕГО вылета
                                                                                                 ), con);
           
                 Int32 newId = (Int32)com.ExecuteScalar();
@@ -277,6 +286,29 @@ namespace ClickAndTravelSearchEngine.MasterTour
                 return 0;
             }
         }
+
+
+        public static HotelBooking[] GetHotelBookingFromCache(int bookId)
+        {
+            SqlConnection con = new SqlConnection(Manager.ConnectionString);
+            con.Open();
+
+            SqlCommand com = new SqlCommand(String.Format("select book_id, ht_hash from [CATSE_hotels], [CATSE_book_id] where [ht_id] = service_id and book_id in(" + bookId + ") and service_type='CATSE_hotels'"), con);
+
+            SqlDataReader reader = com.ExecuteReader();
+
+            if (reader.Read())
+            {
+                string hash = reader["ht_hash"].ToString();
+                HotelBooking[] htlBooks = JsonConvert.Import<HotelBooking[]>(hash);
+
+                return htlBooks;
+
+            }
+
+            return null;
+        }
+          
 
         public static int SaveExcursionBookingToCache(ExcursionBooking excb)
         {

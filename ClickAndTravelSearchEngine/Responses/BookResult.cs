@@ -28,7 +28,7 @@ namespace ClickAndTravelSearchEngine.Responses
                     JsonObject jObj = new JsonObject();
                     foreach (KeyValuePair<string, decimal> pr in _prices)
                         jObj.Add(pr.Key, pr.Value);
-
+                    
                     return jObj;
             }
             set { }

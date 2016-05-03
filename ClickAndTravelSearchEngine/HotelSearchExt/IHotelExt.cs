@@ -16,7 +16,7 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
 
          Hotel[] GetHotels();
 
-         Room[] GetRooms();
+         Room GetRoom();
 
          bool GetFinished();
 
@@ -24,10 +24,12 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
 
          void SetAdded();
 
+         string GetPrefix();
+
          HotelPenalties GetHotelPenalties(int hotelId, string variantId);
 
          HotelVerifyResult VerifyHotelVariant(int hotelId, string variantId);
 
-         HotelBooking[] BookRooms(string searchId, int hotelId, List<BookRoom> operatorRooms, List<List<int>> operatorTurists);
+         HotelBooking BookRoom(string searchId, int hotelId, BookRoom operatorRoom, List<int> operatorTurists);
     }
 }

@@ -1,0 +1,15 @@
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\IntercityInsuranceForm\IntercityInsuranceForm\bin\Debug\IntercityInsuranceForm.exe.config
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\IntercityInsuranceForm\IntercityInsuranceForm\bin\Debug\IntercityInsuranceForm.exe
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\IntercityInsuranceForm\IntercityInsuranceForm\bin\Debug\IntercityInsuranceForm.pdb
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\IntercityInsuranceForm\IntercityInsuranceForm\obj\Debug\IntercityInsuranceForm.csprojResolveAssemblyReference.cache
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\IntercityInsuranceForm\IntercityInsuranceForm\obj\Debug\IntercityInsuranceForm.Form1.resources
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\IntercityInsuranceForm\IntercityInsuranceForm\obj\Debug\IntercityInsuranceForm.Properties.Resources.resources
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\IntercityInsuranceForm\IntercityInsuranceForm\obj\Debug\IntercityInsuranceForm.csproj.GenerateResource.Cache
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\IntercityInsuranceForm\IntercityInsuranceForm\obj\Debug\IntercityInsuranceForm.exe
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\IntercityInsuranceForm\IntercityInsuranceForm\obj\Debug\IntercityInsuranceForm.pdb
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\IntercityInsuranceForm\IntercityInsuranceForm\bin\Debug\Megatec.Common.BusinessRules.dll
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\IntercityInsuranceForm\IntercityInsuranceForm\bin\Debug\Megatec.MasterTour.BusinessRules.dll
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\IntercityInsuranceForm\IntercityInsuranceForm\bin\Debug\Megatec.MasterTour.DataAccess.dll
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\IntercityInsuranceForm\IntercityInsuranceForm\bin\Debug\Megatec.Cryptography.dll
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\IntercityInsuranceForm\IntercityInsuranceForm\bin\Debug\Megatec.Common.Model.dll
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\IntercityInsuranceForm\IntercityInsuranceForm\bin\Debug\megatec.localizer.dll

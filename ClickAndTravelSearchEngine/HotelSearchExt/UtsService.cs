@@ -14,9 +14,11 @@ using System.Net;
 using System.Threading;
 using System.Xml;
 
+
+//НЕ ИСПОЛЬЗУЕТСЯ, ТРЕБУЕТСЯ ПЕРЕПИСАТЬ ПОД ПОИСК 1-й КОМНАТЫ
 namespace ClickAndTravelSearchEngine.HotelSearchExt
 {
-    public class UtsService : IHotelExt
+    public class UtsService // IHotelExt
     {
         private static readonly string FINISHED_STATE = "finished";
 
@@ -60,7 +62,6 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
                 lastTimeRequest = DateTime.Now.TimeOfDay.TotalSeconds;
             else
                 return lastTimeValue;
-
 
             WebClient cl = new WebClient();
 
@@ -273,63 +274,71 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
             //проходимся по выборке отелей
             foreach (XmlElement el in respDoc.GetElementsByTagName("Hotel"))
             {
-                int resultId = Convert.ToInt32(el.GetAttribute("resultId"));
+                try
+                {
+                    int resultId = Convert.ToInt32(el.GetAttribute("resultId"));
 
-                newLastResultId = "" + resultId;
+                    newLastResultId = "" + resultId;
 
-                //читаем категорию отелей
-                int hotelCatId = Convert.ToInt32(el.GetAttribute("hotelCatId"));
+                    //читаем категорию отелей
+                    int hotelCatId = Convert.ToInt32(el.GetAttribute("hotelCatId"));
 
-                //проверяем фильтр по категории
-                if ((starsFilter.Count != 0) && (!starsFilter.Contains(hotelCatId)))
-                    continue;
+                    //проверяем фильтр по категории
+                    if ((starsFilter.Count != 0) && (!starsFilter.Contains(hotelCatId)))
+                        continue;
 
-                //берем комнату в отеле
-                XmlElement roomEl = el.GetElementsByTagName("Room")[0] as XmlElement;
+                    //берем комнату в отеле
+                    XmlElement roomEl = el.GetElementsByTagName("Room")[0] as XmlElement;
 
-                //читаем тип питания
-                int mealId = Convert.ToInt32(roomEl.GetAttribute("mealId"));
+                    //читаем тип питания
+                    int mealId = Convert.ToInt32(roomEl.GetAttribute("mealId"));
 
-                //проверяем фильтр по питанию
-                if ((pansionsFilter.Count != 0) && (!pansionsFilter.Contains(mealId)))
-                    continue;
+                    //проверяем фильтр по питанию
+                    if ((pansionsFilter.Count != 0) && (!pansionsFilter.Contains(mealId)))
+                        continue;
 
-                //читаем атрибуты результата
-                int hotelId  = 10000000 + Convert.ToInt32(el.GetAttribute("hotelId"));
-                
-                string variantId = id_prefix + searchId + "_" + resultId;
+                    //читаем атрибуты результата
+                    int hotelId = 10000000 + Convert.ToInt32(el.GetAttribute("hotelId"));
 
-                //создаем вариант комнаты
-                RoomVariant roomVariant = new RoomVariant() { 
-                    VariantId = variantId,
-                    RoomTitle = roomEl.GetAttribute("roomSizeName"),
-                    RoomCategory = roomEl.GetAttribute("roomTypeName")  + " " + roomEl.GetAttribute("roomViewName"),
-                    PansionTitle = roomEl.GetAttribute("mealName") ,
-                    PansionGroupId = pansionsLib[mealId],
-                    RoomInfo = roomEl.GetAttribute("roomName"),
-                    Prices = new KeyValuePair<string, decimal>[] {
+                    string variantId = id_prefix + searchId + "_" + resultId;
+
+                    //создаем вариант комнаты
+                    RoomVariant roomVariant = new RoomVariant()
+                    {
+                        VariantId = variantId,
+                        RoomTitle = roomEl.GetAttribute("roomSizeName"),
+                        RoomCategory = roomEl.GetAttribute("roomTypeName") + " " + roomEl.GetAttribute("roomViewName"),
+                        PansionTitle = roomEl.GetAttribute("mealName"),
+                        PansionGroupId = pansionsLib[mealId],
+                        RoomInfo = roomEl.GetAttribute("roomName"),
+                        Prices = new KeyValuePair<string, decimal>[] {
                                     new KeyValuePair<string,decimal>( "RUB", Math.Round(HOTELBOOK_COEF * Convert.ToDecimal(el.GetAttribute("comparePrice").Replace(".",","))))
                     }
-                };
+                    };
 
-                //если нет такого отеля в списке, добавляем
-                if(!results.ContainsKey(hotelId))
-                {
-                    results.Add(
-                                    hotelId,
-                                    new Room()
-                                    {
-                                        Adults = inRoom.Adults,
-                                        Children = inRoom.Children,
-                                        ChildrenAges = inRoom.ChildrenAges,
-                                        Variants = new RoomVariant[0]
-                                    }
-                            );
+                    //если нет такого отеля в списке, добавляем
+                    if (!results.ContainsKey(hotelId))
+                    {
+                        results.Add(
+                                        hotelId,
+                                        new Room()
+                                        {
+                                            Adults = inRoom.Adults,
+                                            Children = inRoom.Children,
+                                            ChildrenAges = inRoom.ChildrenAges,
+                                            Variants = new RoomVariant[0]
+                                        }
+                                );
+                    }
+
+                    List<RoomVariant> vars = new List<RoomVariant>(results[hotelId].Variants);
+                    vars.Add(roomVariant);
+                    results[hotelId].Variants = vars.ToArray();
                 }
-
-                List<RoomVariant> vars = new List<RoomVariant>(results[hotelId].Variants);
-                vars.Add(roomVariant);
-                results[hotelId].Variants = vars.ToArray();
+                catch (Exception ex)
+                {
+                    Logger.WriteToLog(el.OuterXml);
+                }
             }
 
             //если поиск закончился, отправляем статус выше
@@ -1067,6 +1076,11 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
         public bool GetFinished()
         {
             return isFinished;
+        }
+
+        public string GetPrefix()
+        {
+            return id_prefix;
         }
     }
 }

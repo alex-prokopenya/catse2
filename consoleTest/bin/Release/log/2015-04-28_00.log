@@ -1,0 +1,64 @@
+_______________________________________
+2015-04-28 11:33:12 total 277
+_______________________________________
+2015-04-28 11:33:12 not found hotel key for gostinitsa_koravip
+_______________________________________
+2015-04-28 11:33:12 not found hotel key for green_park_hotel_12
+_______________________________________
+2015-04-28 11:33:12 not found hotel key for miniotel_flait
+_______________________________________
+2015-04-28 11:33:12 not found hotel key for barvikha_otel_i_spa
+_______________________________________
+2015-04-28 11:33:12 not found hotel key for nabat_palace_hotel
+_______________________________________
+2015-04-28 11:33:12 total 182
+_______________________________________
+2015-04-28 11:33:12 not found hotel key for kolomenskoye__2
+_______________________________________
+2015-04-28 11:33:12 not found hotel key for izmailovo_beta_
+_______________________________________
+2015-04-28 11:33:12 not found hotel key for grand_viktoriia
+_______________________________________
+2015-04-28 11:33:12 not found hotel key for otel_record
+_______________________________________
+2015-04-28 11:33:12 not found hotel key for polaris_
+_______________________________________
+2015-04-28 11:33:12 not found hotel key for izmailovo_gamma_delta_
+_______________________________________
+2015-04-28 11:33:12 not found hotel key for antis_house_uninn
+_______________________________________
+2015-04-28 11:33:12 not found hotel key for uninn_hotel_vnukovo
+_______________________________________
+2015-04-28 11:33:12 not found hotel key for doubletree_by_hilton_hotel_moscow__marina
+_______________________________________
+2015-04-28 11:33:12 not found hotel key for four_seasons_hotel_moscow
+_______________________________________
+2015-04-28 11:33:12 total 93
+_______________________________________
+2015-04-28 11:33:10 http://partner.ostrovok.ru/api/b2b/v2/hotel/rates?data={"region_id":2395,"checkout":"2015-05-25","checkin":"2015-05-20","adults":2,"children":[],"format":"json","lang":"ru","page":3,"include":["room_description","value_adds","rate_price","room_name","availability_hash","cancellation_info"]}
+_______________________________________
+2015-04-28 11:33:08 http://partner.ostrovok.ru/api/b2b/v2/hotel/rates?data={"region_id":2395,"checkout":"2015-05-25","checkin":"2015-05-20","adults":2,"children":[],"format":"json","lang":"ru","page":2,"include":["room_description","value_adds","rate_price","room_name","availability_hash","cancellation_info"]}
+_______________________________________
+2015-04-28 11:33:08 pages to load: 3
+_______________________________________
+2015-04-28 11:33:07 not found hotel key for park_inn_by_radisson_sheremetyevo_airport_moscow
+_______________________________________
+2015-04-28 11:33:07 not found hotel key for otel_kartmazovo
+_______________________________________
+2015-04-28 11:33:07 not found hotel key for otel_insaidbiznes
+_______________________________________
+2015-04-28 11:33:07 not found hotel key for otel_insaidtranzit
+_______________________________________
+2015-04-28 11:33:07 not found hotel key for sheraton_moscow_sheremetyevo_airport_hotel
+_______________________________________
+2015-04-28 11:33:07 not found hotel key for vnukovo
+_______________________________________
+2015-04-28 11:33:07 not found hotel key for novotel_moskva_sheremetevo
+_______________________________________
+2015-04-28 11:32:58 http://partner.ostrovok.ru/api/b2b/v2/hotel/rates?data={"region_id":2395,"checkout":"2015-05-25","checkin":"2015-05-20","adults":2,"children":[],"format":"json","lang":"ru","page":1,"include":["room_description","value_adds","rate_price","room_name","availability_hash","cancellation_info"]}
+_______________________________________
+2015-04-28 11:32:58 from redis1
+_______________________________________
+2015-04-28 11:30:05 http://partner.ostrovok.ru/api/b2b/v2/hotel/rates?data={"region_id":2395,"checkout":"2015-05-25","checkin":"2015-05-20","adults":2,"children":[],"format":"json","lang":"ru","page":1,"include":["room_description","value_adds","rate_price","room_name","availability_hash","cancellation_info"]}
+_______________________________________
+2015-04-28 11:30:05 from redis1

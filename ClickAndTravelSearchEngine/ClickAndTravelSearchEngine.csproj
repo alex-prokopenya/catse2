@@ -13,7 +13,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ClickAndTravelSearchEngine</RootNamespace>
     <AssemblyName>ClickAndTravelSearchEngine</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <UseIISExpress>false</UseIISExpress>
     <TargetFrameworkProfile />
     <FileUpgradeFlags>
@@ -25,6 +25,7 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -34,6 +35,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -42,6 +44,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Jayrock">
@@ -62,6 +65,10 @@
     <Reference Include="Megatec.MasterTour.DataAccess">
       <HintPath>..\..\CATMO\ClickAndTravelSearchEngine\bin\Megatec.MasterTour.DataAccess.dll</HintPath>
     </Reference>
+    <Reference Include="MySql.Data, Version=6.8.3.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\MySql.Data.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>E:\up\Debug\nunit.framework.dll</HintPath>
     </Reference>
@@ -77,7 +84,6 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
@@ -85,16 +91,13 @@
     <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
-    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
-    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="SearchEngine.asmx" />
     <Content Include="Properties\DataSources\System.Xml.XmlNode.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -225,6 +228,7 @@
     <Compile Include="Containers\Excursions\ExcursionBooking.cs" />
     <Compile Include="Containers\Excursions\ExcursionDetails.cs" />
     <Compile Include="Containers\Excursions\ExcursionType.cs" />
+    <Compile Include="Containers\Excursions\VizitExcursionVariant.cs" />
     <Compile Include="Containers\Excursions\ExcursionVariant.cs" />
     <Compile Include="Containers\AnyFile.cs" />
     <Compile Include="Containers\Flights\FlightTicket.cs" />
@@ -251,18 +255,17 @@
     <Compile Include="Containers\Visa\VisaDetails.cs" />
     <Compile Include="ErrorCodes.cs" />
     <Compile Include="Exceptions\CatseException.cs" />
-    <Compile Include="ExcursionSearchExt\ClickExcSearcher.cs" />
-    <Compile Include="ExcursionSearchExt\VizitExcSearcher.cs" />
-    <Compile Include="Helpers\AirportsChecker.cs" />
-    <Compile Include="Helpers\DB.cs" />
+    <Compile Include="Exceptions\ExcursionSearchExt\ClickExcSearcher.cs" />
+    <Compile Include="Exceptions\ExcursionSearchExt\VizitExcSearcher.cs" />
+    <Compile Include="Exceptions\ExcursionSearchExt\WeAtlasExcSearcher.cs" />
     <Compile Include="Helpers\HashSumm.cs" />
     <Compile Include="Helpers\JsonRpcClient.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="HotelSearchExt\IHotelExt.cs" />
-    <Compile Include="HotelSearchExt\OktogoService.cs" />
-    <Compile Include="HotelSearchExt\UtsService.cs" />
+    <Compile Include="HotelSearchExt\OstrovokSearch.cs" />
+    <None Include="HotelSearchExt\UtsService.cs" />
     <Compile Include="HotelSearchExt\VizitHotelsSearch.cs" />
     <Compile Include="JsonRpcDipatcher.cs" />
     <Compile Include="MasterTour\MtHelper.cs" />
@@ -284,8 +287,9 @@
     <Compile Include="Responses\CarRentSearchResult.cs" />
     <Compile Include="Responses\CarRentStationDetailsResult.cs" />
     <Compile Include="Responses\CarRentVerifyCarResult.cs" />
-    <Compile Include="Responses\ExcursionDetailsResult.cs" />
+    <Compile Include="Responses\ExcursionDatesResult.cs" />
     <Compile Include="Responses\BookResult.cs" />
+    <Compile Include="Responses\ExcursionSearchResultVizit.cs" />
     <Compile Include="Responses\FlightCheckTicketResult.cs" />
     <Compile Include="Containers\RateCourse.cs" />
     <Compile Include="Responses\FlightSearchResult.cs" />
@@ -312,10 +316,6 @@
     <Compile Include="Responses\TransferSearchResult.cs" />
     <Compile Include="Responses\VisaSearchResult.cs" />
     <Compile Include="Responses\_Response.cs" />
-    <Content Include="SearchEngine.asmx.cs">
-      <DependentUpon>SearchEngine.asmx</DependentUpon>
-      <SubType>Component</SubType>
-    </Content>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service References\OktogoService\Reference.cs">
       <AutoGen>True</AutoGen>

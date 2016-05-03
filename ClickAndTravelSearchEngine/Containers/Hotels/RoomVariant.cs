@@ -85,6 +85,15 @@ namespace ClickAndTravelSearchEngine.Containers.Hotels
             }
         }
 
+
+        private JsonObject _penalties;
+        [JsonIgnore]
+        public JsonObject Penalties
+        {
+            get { return _penalties; }
+            set { _penalties = value; }
+        }
+
         [JsonIgnore]
         public KeyValuePair<string, decimal>[] Prices
         {

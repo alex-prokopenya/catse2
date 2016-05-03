@@ -15,53 +15,81 @@ namespace ClickAndTravelSearchEngine
 
         public static void SetString(string key, string value)
         {
-            
             RedisClient redis_clinet;
+
             #if DEBUG
-                Logger.WriteToRedisLog("set key:" + key + "\n\nvalue: " + value);
+            Logger.WriteToRedisStuffLog("get " + key);
+            DateTime start = DateTime.Now;
             #endif
-                int max = 10;
-                while (max-- > 0)
+
+            int max = 10;
+            while (max-- > 0)
+            {
+                try
                 {
-                    try
-                    {
-                        redis_clinet = new RedisClient(host);
-                        redis_clinet.Set(key, value);
-                        
-                        break;
-                    }
-                    catch (Exception ex)
-                    {
-                        Thread.Sleep(100);
-                    }
+                    redis_clinet = new RedisClient(host);
+                    redis_clinet.Set(key, value);
+
+                    redis_clinet.Dispose();
+
+                    break;
                 }
+                catch (Exception)
+                {
+                    Thread.Sleep(100);
+                }
+            }
+
+            #if DEBUG
+
+            if((DateTime.Now - start).TotalSeconds > 2)
+                Logger.WriteToRedisLog("redis set key:" + key + ", " + (DateTime.Now - start).TotalSeconds);
+
+            #endif
         }
 
         public static void SetString(string key, string value, TimeSpan lifetime)
         {
 
-            RedisClient redis_clinet;
             #if DEBUG
-                Logger.WriteToRedisLog("set key:" + key + "\nvalue: " + value + "\nfor " + lifetime.TotalSeconds + " sec.");
+            Logger.WriteToRedisStuffLog("set lt" + key);
+            DateTime start = DateTime.Now;
             #endif
 
-              int max = 10;
-              while (max-- > 0)
-              {
-                  try
-                  {
-                      redis_clinet = new RedisClient(host);
-                      redis_clinet.SetEX(key, lifetime, value);
-                  }
-                  catch (Exception ex)
-                  {
-                      Thread.Sleep(100);
-                  }
-              }
+            RedisClient redis_clinet;
+
+            int max = 10;
+            while (max-- > 0)
+            {
+                try
+                {
+                    redis_clinet = new RedisClient(host);
+                    redis_clinet.SetEX(key, lifetime, value);
+
+                    redis_clinet.Dispose();
+                }
+                catch (Exception)
+                {
+                    Thread.Sleep(100);
+                }
+            }
+
+            #if DEBUG
+                 if ((DateTime.Now - start).TotalSeconds > 2)
+                      Logger.WriteToRedisLog("redis set lifetime key:" + key + ", " + (DateTime.Now - start).TotalSeconds);
+            #endif
         }
 
         public static string GetString(string key)
         {
+
+
+            #if DEBUG
+
+            Logger.WriteToRedisStuffLog("get lt" + key);
+            DateTime start = DateTime.Now;
+            #endif
+
             RedisClient redis_clinet;
 
             int max = 10;
@@ -73,20 +101,22 @@ namespace ClickAndTravelSearchEngine
                       string value = redis_clinet.Get(key);
 
                         #if DEBUG
-                                              if (value != null)
-                                                  Logger.WriteToRedisLog("get key:" + key + "\n\nvalue: " + value);
-                                              else
-                                                  Logger.WriteToRedisLog("get key:" + key + "\n\nvalue: null");
+                            if ((DateTime.Now - start).TotalSeconds > 2)
+                                Logger.WriteToRedisLog("redis get key:" + key + ", " + (DateTime.Now - start).TotalSeconds);
                         #endif
 
-                      return value;
+                    redis_clinet.Dispose();
+                    return value;
                   }
-                  catch (Exception ex)
+                  catch (Exception)
                   {
                       Thread.Sleep(100);
                   }
             }
 
+#if DEBUG
+            Logger.WriteToRedisLog("redis Exception set key:" + key + ", " + (DateTime.Now - start).TotalSeconds);
+#endif
             throw new Exception("redis get string exception");
         }
     }

@@ -1,0 +1,12 @@
+_______________________________________
+2015-05-22 13:36:08 {"id":5,"method":"excursion_search","params":{"city_id":1,"min_date":"2015-06-07","max_date":"2015-06-13","tourists_count":1}}
+_______________________________________
+2015-05-22 13:35:24 {"id":4,"method":"excursion_search","params":{"city_id":1,"min_date":"2015-06-05","max_date":"2015-06-13","tourists_count":1}}
+_______________________________________
+2015-05-22 13:35:11 {"id":3,"method":"excursion_search","params":{"city_id":1,"min_date":"2015-06-05","max_date":"2015-06-10","tourists_count":1}}
+_______________________________________
+2015-05-22 13:33:54 {"jsonrpc":"2.0","id":2,"error":{"code":-32000,"message":"Cannot import ClickAndTravelSearchEngine.R
+_______________________________________
+2015-05-22 13:33:54 {"id":2,"method":"excursion_search","params":{"city_id":1,"min_date":"2015-06-06","max_date":"2015-06-10","tourists_count":1}}
+_______________________________________
+2015-05-22 13:29:26 {"id":1,"method":"excursion_search","params":{"city_id":1,"min_date":"2015-06-06","max_date":"2015-06-10","tourists_count":1}}

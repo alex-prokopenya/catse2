@@ -16,7 +16,7 @@ namespace ClickAndTravelSearchEngine.TransferSearchExt
     public class IWaySearcher
     {
         private static string url = "https://iwayex.com/rpc";
-        private static int userId = 1863;
+        private static int userId = 2464;
         private static string lang = "ru";
         private static JsonRpcClient jsonClient = null;
 
@@ -226,44 +226,59 @@ namespace ClickAndTravelSearchEngine.TransferSearchExt
 
             var client = GetClient();
             //делаем запрос в iway
-            var response = (JsonArray)client.Invoke("BatchReservations", new { data = prices.ToArray() });
-            decimal totalPrice = 0;
-            int transactionId = 0;
-            int carClass = 0;
 
-            foreach(JsonObject order in response)
-            {
-                totalPrice += Convert.ToDecimal( order["Price"] );
-                transactionId = Convert.ToInt32( order["Transaction"] );
-                carClass = Convert.ToInt32(order["CarClassID"]);
-            }
 
-            TransferBooking resp = new TransferBooking();
-            resp.SearchId = searchId;
-            resp.StartDate = startDate.ToString("yyyy-MM-dd");
-            resp.EndDate = endDate == DateTime.MinValue ?  startDate.ToString("yyyy-MM-dd"):endDate.ToString("yyyy-MM-dd"); 
-            resp.TransactionId = transactionId.ToString();
-            
-            //заполнить TransferVariant
-            resp.TransferVariant = new TransferVariant() { 
-                CarsCount = Convert.ToInt16( carsCount ),
-                CarsInfo = "",
-                DetailsId = carClass,
-                PriceId = priceId,
-                Prices = MtHelper.ApplyCourses(totalPrice, MtHelper.GetCourses(MtHelper.rate_codes, "RUB", DateTime.Today))
-            };
+                JsonArray response = null;
+                try
+                {
+                    response = (JsonArray)client.Invoke("BatchReservations", new { data = prices.ToArray() });
+                }
+                catch (JsonException ex)
+                {
+                    JsonObject err = JsonConvert.Import<JsonObject>(ex.Message);
 
-            var turistsIds = new List<string>();
-            //сохранить туристов
-            for (int i = 0; i < turists.Length; i++)
-            {
-                MtHelper.SaveTuristToCache(turists[i]);
-                turistsIds.Add(turists[i].Id.ToString());
-            }
-            
-            resp.Turists = turistsIds.ToArray();
+                    throw new Exceptions.CatseException(err["data"].ToString(), 29);
+                }
+                
+                decimal totalPrice = 0;
+                int transactionId = 0;
+                int carClass = 0;
 
-            return resp;
+                foreach (JsonObject order in response)
+                {
+                    totalPrice += Convert.ToDecimal(order["Price"]);
+                    transactionId = Convert.ToInt32(order["Transaction"]);
+                    carClass = Convert.ToInt32(order["CarClassID"]);
+                }
+
+                TransferBooking resp = new TransferBooking();
+                resp.SearchId = searchId;
+                resp.StartDate = startDate.ToString("yyyy-MM-dd");
+                resp.EndDate = endDate == DateTime.MinValue ? startDate.ToString("yyyy-MM-dd") : endDate.ToString("yyyy-MM-dd");
+                resp.TransactionId = transactionId.ToString();
+
+                //заполнить TransferVariant
+                resp.TransferVariant = new TransferVariant()
+                {
+                    CarsCount = Convert.ToInt16(carsCount),
+                    CarsInfo = "",
+                    DetailsId = carClass,
+                    PriceId = priceId,
+                    Prices = MtHelper.ApplyCourses(totalPrice, MtHelper.GetCourses(MtHelper.rate_codes, "RUB", DateTime.Today))
+                };
+
+                var turistsIds = new List<string>();
+                //сохранить туристов
+                for (int i = 0; i < turists.Length; i++)
+                {
+                    MtHelper.SaveTuristToCache(turists[i]);
+                    turistsIds.Add(turists[i].Id.ToString());
+                }
+
+                resp.Turists = turistsIds.ToArray();
+
+                return resp;
+          
         }
     }
 }

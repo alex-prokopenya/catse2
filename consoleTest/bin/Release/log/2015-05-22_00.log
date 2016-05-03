@@ -1,0 +1,114 @@
+_______________________________________
+2015-05-22 15:56:29 from redis1
+_______________________________________
+2015-05-22 15:55:05 from redis1
+_______________________________________
+2015-05-22 15:54:22 from redis1
+_______________________________________
+2015-05-22 14:23:49 from redis1
+_______________________________________
+2015-05-22 14:23:04 from redis1
+_______________________________________
+2015-05-22 14:22:50 from redis1
+_______________________________________
+2015-05-22 14:22:46 from redis1
+_______________________________________
+2015-05-22 14:22:16 from redis1
+_______________________________________
+2015-05-22 14:21:03 from redis1
+_______________________________________
+2015-05-22 14:12:19 from redis1
+_______________________________________
+2015-05-22 14:11:38 from redis1
+_______________________________________
+2015-05-22 14:10:52 from redis1
+_______________________________________
+2015-05-22 14:10:28 from redis1
+_______________________________________
+2015-05-22 14:09:39 from redis1
+_______________________________________
+2015-05-22 14:08:09 from redis1
+_______________________________________
+2015-05-22 14:07:37 from redis1
+_______________________________________
+2015-05-22 14:07:05 from redis1
+_______________________________________
+2015-05-22 14:06:50 from redis1
+_______________________________________
+2015-05-22 14:05:57 from redis1
+_______________________________________
+2015-05-22 14:05:38 from redis1
+_______________________________________
+2015-05-22 14:05:08 from redis1
+_______________________________________
+2015-05-22 13:58:34 from redis1
+_______________________________________
+2015-05-22 13:57:02 from redis1
+_______________________________________
+2015-05-22 13:56:21 from redis1
+_______________________________________
+2015-05-22 13:56:02 from redis1
+_______________________________________
+2015-05-22 13:54:09 from redis1
+_______________________________________
+2015-05-22 13:52:10 from redis1
+_______________________________________
+2015-05-22 13:51:38 from redis1
+_______________________________________
+2015-05-22 13:50:06 from redis1
+_______________________________________
+2015-05-22 13:48:21 from redis1
+_______________________________________
+2015-05-22 13:48:01 from redis1
+_______________________________________
+2015-05-22 13:46:49 from redis1
+_______________________________________
+2015-05-22 13:45:37 from redis1
+_______________________________________
+2015-05-22 13:45:03 from redis1
+_______________________________________
+2015-05-22 13:43:11 from mt
+_______________________________________
+2015-05-22 13:40:12 Свойство ConnectionString не инициализировано.    в System.Data.SqlClient.SqlConnection.PermissionDemand()
+   в System.Data.SqlClient.SqlConnectionFactory.PermissionDemand(DbConnection outerConnection)
+   в System.Data.ProviderBase.DbConnectionInternal.TryOpenConnectionInternal(DbConnection outerConnection, DbConnectionFactory connectionFactory, TaskCompletionSource`1 retry, DbConnectionOptions userOptions)
+   в System.Data.SqlClient.SqlConnection.TryOpenInner(TaskCompletionSource`1 retry)
+   в System.Data.SqlClient.SqlConnection.TryOpen(TaskCompletionSource`1 retry)
+   в System.Data.SqlClient.SqlConnection.Open()
+   в Megatec.MasterTour.DataAccess.Manager.Fill(BaseTable dataTable, String selectQuery)
+   в Megatec.MasterTour.BusinessRules.DataCache.Fill(BaseTable dataTable, String filter, String sort, Boolean isCached)
+   в Megatec.MasterTour.BusinessRules.BaseView.Fill()
+   в ClickAndTravelSearchEngine.MasterTour.MtHelper.getCourse(String rate1, String rate2, DateTime date) в C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\ClickAndTravelSearchEngine\MasterTour\MtHelper.cs:строка 124
+_______________________________________
+2015-05-22 13:39:31 Свойство ConnectionString не инициализировано.    в System.Data.SqlClient.SqlConnection.PermissionDemand()
+   в System.Data.SqlClient.SqlConnectionFactory.PermissionDemand(DbConnection outerConnection)
+   в System.Data.ProviderBase.DbConnectionInternal.TryOpenConnectionInternal(DbConnection outerConnection, DbConnectionFactory connectionFactory, TaskCompletionSource`1 retry, DbConnectionOptions userOptions)
+   в System.Data.SqlClient.SqlConnection.TryOpenInner(TaskCompletionSource`1 retry)
+   в System.Data.SqlClient.SqlConnection.TryOpen(TaskCompletionSource`1 retry)
+   в System.Data.SqlClient.SqlConnection.Open()
+   в Megatec.MasterTour.DataAccess.Manager.Fill(BaseTable dataTable, String selectQuery)
+   в Megatec.MasterTour.BusinessRules.DataCache.Fill(BaseTable dataTable, String filter, String sort, Boolean isCached)
+   в Megatec.MasterTour.BusinessRules.BaseView.Fill()
+   в ClickAndTravelSearchEngine.MasterTour.MtHelper.getCourse(String rate1, String rate2, DateTime date) в C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\ClickAndTravelSearchEngine\MasterTour\MtHelper.cs:строка 124
+_______________________________________
+2015-05-22 13:39:08 Свойство ConnectionString не инициализировано.    в System.Data.SqlClient.SqlConnection.PermissionDemand()
+   в System.Data.SqlClient.SqlConnectionFactory.PermissionDemand(DbConnection outerConnection)
+   в System.Data.ProviderBase.DbConnectionInternal.TryOpenConnectionInternal(DbConnection outerConnection, DbConnectionFactory connectionFactory, TaskCompletionSource`1 retry, DbConnectionOptions userOptions)
+   в System.Data.SqlClient.SqlConnection.TryOpenInner(TaskCompletionSource`1 retry)
+   в System.Data.SqlClient.SqlConnection.TryOpen(TaskCompletionSource`1 retry)
+   в System.Data.SqlClient.SqlConnection.Open()
+   в Megatec.MasterTour.DataAccess.Manager.Fill(BaseTable dataTable, String selectQuery)
+   в Megatec.MasterTour.BusinessRules.DataCache.Fill(BaseTable dataTable, String filter, String sort, Boolean isCached)
+   в Megatec.MasterTour.BusinessRules.BaseView.Fill()
+   в ClickAndTravelSearchEngine.MasterTour.MtHelper.getCourse(String rate1, String rate2, DateTime date) в C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\ClickAndTravelSearchEngine\MasterTour\MtHelper.cs:строка 124
+_______________________________________
+2015-05-22 13:38:52 Свойство ConnectionString не инициализировано.    в System.Data.SqlClient.SqlConnection.PermissionDemand()
+   в System.Data.SqlClient.SqlConnectionFactory.PermissionDemand(DbConnection outerConnection)
+   в System.Data.ProviderBase.DbConnectionInternal.TryOpenConnectionInternal(DbConnection outerConnection, DbConnectionFactory connectionFactory, TaskCompletionSource`1 retry, DbConnectionOptions userOptions)
+   в System.Data.SqlClient.SqlConnection.TryOpenInner(TaskCompletionSource`1 retry)
+   в System.Data.SqlClient.SqlConnection.TryOpen(TaskCompletionSource`1 retry)
+   в System.Data.SqlClient.SqlConnection.Open()
+   в Megatec.MasterTour.DataAccess.Manager.Fill(BaseTable dataTable, String selectQuery)
+   в Megatec.MasterTour.BusinessRules.DataCache.Fill(BaseTable dataTable, String filter, String sort, Boolean isCached)
+   в Megatec.MasterTour.BusinessRules.BaseView.Fill()
+   в ClickAndTravelSearchEngine.MasterTour.MtHelper.getCourse(String rate1, String rate2, DateTime date) в C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\ClickAndTravelSearchEngine\MasterTour\MtHelper.cs:строка 124

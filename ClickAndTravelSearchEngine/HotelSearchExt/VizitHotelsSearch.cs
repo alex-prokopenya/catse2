@@ -21,21 +21,22 @@ using ClickAndTravelSearchEngine.VizitMaster;
 
 namespace ClickAndTravelSearchEngine.HotelSearchExt
 {
-    public class VizitHotelsSearch:IHotelExt
+    public class VizitHotelsSearch: IHotelExt
     {
         private string searchId = "";
 
         public static readonly string id_prefix = "ve_";
 
         private Hotel[] FindedHotels = null;
-        private Room[] FindedRooms = null;
+        private Room FindedRoom = null;
 
         private int cityId          = 0;
         private DateTime startDate  = DateTime.MinValue;
         private DateTime endDate    = DateTime.MinValue;
         private int[] stars         = new int[0];
         private int[] pansions      = new int[0];
-        private RequestRoom[] rooms = new RequestRoom[0];
+
+        private RequestRoom room  = null;
 
         private bool added = false;
 
@@ -51,14 +52,13 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
         private VizitHotelsSearch()
         { }
 
-        public VizitHotelsSearch(int CityId, DateTime StartDate, DateTime EndDate, int[] Stars, int[] Pansions, RequestRoom[] Rooms, string SearchId, long RESULTS_LIFETIME)
+        public VizitHotelsSearch(int CityId, DateTime StartDate, DateTime EndDate, int[] Stars, int[] Pansions, RequestRoom Room, string SearchId, long RESULTS_LIFETIME)
         {
             //парсим группы по питанию из конфига
             for (int i = 0; i < 7; i++)
             {
                 string ids = ConfigurationManager.AppSettings["VizitPansionGroup" + i];
 
-                Logger.WriteToLog(" group " +i + " " + ids);
                 if ((ids != null) && (ids.Length > 0))
                 {
                     string[] idsParts = ids.Split(',');
@@ -84,6 +84,35 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
                     pansionsGroups[i] = new int[0];
             }
 
+            InitCityId(CityId);
+
+            this.stars = Stars;
+            if (stars.Length == 0)
+                this.stars = new int[] { 1, 2, 3, 4, 5 };
+
+            this.pansions = Pansions;
+
+            List<int> pansionsList = new List<int>();
+
+            for (int i = 0; i < 7; i++)
+            {
+                if ((this.pansions.ToList().Contains(i)) || (this.pansions.Length == 0))
+                    pansionsList.AddRange(pansionsGroups[i]);
+            }
+
+            this.pansions = pansionsList.ToArray();
+
+            this.startDate = StartDate;
+            this.endDate = EndDate;
+            this.room = Room;
+            this.searchId = SearchId;
+
+            this.HOTELS_RESULTS_LIFETIME = RESULTS_LIFETIME;
+        }
+
+        //проставляем id города
+        private void InitCityId(int CityId)
+        {
             #region Города
             #region Чехия
             citiesLib.Add(274, 3);//прага
@@ -118,29 +147,6 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
 
             if (citiesLib.ContainsKey(CityId))
                 this.cityId = citiesLib[CityId];
-
-            this.stars = Stars;
-            if (stars.Length == 0)
-                this.stars = new int[] { 1,2,3,4,5};
-
-            this.pansions = Pansions;
-
-            List<int> pansionsList = new List<int>();
-
-            for (int i = 0; i < 7; i++)
-            {
-                if( (this.pansions.ToList().Contains(i)) || (this.pansions.Length == 0))
-                    pansionsList.AddRange(pansionsGroups[i]);
-            }
-
-            this.pansions = pansionsList.ToArray();
-
-            this.startDate = StartDate;
-            this.endDate = EndDate;
-            this.rooms = Rooms;
-            this.searchId = SearchId;
-
-            this.HOTELS_RESULTS_LIFETIME = RESULTS_LIFETIME;
         }
 
         //СОЗДАЕМ ПУСТУЮ ТАБЛИЦУ ДЛЯ ЦЕН
@@ -155,20 +161,17 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
             DataColumn hotelname = new DataColumn("hotelname", Type.GetType("System.String"));
             DataColumn dateFrom = new DataColumn("dateFrom", Type.GetType("System.String"));
             DataColumn dateTo = new DataColumn("dateTo", Type.GetType("System.String"));
-
             DataColumn chDateIn = new DataColumn("chDateIn", Type.GetType("System.String"));
             DataColumn chDateOut = new DataColumn("chDateOut", Type.GetType("System.String"));
-
             DataColumn longmin = new DataColumn("longmin", Type.GetType("System.Int32"));
             DataColumn longmax = new DataColumn("longmax", Type.GetType("System.Int32"));
-
             DataColumn week = new DataColumn("week", Type.GetType("System.String"));
-
             DataColumn roomname = new DataColumn("roomname", Type.GetType("System.String"));
             DataColumn catname = new DataColumn("catname", Type.GetType("System.String"));
             res.Columns.AddRange(new DataColumn[] { pr, ht, room, pansion, pansname, hotelname, dateFrom, dateTo, roomname, catname, chDateIn, chDateOut, longmin, longmax, week });
             return res;
         }
+
 
         private DataTable getTotalPriceTable(DateTime dateFrom, DateTime dateTo, int cityKey, 
                                int adlCount, int childCount, int age1, int age2, int[] pansions, int[] stars)
@@ -228,13 +231,13 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
 
 
         private DataTable getHotelPriceTable(DateTime dateFrom, DateTime dateTo,
-                       int adlCount, int childCount, int age1, int age2, int[] pansions, int hotelId)
+                                           int adlCount, int childCount, int age1, 
+                                           int age2, int[] pansions, int hotelId)
         {
             hotelId = ConvertHotelId(hotelId);
 
             DataTable dt = createPriceTable();
             SqlConnection conn = new SqlConnection(ConfigurationManager.AppSettings["VizitConnectionString"]);
-
 
             DateTime date1 = System.Convert.ToDateTime(dateFrom);
             DateTime date2 = System.Convert.ToDateTime(dateTo);
@@ -441,6 +444,8 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
 
             if (hotelsLib.ContainsKey(hotelId))
                 hotelId = hotelsLib[hotelId];
+            else
+                hotelId = 0;
 
             return hotelId;
         }
@@ -457,7 +462,6 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
             Dictionary<int, decimal > min_price_value   = new Dictionary<int, decimal>();
 
             Dictionary<string, RoomVariant> room_variant_dict = new Dictionary<string, RoomVariant>();
-
 
             //проходимся по всем записям в таблице
             foreach (DataRow row in tbl.Rows)
@@ -507,7 +511,6 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
 
                 decimal price = Convert.ToDecimal(row["price"]);
 
-
                 DateTime curDate = dateFrom > _dateFrom ? dateFrom : _dateFrom;//c первой даты проживания или действия цены
 
                 //проверяем дату заселения
@@ -532,9 +535,7 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
             Logger.WriteToLog("results composed " + result.Count);
             //проверяем, все ли даты закрыты ценой. выбираем самый дешевый вариант
 
-            int cnt = 1;
             Dictionary<int, RoomVariant> varsResult = new Dictionary<int, RoomVariant>();
-
 
             foreach (int hotelId in result.Keys)
             { 
@@ -562,7 +563,6 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
                                 Prices = new KeyValuePair<string,decimal>[]{new KeyValuePair<string,decimal>("EUR", tot_price*VIZIT_COEF)},
                                 VariantId = id 
                             };
-
                         }
                     }
                 }
@@ -589,11 +589,9 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
 
             Dictionary<string, RoomVariant> room_variant_dict = new Dictionary<string, RoomVariant>();
 
-
             //проходимся по всем записям в таблице
             foreach (DataRow row in tbl.Rows)
             {
- 
                 //берем информацию о комнате и питании
                 int _roomkey = Convert.ToInt32(row["room"]);
                 int _pnkey = Convert.ToInt32(row["pansion"]);
@@ -652,14 +650,13 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
                 }
             }
 
-                List< RoomVariant> varsResult = new List< RoomVariant>();
+            List< RoomVariant> varsResult = new List< RoomVariant>();
 
-                foreach (string variant_code in result.Keys)
-                {
+            foreach (string variant_code in result.Keys)
+            {
                     if (result[variant_code].Count == nigthsLong)
                     {
                         decimal tot_price = result[variant_code].Values.Sum();
-
 
                         string id =  id_start + variant_code;
 
@@ -673,9 +670,8 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
                                 VariantId = id
                             });
                     }
-                }
-
-                return varsResult.ToArray();
+            }
+            return varsResult.ToArray();
         }
 
         public HotelPenalties GetHotelPenalties(int hotelId, string variantId)
@@ -728,35 +724,33 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
             string redis_key = this.searchId + "_" + hotelId + "_rooms_for_verify";
             redis_hash = RedisHelper.GetString(redis_key);
 
-            Room[] rooms = null;
+            Room room = null;
 
             //если есть в кэше, подымаем из кэша
             if ((redis_hash != null) && (redis_hash.Length > 0))
-                rooms = JsonConvert.Import<Room[]>(redis_hash);
+                room = JsonConvert.Import<Room>(redis_hash);
             else //иначе -- ищем заново
             {
                 this.FindRooms(hotelId);
 
-                rooms = this.GetRooms();
+                room = this.GetRoom();
             }
 
-            foreach (Room room in rooms)
-            {
-                foreach (RoomVariant rv in room.Variants)
-                    if (rv.VariantId == variantId)
-                    {
-                        HotelVerifyResult res = new HotelVerifyResult()
-                        {
+           
+            foreach (RoomVariant rv in room.Variants)
+               if (rv.VariantId == variantId)
+               {
+                   HotelVerifyResult res = new HotelVerifyResult()
+                   {
                             VariantId = variantId,
                             IsAvailable = true,
                             Prices = rv.Prices
-                        };
+                   };
 
-                        RedisHelper.SetString(redis_verify_key, JsonConvert.ExportToString(res), new TimeSpan(HOTELS_RESULTS_LIFETIME / 10));
+                   RedisHelper.SetString(redis_verify_key, JsonConvert.ExportToString(res), new TimeSpan(HOTELS_RESULTS_LIFETIME / 10));
 
-                        return res;
-                    }
-            }
+                   return res;
+              }
 
             return null;
         }
@@ -765,51 +759,18 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
         {
             try
             {
-
-                //поиск отелей в согласии с параметрами
-                int roomcount = rooms.Length;//определяем количество комнат
-
-                //проверяем данные по количеству человек и возрасту детей
-                bool copy = (roomcount == 2) && rooms[0].Equals(rooms[1]);
                 //конвертируем даты
                 DateTime date1 = this.startDate, date2 = this.endDate;
 
                 //делаем поиск по первой комнате        
                 DataTable dt1 = getTotalPriceTable(this.startDate, this.endDate, this.cityId,
-                                                   this.rooms[0].Adults, this.rooms[0].Children,
-                                                   this.rooms[0].Children > 0 ? this.rooms[0].ChildrenAges[0] : 0,
-                                                   this.rooms[0].Children > 1 ? this.rooms[0].ChildrenAges[1] : 0,
+                                                   this.room.Adults, this.room.Children,
+                                                   this.room.Children > 0 ? this.room.ChildrenAges[0] : 0,
+                                                   this.room.Children > 1 ? this.room.ChildrenAges[1] : 0,
                                                    this.pansions, this.stars);
 
-                Logger.WriteToLog("dt1 finded " + dt1.Rows.Count + " rows");
-
-                DataTable dt2 = null;
-
-                //если нужно 2 комнаты и данные разные, ищем вторую
-                if ((roomcount == 2) && (!copy))
-                {
-                    dt2 = getTotalPriceTable(this.startDate, this.endDate, this.cityId,
-                                                   this.rooms[1].Adults, this.rooms[1].Children,
-                                                   this.rooms[1].Children > 0 ? this.rooms[1].ChildrenAges[0] : 0,
-                                                   this.rooms[1].Children > 1 ? this.rooms[1].ChildrenAges[1] : 0,
-                                                   this.pansions, this.stars);
-
-                    Logger.WriteToLog("dt2 finded " + dt2.Rows.Count + " rows");
-                }
-
-
+                
                 Dictionary<int, RoomVariant> variants1 = ComposePrices(dt1, this.startDate, this.endDate, id_prefix );
-
-                Logger.WriteToLog("variants1 finded " + variants1.Count + " rows");
-
-                Dictionary<int, RoomVariant> variants2 = null;
-
-                if (roomcount == 2)
-                    if (copy)
-                        variants2 = variants1;
-                    else
-                        variants2 = ComposePrices(dt2, this.startDate, this.endDate, id_prefix );
-
 
                 List<Hotel> hotels = new List<Hotel>();
 
@@ -986,32 +947,15 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
                     Hotel curHotel = new Hotel()
                     {
                         HotelId = hotelsLib.ContainsKey(hotelId) ? hotelsLib[hotelId] : hotelId,
-                        Rooms = new Room[roomcount]
+                        Rooms = new Room[1]
                     };
 
                     variants1[hotelId].Prices = MtHelper.ApplyCourses(variants1[hotelId].Prices[0].Value, _courses);
 
-                    curHotel.Rooms[0] = new Room(this.rooms[0])
+                    curHotel.Rooms[0] = new Room(this.room)
                     {
                         Variants = new RoomVariant[] { variants1[hotelId] }
                     };
-
-                    if (roomcount == 2)
-                    {
-                        if (variants2.ContainsKey(hotelId))
-                        {
-                            if(!copy)
-                                variants2[hotelId].Prices = MtHelper.ApplyCourses(variants2[hotelId].Prices[0].Value, _courses);
-
-                            curHotel.Rooms[1] = new Room(this.rooms[1])
-                               {
-                                   Variants = new RoomVariant[] { variants2[hotelId] }
-                               };
-
-                        }
-                        else
-                            continue;
-                    }
 
                     hotels.Add(curHotel);
                 }
@@ -1030,41 +974,30 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
         {
             //поиск комнат по отелю в согласии с параметрами
             int hotelKey = Convert.ToInt32(hotelId);
+
+            if (ConvertHotelId(hotelKey) == 0)
+            {
+
+                Logger.WriteToLog("no vizit rooms");
+                this.FindedRoom = new Room() { Variants = new RoomVariant[0]};
+                return;
+            }
+
             try
             {
-                //поиск отелей в согласии с параметрами
-                int roomcount = rooms.Length;//определяем количество комнат
                 //проверяем данные по количеству человек и возрасту детей
-                bool copy = (roomcount == 2) && rooms[0].Equals(rooms[1]);
                 //конвертируем даты
                 DateTime date1 = this.startDate, date2 = this.endDate;
 
                 //делаем поиск по первой комнате        
                 DataTable dt1 = getHotelPriceTable(this.startDate, this.endDate,
-                                                   this.rooms[0].Adults, this.rooms[0].Children,
-                                                   this.rooms[0].Children > 0 ? this.rooms[0].ChildrenAges[0] : 0,
-                                                   this.rooms[0].Children > 1 ? this.rooms[0].ChildrenAges[1] : 0,
+                                                   this.room.Adults, this.room.Children,
+                                                   this.room.Children > 0 ? this.room.ChildrenAges[0] : 0,
+                                                   this.room.Children > 1 ? this.room.ChildrenAges[1] : 0,
                                                    this.pansions, hotelKey);
-                DataTable dt2 = null;
-                //если нужно 2 комнаты и данные разные, ищем вторую
-                if ((roomcount == 2) && (!copy))
-                {
-                    dt2 = getHotelPriceTable(this.startDate, this.endDate,
-                                                   this.rooms[1].Adults, this.rooms[1].Children,
-                                                   this.rooms[1].Children > 0 ? this.rooms[1].ChildrenAges[0] : 0,
-                                                   this.rooms[1].Children > 1 ? this.rooms[1].ChildrenAges[1] : 0,
-                                                   this.pansions, hotelKey);
-                }
 
                 RoomVariant[] variants1 = ComposeRoomPrices(dt1, this.startDate, this.endDate, id_prefix, hotelKey);
 
-                RoomVariant[] variants2 = null;
-
-                if (roomcount == 2)
-                    if (copy)
-                        variants2 = variants1;
-                    else
-                        variants2 = ComposeRoomPrices(dt2, this.startDate, this.endDate, id_prefix, hotelKey);
 
                 List<Hotel> hotels = new List<Hotel>();
                 KeyValuePair<string, decimal>[] _courses = null;
@@ -1072,88 +1005,75 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
                 if (variants1.Length > 0)
                     _courses = MtHelper.GetCourses(MtHelper.rate_codes, variants1[0].Prices[0].Key, DateTime.Today);
 
-                this.FindedRooms = new Room[roomcount];
+                this.FindedRoom = null;
 
                 foreach (RoomVariant rv in variants1)
                     rv.Prices = MtHelper.ApplyCourses(rv.Prices[0].Value, _courses);
 
-                this.FindedRooms[0] = new Room(this.rooms[0])
+                this.FindedRoom = new Room(this.room)
                 {
                     Variants =  variants1
                 };
 
-                if (roomcount == 2)
-                {
-                    foreach (RoomVariant rv in variants2)
-                        rv.Prices = MtHelper.ApplyCourses(rv.Prices[0].Value, _courses);
-
-                    this.FindedRooms[1] = new Room(this.rooms[1])
-                    {
-                        Variants = variants2
-                    };
-                }
-
+               
                 string redis_key = this.searchId + "_" + hotelId + "_rooms_for_verify";
 
-                RedisHelper.SetString(redis_key, JsonConvert.ExportToString(this.FindedRooms), new TimeSpan(HOTELS_RESULTS_LIFETIME / 10)); //!!!!!!!
+                RedisHelper.SetString(redis_key, JsonConvert.ExportToString(this.FindedRoom), new TimeSpan(HOTELS_RESULTS_LIFETIME / 10)); //!!!!!!!
             }
             catch (Exception ex)
             {
                 Logger.WriteToLog(ex.Message + "\n" + ex.StackTrace + "\n" + ex.Source );
-                this.FindedRooms = new Room[0];
+                this.FindedRoom = new Room() { Variants = new RoomVariant[0] };
             }
         }
 
-        public HotelBooking[] BookRooms(string searchId, int hotelId, List<BookRoom> operatorRooms, List<List<int>> operatorTurists)
+        public HotelBooking BookRoom(string searchId, int hotelId, BookRoom operatorRoom, List<int> operatorTurists)
         {
             try
             {
-                List<HotelBooking> res_arr = new List<HotelBooking>();
-
                 var tempRooms = new List<VizitMaster.MyService>();
                 var tempTurists = new List<VizitMaster.MyTurist>();
 
-                for (int i = 0; i < operatorRooms.Count; i++)// BookRoom room in operatorRooms)
+                BookRoom room = operatorRoom;
+
+                HotelVerifyResult hvr = this.VerifyHotelVariant(hotelId, room.VariantId);
+
+                if (hvr == null) throw new Exceptions.CatseException("not verified", 0);
+
+                var booking = new HotelBooking()
                 {
-                    BookRoom room = operatorRooms[i];
+                    DateBegin = this.startDate.ToString("yyyy-MM-dd"),
+                    NightsCnt = (this.endDate - this.startDate).Days,
+                    PartnerBookId = "",
+                    PartnerPrefix = id_prefix,
+                    SearchId = searchId,
+                    Prices = hvr.Prices,
+                    Title = "some_title",
+                    Turists = operatorTurists.ToArray()
+                };
 
-                    HotelVerifyResult hvr = this.VerifyHotelVariant(hotelId, room.VariantId);
-
-                    if (hvr == null) throw new Exceptions.CatseException("not verified", 0);
-
-                    res_arr.Add(new HotelBooking()
-                    {
-                        DateBegin = this.startDate.ToString("yyyy-MM-dd"),
-                        NightsCnt = (this.endDate - this.startDate).Days,
-                        PartnerBookId = "",
-                        PartnerPrefix = id_prefix,
-                        SearchId = searchId,
-                        Prices = hvr.Prices,
-                        Title = "some_title",
-                        Turists = operatorTurists[i].ToArray()
-                    });
-
-                    string[] parts = room.VariantId.Split('_');
-                    #region  //добавляем комнаты
-                    tempRooms.Add(new VizitMaster.MyService() { 
+                string[] parts = room.VariantId.Split('_');
+                
+                #region  //добавляем комнаты
+                tempRooms.Add(new VizitMaster.MyService() { 
                         dateBegin = this.startDate.ToString("yyyy-MM-dd"),
                         dateEnd = this.endDate.ToString("yyyy-MM-dd"),
                         agent_brutto = 0,
                         priceBrutto = 0,
                         priceNetto = 0,
-                        room = i+1,
+                        room = 1,
                         svkey = 3,
                         is_vizit = "true",
                         key = ConvertHotelId(hotelId), //!
                         dopKey1 = Convert.ToInt32(parts[1]),
                         dopKey2 = Convert.ToInt32(parts[2])
                         
-                    });
-                    #endregion
+                });
+                #endregion
 
-                    #region //добавляем туристов
-                    var turists = MtHelper.GetTuristsFromCache(operatorTurists[i].ToArray());
-                    foreach(var tst in turists)
+                #region //добавляем туристов
+                var turists = MtHelper.GetTuristsFromCache(operatorTurists.ToArray());
+                foreach(var tst in turists)
                         tempTurists.Add( new VizitMaster.MyTurist() {
                                 birthDate = tst.BirthDate.ToString("yyyy-MM-dd"),
                                 citizenship = "ST" + tst.Citizenship,
@@ -1163,12 +1083,11 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
                                 passport_exp = tst.PassportDate.ToString("yyyy-MM-dd"),
                                 passport_num = tst.PassportNum.Substring(2),
                                 passport_ser = tst.PassportNum.Substring(0,2),
-                                room = i + 1,
+                                room = 1,
                                 sName = tst.MiddleName == null ? "":tst.MiddleName
                             }
-                        );
-                    #endregion
-                }
+                );
+                #endregion
 
                 //бронирование комнаты
                 var cl = new VizitMaster.MasterWebServiceFormSoapClient();
@@ -1195,10 +1114,9 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
 
                 if (!resp.Contains("Error"))
                 {
-                    foreach (HotelBooking hb in res_arr)
-                        hb.PartnerBookId = resp;
+                    booking.PartnerBookId = resp;
 
-                    return res_arr.ToArray();
+                    return booking;
                 }
                 else
                 {
@@ -1219,9 +1137,9 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
             return this.FindedHotels;
         }
 
-        public Room[] GetRooms()
+        public Room GetRoom()
         {
-            return this.FindedRooms;
+            return this.FindedRoom;
         }
 
         public void SetAdded()
@@ -1237,6 +1155,11 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
         public bool GetFinished()
         {
             return this.FindedHotels != null;
+        }
+
+        public string GetPrefix()
+        {
+            return id_prefix;
         }
     }
 }

@@ -9,14 +9,6 @@ namespace ClickAndTravelSearchEngine.Containers.Excursions
 {
     public class ExcursionVariant
     {
-        //private ExcursionDetails _details;
-
-        //public ExcursionDetails Details
-        //{
-        //    get { return _details; }
-        //    set { _details = value; }
-        //}
-
         private int _id;
         [JsonMemberName("id")]
         public int Id
@@ -55,35 +47,6 @@ namespace ClickAndTravelSearchEngine.Containers.Excursions
         {
             get { return _prices; }
             set { _prices = value; }
-        }
-
-        private DateTime[] _dates;
-        [JsonIgnore]
-
-        public DateTime[] Dates
-        {
-            get { return _dates; }
-            set { _dates = value; }
-        }
-
-        [JsonMemberName("dates")]
-        public JsonArray jDates
-        {
-            get { JsonArray jAr = new JsonArray();
-
-            for (int i = 0; i < _dates.Length; i++)
-                jAr.Add( _dates[i].ToString("yyyy-MM-dd"));
-
-                return jAr;
-            }
-            set {
-                List<DateTime> dates = new List<DateTime>();
-
-                foreach (string date in value)
-                    dates.Add(Convert.ToDateTime(date));
-
-                _dates = dates.ToArray();
-            }
         }
     }
 }
