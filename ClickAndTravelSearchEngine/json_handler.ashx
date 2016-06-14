@@ -1,5 +1,4 @@
-﻿
-<%@ WebHandler Language="C#" Class="ClickAndTravelSearchEngine.json_handler" %>
+﻿<%@ WebHandler Language="C#" Class="ClickAndTravelSearchEngine.json_handler" %>
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,12 +26,11 @@ namespace ClickAndTravelSearchEngine
     {
         private SearchEngine search_engine = new SearchEngine();
 
-	    public json_handler()
-	    {
-            
+        public json_handler()
+        {
             JsonRpcDispatcherFactory.Current = s => new ClickAndTravelSearchEngine.JsonRpcDispatcher(s);
-	    }
-        
+        }
+
         #region private
         private static DateTime ParseDateFromJson(JsonArray arr)
         {
@@ -50,15 +48,16 @@ namespace ClickAndTravelSearchEngine
                 arg = DateTime.ParseExact(str_date, "yyyy-M-d HH:mm", null);
             }
 
-            return arg; 
+            return arg;
         }
         #endregion
 
         #region Курсы валют
         [JsonRpcMethod("get_courses")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"get_courses\",\"params\":[\"2013-07-10\"],\"id\":0}")]
-        public object get_courses(string date)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"get_courses\",\"params\":[\"2013-07-10\"],\"id\":0}")]
+        public object get_courses(string date, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
             DateTime argDate = DateTime.ParseExact(date,"yyyy-MM-dd",null);
 
             return (this.search_engine.GetCourses(argDate));
@@ -66,21 +65,17 @@ namespace ClickAndTravelSearchEngine
         #endregion
 
         #region авиа
-        [JsonRpcMethod("flight_check_redis")]
-        public object flight_check_redis()
-        {
-            return (this.search_engine.CheckRedis());
-        }
-        
-        
+
         [JsonRpcMethod("flight_init_search")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"flight_init_search\",\"params\":[1, 2, [11,12], \"A\", [{\"dep_code\":\"MSQ\",\"arr_code\":\"DME\",\"date\":\"2013-08-14\"}, {\"dep_code\":\"DME\",\"arr_code\":\"MSQ\",\"date\":\"2013-08-24\"} ]],\"id\":0}")]
-	    /// <summary>
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"flight_init_search\",\"params\":[1, 2, [11,12], \"A\", [{\"dep_code\":\"MSQ\",\"arr_code\":\"DME\",\"date\":\"2013-08-14\"}, {\"dep_code\":\"DME\",\"arr_code\":\"MSQ\",\"date\":\"2013-08-24\"} ]],\"id\":0}")]
+        /// <summary>
         /// Summary description for json_handler
         /// </summary>
         public object flight_init_search(int adults, int children, JsonArray children_ages, string service_class,
-                                         JsonArray segments, params object[] args)
+                                         JsonArray segments, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
+
             Segment[] _segments = new Segment[segments.Length];
 
             for (int i = 0; i < segments.Length; i++ )
@@ -89,17 +84,19 @@ namespace ClickAndTravelSearchEngine
 
                 DateTime segmentDate = DateTime.ParseExact(segment["date"].ToString(), "yyyy-MM-dd", null); //new DateTime((int)dateArray[0], (int)dateArray[1], (int)dateArray[2]);
 
-                _segments[i] = new Segment() {  ArrCode = segment["arr_code"].ToString(),
-                                                DepCode = segment["dep_code"].ToString(),
-                                                Date = segmentDate};
+                _segments[i] = new Segment()
+                {
+                    ArrCode = segment["arr_code"].ToString(),
+                    DepCode = segment["dep_code"].ToString(),
+                    Date = segmentDate
+                };
             }
             int[] child_ages = new int[children_ages.Length];
 
             for (int i = 0; i < children_ages.Length; i++)
                 child_ages[i] = Convert.ToInt32(children_ages[i]);
 
-          
-            Responses._Response res = (this.search_engine.FlightInitSearch(adults, children, service_class, child_ages, _segments));
+            Responses._Response res = (this.search_engine.FlightInitSearch(adults, children, service_class, child_ages, _segments, partner_code));
 
             if (res.ErrorCode > 0) throw new CatseException(res.ErrorMessage, res.ErrorCode);
 
@@ -107,36 +104,39 @@ namespace ClickAndTravelSearchEngine
         }
 
         [JsonRpcMethod("flight_get_search_state")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"flight_get_search_state\",\"params\":[\"1232323453\"],\"id\":0}")]
-        public object flight_get_search_state(string search_id, params object[] args)     
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"flight_get_search_state\",\"params\":[\"1232323453\"],\"id\":0}")]
+        public object flight_get_search_state(string search_id, string partner_code)
         {
-            Responses._Response res = (this.search_engine.FlightGetSearchState(search_id));
+            SearchEngine.ApplyConfig(partner_code);
+
+            Responses._Response res = (this.search_engine.FlightGetSearchState(search_id, partner_code));
 
             if (res.ErrorCode > 0) throw new CatseException(res.ErrorMessage, res.ErrorCode);
-            
+
             return res;
         }
 
         [JsonRpcMethod("flight_get_current_tickets")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"flight_get_current_tickets\",\"params\":[\"srch_id\"],\"id\":0}")]
-        public object flight_get_current_tickets(string search_id, params object[] args)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"flight_get_current_tickets\",\"params\":[\"srch_id\"],\"id\":0}")]
+        public object flight_get_current_tickets(string search_id, string partner_code)
         {
-            Responses._Response res = (this.search_engine.FlightGetCurrentTickets(search_id));
+            SearchEngine.ApplyConfig(partner_code);
+
+            Responses._Response res = (this.search_engine.FlightGetCurrentTickets(search_id, partner_code));
 
             if (res.ErrorCode > 0)
-            {
                 throw new CatseException(res.ErrorMessage, res.ErrorCode);
-            }
-            
-            
+
             return res;
         }
 
         [JsonRpcMethod("flight_wait_search")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"flight_wait_search\",\"params\":[\"1408MSQDME2408DMEMSQ-1-2-0-A\"],\"id\":0}")]
-        public object flight_wait_search(string search_id, params object[] args)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"flight_wait_search\",\"params\":[\"1408MSQDME2408DMEMSQ-1-2-0-A\"],\"id\":0}")]
+        public object flight_wait_search(string search_id, string partner_code)
         {
-            Responses._Response res = (this.search_engine.FlightWaitSearch(search_id));
+            SearchEngine.ApplyConfig(partner_code);
+
+            Responses._Response res = (this.search_engine.FlightWaitSearch(search_id, partner_code));
 
             if (res.ErrorCode > 0) throw new CatseException(res.ErrorMessage, res.ErrorCode);
 
@@ -144,10 +144,12 @@ namespace ClickAndTravelSearchEngine
         }
 
         [JsonRpcMethod("flight_get_ticket_rules")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"flight_get_ticket_rules\",\"params\":[\"srch_id\", 1],\"id\":0}")]
-        public object flight_get_ticket_rules(string search_id, string ticket_id, string book_id, params object[] args)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"flight_get_ticket_rules\",\"params\":[\"srch_id\", 1],\"id\":0}")]
+        public object flight_get_ticket_rules(string search_id, string ticket_id, int book_id, string partner_code)
         {
-            SegmentRule res = this.search_engine.FlightGetTicketRules(search_id, ticket_id);
+            SearchEngine.ApplyConfig(partner_code);
+
+            SegmentRule res = this.search_engine.FlightGetTicketRules(search_id, ticket_id, partner_code);
 
             if (res.ErrorCode == 0)
                 return (res);
@@ -157,22 +159,23 @@ namespace ClickAndTravelSearchEngine
 
         [JsonRpcMethod("flight_get_ticket_info")]
         [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"flight_get_ticket_info\",\"params\":[\"srch_id\", 1],\"id\":0}")]
-        public object flight_get_ticket_info(string search_id, string ticket_id, params object[] args)
+        public object flight_get_ticket_info(string search_id, string ticket_id, string partner_code)
         {
-            var res = this.search_engine.FlightGetTicketInfo(search_id, ticket_id);
+            SearchEngine.ApplyConfig(partner_code);
 
-            //if (res.ErrorCode == 0)
-                return res;
-           // else
-           //     throw new CatseException(res.ErrorMessage, res.ErrorCode);
+            var res = this.search_engine.FlightGetTicketInfo(search_id, ticket_id, partner_code);
+
+            return res;
         }
-        
-        
+
+
         [JsonRpcMethod("flight_check_ticket")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"flight_check_ticket\",\"params\":[\"srch_id\",1],\"id\":0}")]
-        public object flight_check_ticket(string search_id, string ticket_id, params object[] args)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"flight_check_ticket\",\"params\":[\"srch_id\",1],\"id\":0}")]
+        public object flight_check_ticket(string search_id, string ticket_id, string partner_code)
         {
-            FlightCheckTicketResult res = this.search_engine.FlightCheckTicket(search_id, ticket_id);
+            SearchEngine.ApplyConfig(partner_code);
+
+            FlightCheckTicketResult res = this.search_engine.FlightCheckTicket(search_id, ticket_id, partner_code);
 
             if (res.ErrorCode == 0)
                 return (res);
@@ -181,15 +184,17 @@ namespace ClickAndTravelSearchEngine
         }
 
         [JsonRpcMethod("flight_book_ticket")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"flight_book_ticket\",\"params\":[\"srch_id\",1,{\"email\":\"user@test.com\",\"phone\":\"+375 29 111 22 33\"}, [{\"last_name\":\"Vasia\",\"first_name\":\"Pupkin\",\"birth_date\":\"2010-06-15\",\"citizenship\":\"BY\",\"passport_num\":\"MP12211221\",\"passport_date\":\"2014-06-15\",\"bonus_card\":{\"airline_code\":\"LH\",\"card_number\":\"24352200\"}}]],\"id\":0}")]
-        public object flight_book_ticket(string search_id, string ticket_id, JsonObject user_info, JsonArray tourists, params object[] args)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"flight_book_ticket\",\"params\":[\"srch_id\",1,{\"email\":\"user@test.com\",\"phone\":\"375291112233\"}, [{\"last_name\":\"Vasia\",\"first_name\":\"Pupkin\",\"birth_date\":\"2010-06-15\",\"citizenship\":\"BY\",\"passport_num\":\"MP12211221\",\"passport_date\":\"2014-06-15\",\"bonus_card\":{\"airline_code\":\"LH\",\"card_number\":\"24352200\"}}]],\"id\":0}")]
+        public object flight_book_ticket(string search_id, string ticket_id, JsonObject user_info, JsonArray tourists, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
+
             //!!!!!!!!!!!!!!!!!!!!!
             //ErrorCode 17 -- не найден SearchId
             //ErrorCode 18 -- не найден TicketId
             //TODO: проверить состав туристов и запрос init search на соответствие количества детей и взрослых, возраста
-            
-            
+
+
             //ErrorCode 90: неправильный состав туристов (неверное количество, состав взрослые/дети)
             //ErrorCode 91: ошибка в дате рождения туриста
             //ErrorCode 92: ошибка в имени/фамилии туриста
@@ -198,18 +203,15 @@ namespace ClickAndTravelSearchEngine
             //ErrorCode 95: ошибка в сроке действия паспорта
             //ErrorCode 96: дублируется турист
             //ErrorCode 97: ошибка в бонусной карте а/к
-            
-            
             //ErrorCode 98: невалидный и-мэйл пользователя
             //ErrorCode 99: невалидный телефон пользователя
-            
-            
+
             //конвертировать объект
             UserInfo userInfo = null;
             try
             {
                 userInfo = new UserInfo(user_info);
-          
+
                 TuristContainer[] turistsCont = new TuristContainer[tourists.Length];
 
                 for (int i = 0; i < turistsCont.Length; i++)
@@ -217,7 +219,7 @@ namespace ClickAndTravelSearchEngine
                     turistsCont[i] = new TuristContainer(tourists[i] as JsonObject);
                 }
 
-                BookResult res = this.search_engine.FlightBookTicket(search_id, ticket_id, userInfo, turistsCont);
+                BookResult res = this.search_engine.FlightBookTicket(search_id, ticket_id, userInfo, turistsCont, partner_code);
 
                 if (res.ErrorCode == 0)
                     return (res);
@@ -237,47 +239,52 @@ namespace ClickAndTravelSearchEngine
                     throw ex;
                 else
                     throw new CatseException(ex.Message, 0);
-            }  
+            }
         }
         #endregion
 
+
         #region экскурсии
         [JsonRpcMethod("vizit_excursion_search")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"vizit_excursion_search\",\"params\":[1,\"2013-09-10\", \"2013-10-10\", 2],\"id\":0}")]
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"vizit_excursion_search\",\"params\":[1,\"2013-09-10\", \"2013-10-10\", 2],\"id\":0}")]
         //string CityCode, DateTime MinDate, DateTime MaxDate, int TuristsCount
-        public object vizit_excursion_search(int city_id, string min_date, string max_date, int tourists_count)
+        public object vizit_excursion_search(int city_id, string min_date, string max_date, int tourists_count, string partner_code)
         {
-          	DateTime minDate = DateTime.ParseExact(min_date, "yyyy-MM-dd", null);
-          	DateTime maxDate = DateTime.ParseExact(max_date, "yyyy-MM-dd", null);
+            SearchEngine.ApplyConfig(partner_code);
 
             return null;
         }
 
-
         [JsonRpcMethod("excursion_search")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"excursion_search\",\"params\":[1,\"2013-09-10\", \"2013-10-10\", 2],\"id\":0}")]
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"excursion_search\",\"params\":[1,\"2013-09-10\", \"2013-10-10\", 2],\"id\":0}")]
         //string CityCode, DateTime MinDate, DateTime MaxDate, int TuristsCount
-        public object excursion_search(int city_id, string min_date, string max_date, int tourists_count)
+        public object excursion_search(int city_id, string min_date, string max_date, int tourists_count , string partner_code)
         {
-          	DateTime minDate = DateTime.ParseExact(min_date, "yyyy-MM-dd", null);
-          	DateTime maxDate = DateTime.ParseExact(max_date, "yyyy-MM-dd", null);
+            SearchEngine.ApplyConfig(partner_code);
+
+            DateTime minDate = DateTime.ParseExact(min_date, "yyyy-MM-dd", null);
+            DateTime maxDate = DateTime.ParseExact(max_date, "yyyy-MM-dd", null);
 
             return (this.search_engine.ExcursionSearch(city_id, minDate, maxDate, tourists_count));
         }
 
         [JsonRpcMethod("excursion_get_dates")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"excursion_get_dates\",\"params\":[1, \"search_id\"],\"id\":0}")]
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"excursion_get_dates\",\"params\":[1, \"search_id\"],\"id\":0}")]
         //string CityCode, DateTime MinDate, DateTime MaxDate, int TuristsCount
-        public object excursion_search(int excursion_id, string search_id)
+        public object excursion_search(int excursion_id, string search_id, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
+
             return (this.search_engine.ExcursionGetDates(search_id, excursion_id));
         }
 
         [JsonRpcMethod("excursion_book")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"excursion_book\",\"params\":[\"srch_id\", 1, \"rretwertWERtwertWERTerwtwer\", \"2015-01-01\", \"10:00\", {\"email\":\"user@test.com\",\"phone\":\"+375 29 111 22 33\"}, [{\"last_name\":\"Vasia\",\"first_name\":\"Pupkin\",\"birth_date\":\"2010-06-15\",\"citizenship\":\"BY\",\"passport_num\":\"MP12211221\",\"passport_date\":\"2014-06-15\",\"bonus_card\":{\"airline_code\":\"LH\",\"card_number\":\"24352200\"}}]],\"id\":0}")]
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"excursion_book\",\"params\":[\"srch_id\", 1, \"rretwertWERtwertWERTerwtwer\", \"2015-01-01\", \"10:00\", {\"email\":\"user@test.com\",\"phone\":\"375291112233\"}, [{\"last_name\":\"Vasia\",\"first_name\":\"Pupkin\",\"birth_date\":\"2010-06-15\",\"citizenship\":\"BY\",\"passport_num\":\"MP12211221\",\"passport_date\":\"2014-06-15\"}]],\"id\":0}")]
         //string SearchId, int ExcursionId, DateTime ExcursionDate, UserInfo Info, TuristContainer[] turists
-        public object excursion_book(string seach_id, int excursion_id, string offer_id, string excurion_date, string time, JsonObject user_info, JsonArray tourists)
+        public object excursion_book(string search_id, int excursion_id, string offer_id, string excursion_date, string time, JsonObject user_info, JsonArray tourists, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
+
             //конвертировать объект
             UserInfo userInfo = null;
             try
@@ -286,7 +293,7 @@ namespace ClickAndTravelSearchEngine
             }
             catch (Exception ex)
             {
-                Logger.WriteToLog("excursion_book mehod exception while parse user info " + ex.Message + "\n" + ex.StackTrace);
+                Logger.WriteToLog("excursion_book mehod exception while parse user info from "+user_info.ToString() + ex.Message + "\n" + ex.StackTrace);
                 throw new Exception("cann't parse user_info");
             }
 
@@ -296,20 +303,21 @@ namespace ClickAndTravelSearchEngine
             {
                 turistsCont[i] = new TuristContainer(tourists[i] as JsonObject);
             }
-		
-	        DateTime dExc = DateTime.ParseExact(excurion_date, "yyyy-MM-dd", null);
+            DateTime dExc = DateTime.ParseExact(excursion_date, "yyyy-MM-dd", null);
 
-
-            return this.search_engine.ExcursionBook(seach_id, excursion_id, offer_id, dExc, time, userInfo , turistsCont);
+            return this.search_engine.ExcursionBook(search_id, excursion_id, offer_id, dExc, time, userInfo , turistsCont);
         }
         #endregion
 
-         #region Визы
+
+        #region Визы
         [JsonRpcMethod("visa_search")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"visa_search\",\"params\":[\"CZ\", 1, \"2013-08-08\", \"2013-08-09\", \"BY\", 25],\"id\":0}")]
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"visa_search\",\"params\":[\"CZ\", 1, \"2013-08-08\", \"2013-08-09\", \"BY\", 25],\"id\":0}")]
         public object visa_h(  string country_code, int city_from_id,  string date_from, string date_to,
-                                    string citizenship_code, int age,  params object[] args )
+                                    string citizenship_code, int age, string partner_code )
         {
+            SearchEngine.ApplyConfig(partner_code);
+
             if (country_code.Length != 2) throw new Exception("Invalid country_code");
             if (citizenship_code.Length != 2) throw new Exception("Invalid citizenship_code");
 
@@ -324,9 +332,11 @@ namespace ClickAndTravelSearchEngine
         }
 
         [JsonRpcMethod("visa_book")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"visa_book\",\"params\":[\"srch_id\", 1, {\"email\":\"user@test.com\", \"phone\":\"+375 29 111 22 33\"}, {\"last_name\":\"Vasia\",\"first_name\":\"Pupkin\",\"birth_date\":\"2010-06-15\",\"citizenship\":\"BY\",\"passport_num\":\"MP12211221\",\"passport_date\":\"2014-06-15\",\"bonus_card\":{\"airline_code\":\"LH\",\"card_number\":\"24352200\"}}],\"id\":0}")]
-        public object visa_book(string search_id, int visa_id, JsonObject user_info, JsonObject tourist, params object[] args)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"visa_book\",\"params\":[\"srch_id\", 1, {\"email\":\"user@test.com\", \"phone\":\"375291112233\"}, {\"last_name\":\"Vasia\",\"first_name\":\"Pupkin\",\"birth_date\":\"2010-06-15\",\"citizenship\":\"BY\",\"passport_num\":\"MP12211221\",\"passport_date\":\"2014-06-15\",\"bonus_card\":{\"airline_code\":\"LH\",\"card_number\":\"24352200\"}}],\"id\":0}")]
+        public object visa_book(string search_id, int visa_id, JsonObject user_info, JsonObject tourist, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
+
             //конвертировать объект
             UserInfo userInfo = null;
             try
@@ -338,13 +348,11 @@ namespace ClickAndTravelSearchEngine
                 Logger.WriteToLog("visa_book mehod exception while parse user info " + ex.Message + "\n" + ex.StackTrace);
                 throw new Exception("cann't parse user_info");
             }
-            //   return user_info;
 
             if ((tourist == null)) throw new Exception("cann't parse turists");
 
             TuristContainer turistsCont = new TuristContainer(tourist as JsonObject);
 
-         
             return (this.search_engine.VisaBook(search_id, visa_id, userInfo, turistsCont ));
         }
         #endregion
@@ -352,41 +360,49 @@ namespace ClickAndTravelSearchEngine
         #region трансфер
 
         [JsonRpcMethod("transfer_get_points")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"transfer_get_points\",\"params\":[1],\"id\":0}")]
-        public object transfer_get_points(int start_point_id)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"transfer_get_points\",\"params\":[1],\"id\":0}")]
+        public object transfer_get_points(int start_point_id, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
+
             return this.search_engine.TransferGetPoints(start_point_id);
         }
 
         [JsonRpcMethod("transfer_search")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"transfer_search\",\"params\":[1, 2, \"2013-08-09\", \"2013-08-09\", 1],\"id\":0}")]
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"transfer_search\",\"params\":[1, 2, \"2013-08-09\", \"2013-08-09\", 1],\"id\":0}")]
         public object transfer_search(  int start_point_id, int end_point_id,
                                         string transfer_date,
                                         string return_date,
-                                        int tourists_count)
+                                        int tourists_count, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
+
             DateTime transferDate = DateTime.ParseExact(transfer_date, "yyyy-MM-dd", null);
             DateTime returnDate = DateTime.MinValue;
 
             if (return_date!="")
-                  returnDate =  DateTime.ParseExact(return_date, "yyyy-MM-dd", null);
+                returnDate =  DateTime.ParseExact(return_date, "yyyy-MM-dd", null);
 
             return (this.search_engine.TransferSearch(start_point_id, end_point_id, transferDate, returnDate, tourists_count));
         }
 
         [JsonRpcMethod("transfer_get_info_mask")]
         [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"transfer_get_info_mask\",\"params\":[\"1244_323_33\"],\"id\":0}")]
-        public object transfer_get_info_mask(string price_id)
+        public object transfer_get_info_mask(string price_id, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
+
             return (this.search_engine.TransferGetInfoMask(price_id));
         }
-        
-        
+
+
         [JsonRpcMethod("transfer_book")]
-        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"transfer_book\",\"params\":[\"srch_id\", \"341_34324#1\", [{\"DateDeparture\":\"fdss\",\"DateArrival\":\"string\",\"time\":\"string\"}], {\"email\":\"user@test.com\", \"phone\":\"+375 29 111 22 33\"},[{\"last_name\":\"Vasia\",\"first_name\":\"Pupkin\",\"birth_date\":\"2010-06-15\",\"citizenship\":\"BY\",\"passport_num\":\"MP12211221\",\"passport_date\":\"2014-06-15\",\"bonus_card\":{\"airline_code\":\"LH\",\"card_number\":\"24352200\"}}]],\"id\":0}")]
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"transfer_book\",\"params\":[\"srch_id\", \"341_34324#1\", [{\"DateDeparture\":\"fdss\",\"DateArrival\":\"string\",\"time\":\"string\"}], {\"email\":\"user@test.com\", \"phone\":\"375291112233\"},[{\"last_name\":\"Vasia\",\"first_name\":\"Pupkin\",\"birth_date\":\"2010-06-15\",\"citizenship\":\"BY\",\"passport_num\":\"MP12211221\",\"passport_date\":\"2014-06-15\",\"bonus_card\":{\"airline_code\":\"LH\",\"card_number\":\"24352200\"}}]],\"id\":0}")]
         public object transfer_book(string search_id, string transfer_id, JsonArray transfer_info,
-                                    JsonObject user_info, JsonArray tourists)
+                                    JsonObject user_info, JsonArray tourists, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
+
             UserInfo userInfo = null;
             try
             {
@@ -408,7 +424,7 @@ namespace ClickAndTravelSearchEngine
 
             for (int i = 0; i < transfer_info.Length; i++)
                 tInfos[i] = new TransferInfo(transfer_info[i] as JsonObject);
-            
+
 
             return (this.search_engine.TransferBook(search_id, transfer_id, tInfos, userInfo, turistsCont));
         }
@@ -418,16 +434,20 @@ namespace ClickAndTravelSearchEngine
         #region страховка
 
         [JsonRpcMethod("insurance_search")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"insurance_search\",\"params\":[10, 1, false, 1],\"id\":0}")]
-        public object insurance_search(int days_long, int tourists_count, bool is_extra_country, int purpose_of_trip)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"insurance_search\",\"params\":[10, 1, false, 1],\"id\":0}")]
+        public object insurance_search(int days_long, int tourists_count, bool is_extra_country, int purpose_of_trip, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
+
             return (this.search_engine.InsuranceSearch(days_long, tourists_count, is_extra_country, purpose_of_trip));
         }
 
         [JsonRpcMethod("insurance_search_by_country")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"insurance_search_by_country\",\"params\":[\"2013-08-10\",\"2013-08-20\", \"CZ\", [{\"last_name\":\"Vasia\",\"first_name\":\"Pupkin\",\"birth_date\":\"2010-06-15\",\"citizenship\":\"BY\",\"passport_num\":\"MP12211221\",\"passport_date\":\"2014-06-15\",\"bonus_card\":{\"airline_code\":\"LH\",\"card_number\":\"24352200\"}}]],\"id\":0}")]
-        public object insurance_search_by_country(string start_date, string end_date, string country_code, JsonArray tourists)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"insurance_search_by_country\",\"params\":[\"2013-08-10\",\"2013-08-20\", \"CZ\", [{\"last_name\":\"Vasia\",\"first_name\":\"Pupkin\",\"birth_date\":\"2010-06-15\",\"citizenship\":\"BY\",\"passport_num\":\"MP12211221\",\"passport_date\":\"2014-06-15\",\"bonus_card\":{\"airline_code\":\"LH\",\"card_number\":\"24352200\"}}]],\"id\":0}")]
+        public object insurance_search_by_country(string start_date, string end_date, string country_code, JsonArray tourists, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
+
             //дата и время
             DateTime startDate = DateTime.ParseExact(start_date, "yyyy-MM-dd", null);
             DateTime endDate = DateTime.ParseExact(end_date, "yyyy-MM-dd", null);
@@ -447,9 +467,11 @@ namespace ClickAndTravelSearchEngine
         }
 
         [JsonRpcMethod("insurance_calculate")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"insurance_calculate\",\"params\":[\"2013-08-10\", \"2013-08-20\", [\"CZ\",\"IT\"], [{\"last_name\":\"Vasia\",\"first_name\":\"Pupkin\",\"birth_date\":\"2010-06-15\",\"citizenship\":\"BY\",\"passport_num\":\"MP12211221\",\"passport_date\":\"2014-06-15\",\"bonus_card\":{\"airline_code\":\"LH\",\"card_number\":\"24352200\"}}],1,1,1],\"id\":0}")]
-        public object insurance_calculate(string start_date, string end_date, JsonArray country_codes, JsonArray tourists, int purpose_of_trip, int insurance_program, int coverage)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"insurance_calculate\",\"params\":[\"2013-08-10\", \"2013-08-20\", [\"CZ\",\"IT\"], [{\"last_name\":\"Vasia\",\"first_name\":\"Pupkin\",\"birth_date\":\"2010-06-15\",\"citizenship\":\"BY\",\"passport_num\":\"MP12211221\",\"passport_date\":\"2014-06-15\",\"bonus_card\":{\"airline_code\":\"LH\",\"card_number\":\"24352200\"}}],1,1,1],\"id\":0}")]
+        public object insurance_calculate(string start_date, string end_date, JsonArray country_codes, JsonArray tourists, int purpose_of_trip, int insurance_program, int coverage, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
+
             //дата и время
             DateTime startDate = DateTime.ParseExact(start_date, "yyyy-MM-dd", null);
             DateTime endDate = DateTime.ParseExact(end_date, "yyyy-MM-dd", null);
@@ -462,7 +484,7 @@ namespace ClickAndTravelSearchEngine
                     cnt_codes[i] = country_codes[i].ToString();
 
 
-                //туристы
+            //туристы
             if ((tourists == null) || (tourists.Length == 0)) throw new Exception("cann't parse tourists");
 
             TuristContainer[] turistsCont = new TuristContainer[tourists.Length];
@@ -485,9 +507,11 @@ namespace ClickAndTravelSearchEngine
         }
 
         [JsonRpcMethod("insurance_book")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"insurance_book\",\"params\":[\"2013-08-10\", \"2013-08-20\", [\"CZ\",\"IT\"], [{\"last_name\":\"Vasia\",\"first_name\":\"Pupkin\",\"birth_date\":\"2010-06-15\",\"citizenship\":\"BY\",\"passport_num\":\"MP12211221\",\"passport_date\":\"2014-06-15\",\"bonus_card\":{\"airline_code\":\"LH\",\"card_number\":\"24352200\"}}],1,1,1],\"id\":0}")]
-        public object insurance_book(string start_date, string end_date, JsonArray country_codes, JsonArray tourists, int purpose_of_trip, int insurance_program, int coverage, params object[] args)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"insurance_book\",\"params\":[\"2013-08-10\", \"2013-08-20\", [\"CZ\",\"IT\"], [{\"last_name\":\"Vasia\",\"first_name\":\"Pupkin\",\"birth_date\":\"2010-06-15\",\"citizenship\":\"BY\",\"passport_num\":\"MP12211221\",\"passport_date\":\"2014-06-15\",\"bonus_card\":{\"airline_code\":\"LH\",\"card_number\":\"24352200\"}}],1,1,1],\"id\":0}")]
+        public object insurance_book(string start_date, string end_date, JsonArray country_codes, JsonArray tourists, int purpose_of_trip, int insurance_program, int coverage, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
+
             //дата и время
             DateTime startDate = DateTime.ParseExact(start_date, "yyyy-MM-dd", null);
             DateTime endDate = DateTime.ParseExact(end_date, "yyyy-MM-dd", null);
@@ -516,23 +540,29 @@ namespace ClickAndTravelSearchEngine
 
         #region аренда авто
         [JsonRpcMethod("car_rent_get_pick_up_locations")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"car_rent_get_pick_up_locations\",\"params\":[1],\"id\":0}")]
-        public object car_rent_get_pick_up_locations(int city_id)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"car_rent_get_pick_up_locations\",\"params\":[1],\"id\":0}")]
+        public object car_rent_get_pick_up_locations(int city_id, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
+
             return (this.search_engine.CarRentGetPickUpLocations(city_id));
         }
 
         [JsonRpcMethod("car_rent_get_drop_off_locations")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"car_rent_get_drop_off_locations\",\"params\":[1],\"id\":0}")]
-        public object car_rent_get_drop_off_locations(int pick_up_location_id)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"car_rent_get_drop_off_locations\",\"params\":[1],\"id\":0}")]
+        public object car_rent_get_drop_off_locations(int pick_up_location_id, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
+
             return (this.search_engine.CarRentGetDropOffLocations(pick_up_location_id));
         }
 
         [JsonRpcMethod("car_rent_search")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"car_rent_search\",\"params\":[1,1, \"2013-09-10 10:10\", \"2013-10-10 22:00\"],\"id\":0}")]
-        public object car_rent_search(int pick_up_location_id, int drop_off_location_id, string pick_up_datetime, string drop_off_datetime)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"car_rent_search\",\"params\":[1,1, \"2013-09-10 10:10\", \"2013-10-10 22:00\"],\"id\":0}")]
+        public object car_rent_search(int pick_up_location_id, int drop_off_location_id, string pick_up_datetime, string drop_off_datetime, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
+
             DateTime pickDateTime = DateTime.ParseExact(pick_up_datetime, "yyyy-MM-dd HH:mm", null);
             DateTime dropDateTime = DateTime.ParseExact(drop_off_datetime, "yyyy-MM-dd HH:mm", null);
 
@@ -540,32 +570,36 @@ namespace ClickAndTravelSearchEngine
         }
 
         [JsonRpcMethod("car_rent_get_pick_up_stations")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"car_rent_get_pick_up_stations\",\"params\":[1,1],\"id\":0}")]
-        public object car_rent_get_pick_up_stations(int location_id, int supplier_id)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"car_rent_get_pick_up_stations\",\"params\":[1,1],\"id\":0}")]
+        public object car_rent_get_pick_up_stations(int location_id, int supplier_id, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
             return (this.search_engine.CarRentGetPickUpStations(location_id, supplier_id));
         }
 
         [JsonRpcMethod("car_rent_get_drop_off_stations")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"car_rent_get_drop_off_stations\",\"params\":[1,1,1],\"id\":0}")]	
-        public object car_rent_get_drop_off_stations(int location_id, int pick_up_station_id, int supplier_id)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"car_rent_get_drop_off_stations\",\"params\":[1,1,1],\"id\":0}")]
+        public object car_rent_get_drop_off_stations(int location_id, int pick_up_station_id, int supplier_id, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
             return (this.search_engine.CarRentGetDropOffStations(location_id, pick_up_station_id, supplier_id));
         }
 
         [JsonRpcMethod("car_rent_get_station_details")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"car_rent_get_station_details\",\"params\":[1,\"srch_id\"],\"id\":0}")]
-        public object car_rent_get_station_details(int station_id, string search_id)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"car_rent_get_station_details\",\"params\":[1,\"srch_id\"],\"id\":0}")]
+        public object car_rent_get_station_details(int station_id, string search_id, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
             return (this.search_engine.CarRentGetStationDetails(station_id, search_id));
         }
 
         [JsonRpcMethod("car_rent_verify_car")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"car_rent_verify_car\",\"params\":[\"srch_id\",1,1,\"2013-09-10 10:10\", \"2013-10-10 22:22\", 1,1],\"id\":0}")]
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"car_rent_verify_car\",\"params\":[\"srch_id\",1,1,\"2013-09-10 10:10\", \"2013-10-10 22:22\", 1,1],\"id\":0}")]
         public object car_rent_verify_car(string search_id, int pick_up_station_id, int drop_off_station_id,
                                                     string pick_up_datetime, string drop_off_datetime,
-                                                    int variant_id, int program_id)
+                                                    int variant_id, int program_id, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
             DateTime pickDateTime = DateTime.ParseExact(pick_up_datetime, "yyyy-MM-dd HH:mm", null);
             DateTime dropDateTime = DateTime.ParseExact(drop_off_datetime, "yyyy-MM-dd HH:mm", null);
 
@@ -574,29 +608,30 @@ namespace ClickAndTravelSearchEngine
         }
 
         [JsonRpcMethod("car_rent_get_extras")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"car_rent_get_extras\",\"params\":[1,\"2013-07-11\"],\"id\":0}\r\n\r\nOR\n\n{\"jsonrpc\":\"2.0\",\"method\":\"car_rent_get_extras\",\"params\":[1,\"2013-07-11 10:10\"],\"id\":0}")]
-        public object car_rent_get_extras(int supplier_id, string pick_up_date)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"car_rent_get_extras\",\"params\":[1,\"2013-07-11\"],\"id\":0}\r\n\r\nOR\n\n{\"jsonrpc\":\"2.0\",\"method\":\"car_rent_get_extras\",\"params\":[1,\"2013-07-11 10:10\"],\"id\":0}")]
+        public object car_rent_get_extras(int supplier_id, string pick_up_date, string partner_code)
         {
-		    try{
-	      		       DateTime pickDateTime = DateTime.ParseExact(pick_up_date, "yyyy-MM-dd HH:mm", null);
-	
-        		       return this.search_engine.CarRentGetExtras(supplier_id, pickDateTime );
-		    }
-		    catch(Exception)
-		    {
-			    DateTime pickDate = DateTime.ParseExact(pick_up_date, "yyyy-MM-dd", null);
-	
-        		    return this.search_engine.CarRentGetExtras(supplier_id, pickDate);
-		    }
+            SearchEngine.ApplyConfig(partner_code);
+            try{
+                DateTime pickDateTime = DateTime.ParseExact(pick_up_date, "yyyy-MM-dd HH:mm", null);
+
+                return this.search_engine.CarRentGetExtras(supplier_id, pickDateTime );
+            }
+            catch(Exception)
+            {
+                DateTime pickDate = DateTime.ParseExact(pick_up_date, "yyyy-MM-dd", null);
+
+                return this.search_engine.CarRentGetExtras(supplier_id, pickDate);
+            }
         }
 
         [JsonRpcMethod("car_rent_book")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"car_rent_book\",\"params\":[\"srch_id\", 1, 1, {\"email\":\"user@test.com\",\"phone\":\"+375 29 111 22 33\"}, {\"last_name\":\"Vasia\",\"first_name\":\"Pupkin\",\"birth_date\":\"2010-06-15\",\"citizenship\":\"BY\",\"passport_num\":\"MP12211221\",\"passport_date\":\"2014-06-15\",\"bonus_card\":{\"airline_code\":\"LH\",\"card_number\":\"24352200\"}}, 1, 1, [{\"id\":1, \"count\":1},{\"id\":2, \"count\":2}]],\"id\":0}")]
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"car_rent_book\",\"params\":[\"srch_id\", 1, 1, {\"email\":\"user@test.com\",\"phone\":\"375291112233\"}, {\"last_name\":\"Vasia\",\"first_name\":\"Pupkin\",\"birth_date\":\"2010-06-15\",\"citizenship\":\"BY\",\"passport_num\":\"MP12211221\",\"passport_date\":\"2014-06-15\",\"bonus_card\":{\"airline_code\":\"LH\",\"card_number\":\"24352200\"}}, 1, 1, [{\"id\":1, \"count\":1},{\"id\":2, \"count\":2}]],\"id\":0}")]
         public object car_rent_book(string search_id, int pick_up_station_id, int drop_off_station_id,
                                     JsonObject user_info, JsonObject tourist, int variant_id, int program_id,
-                                    JsonArray extras)
+                                    JsonArray extras, string partner_code)
         {
-
+            SearchEngine.ApplyConfig(partner_code);
             //extras для аренды
             CarRentBookExtra[] extrasCont = new CarRentBookExtra[extras.Length];
 
@@ -609,8 +644,6 @@ namespace ClickAndTravelSearchEngine
 
 
             TuristContainer turistsCont = new TuristContainer(tourist);
-
-
 
             //конвертировать объект инфо о пользователе
             UserInfo userInfo = null;
@@ -632,18 +665,13 @@ namespace ClickAndTravelSearchEngine
         #endregion
 
         #region отели
-     
-        //public static HotelInitSearchResult HotelInitSearh(string CityCode, DateTime StartDate, DateTime EndDate,
-        //                                                   int[] Stars, int[] Pansions, RequestRoom[] Rooms)
-        //{
-        //    return null;
-        //}
 
         [JsonRpcMethod("hotel_init_search")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"hotel_init_search\",\"params\":[1,\"2013-09-10\", \"2013-09-15\", [1,2,3],[1,2,3],[{\"adults\":1,\"children\":2, \"children_ages\":[11,12]}]],\"id\":0}")]
-        public object hotel_init_search(int city_id, string start_date, string end_date, 
-                                               JsonArray stars, JsonArray pansions, JsonArray rooms)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"hotel_init_search\",\"params\":[1,\"2013-09-10\", \"2013-09-15\", [1,2,3],[1,2,3],[{\"adults\":1,\"children\":2, \"children_ages\":[11,12]}]],\"id\":0}")]
+        public object hotel_init_search(int city_id, string start_date, string end_date,
+                                               JsonArray stars, JsonArray pansions, JsonArray rooms, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
             //даты
             DateTime startDate = DateTime.ParseExact(start_date, "yyyy-MM-dd", null);
             DateTime endDate = DateTime.ParseExact(end_date, "yyyy-MM-dd", null);
@@ -663,71 +691,45 @@ namespace ClickAndTravelSearchEngine
             return (this.search_engine.HotelInitSearh(city_id, startDate, endDate, stars_array, pansions_array, roomsCont).SearchId);
         }
 
-        //[WebMethod]
-        //private static HotelSearchState HotelGetSearchState(string SearchId)
-        //{
-        //    return null;
-        //}
-
         [JsonRpcMethod("hotel_get_search_state")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"hotel_get_search_state\",\"params\":[\"srch_id\"],\"id\":0}")]
-        public object hotel_get_search_state(string search_id)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"hotel_get_search_state\",\"params\":[\"srch_id\"],\"id\":0}")]
+        public object hotel_get_search_state(string search_id, string partner_code)
         {
-
+            SearchEngine.ApplyConfig(partner_code);
             return (this.search_engine.HotelGetSearchState(search_id));
         }
 
-        //[WebMethod]
-        //private static HotelSearchResult HotelGetCurrentHotels(string SearchId)
-        //{
-        //    return null;
-        //}
-
         [JsonRpcMethod("hotel_get_current_hotels")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"hotel_get_current_hotels\",\"params\":[\"srch_id\"],\"id\":0}")]
-        public object hotel_get_current_hotels(string search_id)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"hotel_get_current_hotels\",\"params\":[\"srch_id\"],\"id\":0}")]
+        public object hotel_get_current_hotels(string search_id, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
             return (this.search_engine.HotelGetCurrentHotels(search_id));
         }
 
-        //[WebMethod]
-        //private static HotelSearchResult HotelWaitSearch(string SearchId)
-        //{
-        //    return null;
-        //}
-
         [JsonRpcMethod("hotel_wait_search")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"hotel_wait_search\",\"params\":[\"srch_id\"],\"id\":0}")]
-        public object hotel_wait_search(string search_id)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"hotel_wait_search\",\"params\":[\"srch_id\"],\"id\":0}")]
+        public object hotel_wait_search(string search_id, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
             return (this.search_engine.HotelWaitSearch(search_id));
         }
 
-        ////варианты номеров по отелю
-        //[WebMethod]
-        //private static HotelSearchResult HotelGetRooms(string SearchId, int HotelId)
-        //{
-        //    return null;
-        //}
-
         [JsonRpcMethod("hotel_get_rooms")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"hotel_get_rooms\",\"params\":[\"srch_id\",1],\"id\":0}")]
-        public object hotel_get_rooms(string search_id, int hotel_id)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"hotel_get_rooms\",\"params\":[\"srch_id\",1],\"id\":0}")]
+        public object hotel_get_rooms(string search_id, int hotel_id, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
             return (this.search_engine.HotelGetRooms(search_id, hotel_id));
         }
 
-        ////информация о штрафах по номеру в отеле
-        //[WebMethod]
-        //private static HotelPenalties[] HotelGetPenalties(string SearchId, int HotelId, int[] VariantsId)
-        //{
-        //    return null;
-        //}
+
 
         [JsonRpcMethod("hotel_get_room_info")]
         [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"hotel_get_room_info\",\"params\":[\"srch_id\",1,1],\"id\":0}")]
-        public object hotel_get_room_info(string search_id, int hotel_id, string variant_id)
+        public object hotel_get_room_info(string search_id, int hotel_id, string variant_id, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
             try
             {
                 return (this.search_engine.HotelGetRoomInfo(search_id, hotel_id, variant_id));
@@ -741,45 +743,34 @@ namespace ClickAndTravelSearchEngine
         }
 
         [JsonRpcMethod("hotel_get_penalties")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"hotel_get_penalties\",\"params\":[\"srch_id\",1,[1,2,3]],\"id\":0}")]
-        public object hotel_get_penalties(string search_id, int hotel_id, JsonArray variant_ids, string book_id)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"hotel_get_penalties\",\"params\":[\"srch_id\",1,[1,2,3]],\"id\":0}")]
+        public object hotel_get_penalties(string search_id, int hotel_id, JsonArray variant_ids, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
             try{
                 return (this.search_engine.HotelGetPenalties(search_id, hotel_id, jsonArrayToStringArray(variant_ids)));
             }
             catch(Exception ex)
             {
-	            Helpers.Logger.WriteToLog(ex.Message + " " + ex.StackTrace);
+                Helpers.Logger.WriteToLog(ex.Message + " " + ex.StackTrace);
             }
-            
+
             return null;
         }
 
-        ////проверить актуальность !!
-        //[WebMethod]
-        //private static HotelVerifyResult[] HotelVerify(string SearchId, int HotelId, int[] VariantsId)
-        //{
-        //    return null;
-        //}
-
         [JsonRpcMethod("hotel_verify")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"hotel_verify\",\"params\":[\"srch_id\", 1, [1,2,3,4]],\"id\":0}")]
-        public object hotel_verify(string search_id, int hotel_id, JsonArray variant_ids)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"hotel_verify\",\"params\":[\"srch_id\", 1, [1,2,3,4]],\"id\":0}")]
+        public object hotel_verify(string search_id, int hotel_id, JsonArray variant_ids, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
             return (this.search_engine.HotelVerify(search_id, hotel_id, jsonArrayToStringArray( variant_ids)));
         }
 
-        ////бронировать отель
-        //[WebMethod]
-        //public static BookResult HotelBook(string SearchId, int HotelId, UserInfo Info, BookRoom Rooms)
-        //{
-        //    return null;
-        //}
-
         [JsonRpcMethod("hotel_book")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"hotel_book\",\"params\":[\"srch_id\",1, {\"email\":\"user@test.com\", \"phone\":\"+375 29 111 22 33\"}, [{\"variant_id\":1, \"tourists\":[{\"last_name\":\"Vasia\",\"first_name\":\"Pupkin\",\"birth_date\":\"2010-06-15\",\"citizenship\":\"BY\",\"passport_num\":\"MP12211221\",\"passport_date\":\"2014-06-15\",\"bonus_card\":{\"airline_code\":\"LH\",\"card_number\":\"24352200\"}}]}]],\"id\":0}")]
-        public object hotel_book(string search_id, int hotel_id, JsonObject user_info, JsonArray rooms)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"hotel_book\",\"params\":[\"srch_id\",1, {\"email\":\"user@test.com\", \"phone\":\"375291112233\"}, [{\"variant_id\":1, \"tourists\":[{\"last_name\":\"Vasia\",\"first_name\":\"Pupkin\",\"birth_date\":\"2010-06-15\",\"citizenship\":\"BY\",\"passport_num\":\"MP12211221\",\"passport_date\":\"2014-06-15\",\"bonus_card\":{\"airline_code\":\"LH\",\"card_number\":\"24352200\"}}]}]],\"id\":0}")]
+        public object hotel_book(string search_id, int hotel_id, JsonObject user_info, JsonArray rooms, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
             UserInfo userInfo = null;
             try
             {
@@ -802,21 +793,25 @@ namespace ClickAndTravelSearchEngine
             return (this.search_engine.HotelBook(search_id, hotel_id, userInfo, bookRooms));
         }
 
+        [JsonRpcMethod("hotel_ostrovok_book")]
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"hotel_book\",\"params\":[\"srch_id\",1, {\"email\":\"user@test.com\", \"phone\":\"375291112233\"}, [{\"variant_id\":1, \"tourists\":[{\"last_name\":\"Vasia\",\"first_name\":\"Pupkin\",\"birth_date\":\"2010-06-15\",\"citizenship\":\"BY\",\"passport_num\":\"MP12211221\",\"passport_date\":\"2014-06-15\",\"bonus_card\":{\"airline_code\":\"LH\",\"card_number\":\"24352200\"}}]}]],\"id\":0}")]
+        public object hotel_ostrovok_book(int book_id, string dogovor_code, string partner_code)
+        {
+            SearchEngine.ApplyConfig(partner_code);
+            return this.search_engine.OstrovokBook(book_id, dogovor_code);
+        }
+
         #endregion
 
         #region тур
-        ////поиск маршрутов
-        //[WebMethod]
-        //public static TourInitSearchResult TourRoutesInitSearch(string CityId, DateTime TourDate, int NightsMin, int NightsMax, bool IsRoughly, int[] Stars, int[] Pansions, RequestRoom Room)
-        //{
-        //    return null;
-        //}
 
         [JsonRpcMethod("tour_routes_init_search")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"tour_routes_init_search\",\"params\":[1, \"2013-08-10\", 3, 12, true, [1,2,3,4], [1,2,3], {\"adults\":1, \"children\":2,\"children_ages\":[11,12]}],\"id\":0}")]
-        public object tour_routes_init_search(int city_id, string tour_date, int nights_min, 
-                                               int nights_max, bool is_roughly, JsonArray stars, JsonArray pansions, JsonObject room)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"tour_routes_init_search\",\"params\":[1, \"2013-08-10\", 3, 12, true, [1,2,3,4], [1,2,3], {\"adults\":1, \"children\":2,\"children_ages\":[11,12]}],\"id\":0}")]
+        public object tour_routes_init_search(int city_id, string tour_date, int nights_min,
+                                               int nights_max, bool is_roughly, JsonArray stars,
+                                               JsonArray pansions, JsonObject room, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
             DateTime tourDate = DateTime.ParseExact(tour_date, "yyyy-MM-dd", null);
 
             RequestRoom roomCont = new RequestRoom(room);
@@ -825,18 +820,13 @@ namespace ClickAndTravelSearchEngine
                                                 is_roughly, jsonArrayToIntArray(stars), jsonArrayToIntArray(pansions), roomCont)).SearchId;
         }
 
-        ////поиск отелей
-        //[WebMethod]
-        //public static TourInitSearchResult TourHotelsInitSearch(string CityId, DateTime TourDate, int NightsMin, int NightsMax, bool IsRoughly, int[] Stars, int[] Pansions, RequestRoom Room, int TourId)
-        //{
-        //    return null;
-        //}
-
         [JsonRpcMethod("tour_hotels_init_search")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"tour_hotels_init_search\",\"params\":[1, \"2013-08-10\", 3, 12, true, [1,2,3,4], [1,2,3], {\"adults\":1, \"children\":2,\"children_ages\":[11,12]}, 10],\"id\":0}")]
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"tour_hotels_init_search\",\"params\":[1, \"2013-08-10\", 3, 12, true, [1,2,3,4], [1,2,3], {\"adults\":1, \"children\":2,\"children_ages\":[11,12]}, 10],\"id\":0}")]
         public object tour_hotels_init_search(int city_id, string tour_date, int nights_min,
-                                               int nights_max, bool is_roughly, JsonArray stars, JsonArray pansions, JsonObject room, int tour_id)
+                                               int nights_max, bool is_roughly, JsonArray stars,
+                                               JsonArray pansions, JsonObject room, int tour_id, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
             DateTime tourDate = DateTime.ParseExact(tour_date, "yyyy-MM-dd", null);
 
             RequestRoom roomCont = new RequestRoom(room);
@@ -845,118 +835,70 @@ namespace ClickAndTravelSearchEngine
                                                 is_roughly, jsonArrayToIntArray(stars), jsonArrayToIntArray(pansions), roomCont, tour_id)).SearchId;
         }
 
-
-        //[WebMethod]
-        //public static TourInitSearchResult TourVariantsInitSearch(string TourHotelsSearchId, int VariantsGroupId)
-        //{
-        //    return null;
-        //}
-
         [JsonRpcMethod("tour_variants_init_search")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"tour_variants_init_search\",\"params\":[\"tours_srch_id\", 12],\"id\":0}")]
-        public object tour_variants_init_search(string tour_hotels_search_id, int variants_group_id)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"tour_variants_init_search\",\"params\":[\"tours_srch_id\", 12],\"id\":0}")]
+        public object tour_variants_init_search(string tour_hotels_search_id, int variants_group_id, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
             // DateTime tourDate = ParseDateFromJson(tour_date);
 
             return (this.search_engine.TourVariantsInitSearch(tour_hotels_search_id, variants_group_id)).SearchId;
         }
 
-        ////состояние поиска
-        //[WebMethod]
-        //public static TourSearchState TourGetSearchState(string SearchId)
-        //{
-        //    return null;
-        //}
-
         [JsonRpcMethod("tour_get_search_state")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"tour_get_search_state\",\"params\":[\"srch_id\"],\"id\":0}")]
-        public object tour_get_search_state(string search_id)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"tour_get_search_state\",\"params\":[\"srch_id\"],\"id\":0}")]
+        public object tour_get_search_state(string search_id, string partner_code)
         {
-           // DateTime tourDate = ParseDateFromJson(tour_date);
+            SearchEngine.ApplyConfig(partner_code);
 
             return (this.search_engine.TourGetSearchState(search_id));
         }
 
-        ////результаты поиска
-        //[WebMethod]
-        //public static TourHotelsResult TourGetHotelsResult(string SearchId)
-        //{
-        //    return null;
-        //}
-
         [JsonRpcMethod("tour_get_hotels_result")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"tour_get_hotels_result\",\"params\":[\"srch_id\"],\"id\":0}")]
-        public object tour_get_hotels_result(string search_id)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"tour_get_hotels_result\",\"params\":[\"srch_id\"],\"id\":0}")]
+        public object tour_get_hotels_result(string search_id, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
             return (this.search_engine.TourGetHotelsResult(search_id));
         }
 
-        //[WebMethod]
-        //public static TourRoutesResult TourGetRoutesResult(string SearchId)
-        //{
-        //    return null;
-        //}
-
         [JsonRpcMethod("tour_get_routes_result")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"tour_get_routes_result\",\"params\":[\"srch_id\"],\"id\":0}")]
-        public object tour_get_routes_result(string search_id)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"tour_get_routes_result\",\"params\":[\"srch_id\"],\"id\":0}")]
+        public object tour_get_routes_result(string search_id, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
             return (this.search_engine.TourGetRoutesResult(search_id));
         }
-
-        ////список услуг по туру
-        //[WebMethod]
-        //public static TourService[] TourGetTourServices(string SearchId, int TourId)
-        //{
-        //    return null;
-        //}
 
         [JsonRpcMethod("tour_get_tour_services")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"tour_get_tour_services\",\"params\":[\"srch_id\", 12],\"id\":0}")]
-        public object tour_get_tour_services(string search_id, int tour_id)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"tour_get_tour_services\",\"params\":[\"srch_id\", 12],\"id\":0}")]
+        public object tour_get_tour_services(string search_id, int tour_id, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
             return (this.search_engine.TourGetRoutesResult(search_id));
         }
 
-        ////информация о штрафах по pricekey тура
-        //[WebMethod]
-        //public static TourPenalties TourGetTourVariantPenalties(string SearchId, int TourId, int VariantId)
-        //{
-        //    return null;
-        //}
-
         [JsonRpcMethod("tour_get_tour_variant_penalties")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"tour_get_tour_variant_penalties\",\"params\":[\"srch_id\", 12, \"34\"],\"id\":0}")]
-        public object tour_get_tour_variant_penalties(string search_id, int tour_id, string variant_id)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"tour_get_tour_variant_penalties\",\"params\":[\"srch_id\", 12, \"34\"],\"id\":0}")]
+        public object tour_get_tour_variant_penalties(string search_id, int tour_id, string variant_id, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
             return (this.search_engine.TourGetTourVariantPenalties(search_id, tour_id, variant_id));
         }
 
-        ////проверить актуальность !!
-        //[WebMethod]
-        //public static TourVerifyResult TourVerifyVariant(string SearchId, int TourId, int VariantId)
-        //{
-        //    return null;
-        //}
-
         [JsonRpcMethod("tour_verify_variant")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"tour_verify_variant\",\"params\":[\"srch_id\", 12, \"34\"],\"id\":0}")]
-        public object tour_verify_variant(string search_id, int tour_id, string variant_id)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"tour_verify_variant\",\"params\":[\"srch_id\", 12, \"34\"],\"id\":0}")]
+        public object tour_verify_variant(string search_id, int tour_id, string variant_id, string partner_code)
         {
-             return (this.search_engine.TourVerifyVariant(search_id, tour_id, variant_id));
+            SearchEngine.ApplyConfig(partner_code);
+            return (this.search_engine.TourVerifyVariant(search_id, tour_id, variant_id));
         }
 
-        ////бронировать тур 
-        //[WebMethod]
-        //public static BookResult TourBook(string SearchId, int TourId, UserInfo Info, BookRoom Room)
-        //{
-        //    return null;
-        //}
-
         [JsonRpcMethod("tour_book")]
-	    [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"tour_book\",\"params\":[\"srch_id\", 12,  {\"email\":\"user@test.com\",\"phone\":\"+375 29 111 22 33\"}, {\"variant_id\":1, \"tourists\":[{\"last_name\":\"Vasia\",\"first_name\":\"Pupkin\",\"birth_date\":\"2010-06-15\",\"citizenship\":\"BY\",\"passport_num\":\"MP12211221\",\"passport_date\":\"2014-06-15\",\"bonus_card\":{\"airline_code\":\"LH\",\"card_number\":\"24352200\"}}]}],\"id\":0}")]
-        public object tour_book(string search_id, int tour_id, JsonObject user_info, JsonObject room)
+        [JsonRpcHelp("{\"jsonrpc\":\"2.0\",\"method\":\"tour_book\",\"params\":[\"srch_id\", 12,  {\"email\":\"user@test.com\",\"phone\":\"375291112233\"}, {\"variant_id\":1, \"tourists\":[{\"last_name\":\"Vasia\",\"first_name\":\"Pupkin\",\"birth_date\":\"2010-06-15\",\"citizenship\":\"BY\",\"passport_num\":\"MP12211221\",\"passport_date\":\"2014-06-15\",\"bonus_card\":{\"airline_code\":\"LH\",\"card_number\":\"24352200\"}}]}],\"id\":0}")]
+        public object tour_book(string search_id, int tour_id, JsonObject user_info, JsonObject room, string partner_code)
         {
+            SearchEngine.ApplyConfig(partner_code);
             UserInfo userInfo = null;
             try
             {
@@ -970,15 +912,13 @@ namespace ClickAndTravelSearchEngine
 
             BookRoom bookRooms = new BookRoom(room);
 
-
             return (this.search_engine.TourBook(search_id, tour_id, userInfo, bookRooms));
         }
 
         #endregion
 
-
         #region private_methods
-        
+
         private int[] jsonArrayToIntArray(JsonArray inp)
         {
             int[] res = new int[inp.Length];
@@ -988,8 +928,8 @@ namespace ClickAndTravelSearchEngine
 
             return res;
         }
-        
-   	private string[] jsonArrayToStringArray(JsonArray inp)
+
+        private string[] jsonArrayToStringArray(JsonArray inp)
         {
             string[] res = new string[inp.Length];
 
@@ -998,7 +938,7 @@ namespace ClickAndTravelSearchEngine
 
             return res;
         }
-        
+
         #endregion
     }
 }

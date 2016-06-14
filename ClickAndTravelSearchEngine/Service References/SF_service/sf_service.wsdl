@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://tempuri.org/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://tempuri.org/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
-      <s:element name="Search_Full_Momondo">
+      <s:element name="DELETE_Search_Full">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="route" type="tns:Route" />
@@ -31,10 +31,10 @@
           <s:element minOccurs="0" maxOccurs="1" name="LocationEnd" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:element name="Search_Full_MomondoResponse">
+      <s:element name="DELETE_Search_FullResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="Search_Full_MomondoResult" type="tns:SearchResultFlights" />
+            <s:element minOccurs="0" maxOccurs="1" name="DELETE_Search_FullResult" type="tns:SearchResultFlights" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -99,26 +99,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="Duration" type="s:int" />
         </s:sequence>
       </s:complexType>
-      <s:element name="Search_Full">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="route" type="tns:Route" />
-            <s:element minOccurs="1" maxOccurs="1" name="adult" type="s:int" />
-            <s:element minOccurs="1" maxOccurs="1" name="children" type="s:int" />
-            <s:element minOccurs="1" maxOccurs="1" name="inf" type="s:int" />
-            <s:element minOccurs="0" maxOccurs="1" name="serviceClass" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="is_rambler" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="Search_FullResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="Search_FullResult" type="tns:SearchResultFlights" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="Search_Full_JSON">
+      <s:element name="DELETE_Search_Full_JSON">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="route" type="tns:Route" />
@@ -130,16 +111,45 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="Search_Full_JSONResponse">
+      <s:element name="DELETE_Search_Full_JSONResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="Search_Full_JSONResult" type="tns:SearchResultFlightsJson" />
+            <s:element minOccurs="0" maxOccurs="1" name="DELETE_Search_Full_JSONResult" type="tns:SearchResultFlightsJson" />
           </s:sequence>
         </s:complexType>
       </s:element>
       <s:complexType name="SearchResultFlightsJson">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="Flights" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DELETE_Search_First_JSON">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="route" type="tns:Route" />
+            <s:element minOccurs="1" maxOccurs="1" name="adult" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="children" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="inf" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="serviceClass" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="course" type="s:decimal" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DELETE_Search_First_JSONResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DELETE_Search_First_JSONResult" type="tns:SearchResultJson" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="SearchResultJson">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Changes" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Airports" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Fares" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Airlines" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="SearchId" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsFinished" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:element name="Search_First">
@@ -151,13 +161,63 @@
             <s:element minOccurs="1" maxOccurs="1" name="inf" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="serviceClass" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="my_search_id" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PartnerCode" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
       <s:element name="Search_FirstResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="Search_FirstResult" type="tns:SearchResult" />
+            <s:element minOccurs="0" maxOccurs="1" name="Search_FirstResult" type="tns:SearchResultFlights" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="InitSearch">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="route" type="tns:Route" />
+            <s:element minOccurs="1" maxOccurs="1" name="adult" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="children" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="inf" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="serviceClass" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PartnerCode" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="InitSearchResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="InitSearchResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCurrentState">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="requestId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PartnerCode" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCurrentStateResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetCurrentStateResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCurrentResults">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="requestId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PartnerCode" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCurrentResultsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetCurrentResultsResult" type="tns:SearchResult" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -206,85 +266,11 @@
           <s:element minOccurs="1" maxOccurs="1" name="StartTime" type="s:int" />
         </s:sequence>
       </s:complexType>
-      <s:element name="InitSearch">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="route" type="tns:Route" />
-            <s:element minOccurs="1" maxOccurs="1" name="adult" type="s:int" />
-            <s:element minOccurs="1" maxOccurs="1" name="children" type="s:int" />
-            <s:element minOccurs="1" maxOccurs="1" name="inf" type="s:int" />
-            <s:element minOccurs="0" maxOccurs="1" name="serviceClass" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="InitSearchResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="InitSearchResult" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="Search_First_JSON">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="route" type="tns:Route" />
-            <s:element minOccurs="1" maxOccurs="1" name="adult" type="s:int" />
-            <s:element minOccurs="1" maxOccurs="1" name="children" type="s:int" />
-            <s:element minOccurs="1" maxOccurs="1" name="inf" type="s:int" />
-            <s:element minOccurs="0" maxOccurs="1" name="serviceClass" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="course" type="s:decimal" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="Search_First_JSONResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="Search_First_JSONResult" type="tns:SearchResultJson" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:complexType name="SearchResultJson">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="Changes" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="Airports" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="Fares" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="Airlines" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="SearchId" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="IsFinished" type="s:int" />
-        </s:sequence>
-      </s:complexType>
-      <s:element name="GetCurrentState">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="requestId" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="GetCurrentStateResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="1" maxOccurs="1" name="GetCurrentStateResult" type="s:int" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="GetCurrentResults">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="requestId" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="GetCurrentResultsResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetCurrentResultsResult" type="tns:SearchResult" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
       <s:element name="GetCurrentResultsFlights">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="requestId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PartnerCode" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -300,6 +286,7 @@
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="requestId" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="course" type="s:decimal" />
+            <s:element minOccurs="0" maxOccurs="1" name="PartnerCode" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -314,6 +301,7 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="requestId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PartnerCode" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -328,6 +316,7 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="1" maxOccurs="1" name="ticket_id" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="PartnerCode" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -352,6 +341,7 @@
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="flightToken" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="searchId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PartnerCode" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -395,6 +385,7 @@
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="flightToken" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="searchId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PartnerCode" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -410,6 +401,7 @@
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="searchId" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="flightToken" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PartnerCode" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -427,6 +419,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="customer" type="tns:Customer" />
             <s:element minOccurs="0" maxOccurs="1" name="passengers" type="tns:ArrayOfPassenger" />
             <s:element minOccurs="1" maxOccurs="1" name="tour_end_date" type="s:dateTime" />
+            <s:element minOccurs="0" maxOccurs="1" name="PartnerCode" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -446,11 +439,12 @@
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="Fname" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Otc" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="Citizen" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="Birth" type="s:dateTime" />
           <s:element minOccurs="0" maxOccurs="1" name="Gender" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="Pasport" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="Passport_expire_date" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="PassportExpireDate" type="s:dateTime" />
           <s:element minOccurs="0" maxOccurs="1" name="FrequentFlyerAirline" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="FrequentFlyerNumber" type="s:string" />
         </s:sequence>
@@ -472,6 +466,7 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="hashes" type="tns:ArrayOfString" />
+            <s:element minOccurs="0" maxOccurs="1" name="PartnerCode" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -498,6 +493,73 @@
           <s:element minOccurs="0" maxOccurs="1" name="Link" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:element name="GetTicketInfo">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="bookId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PartnerCode" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTicketInfoResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetTicketInfoResult" type="tns:TicketInfo" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="TicketInfo">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="RubPrice" type="s:decimal" />
+          <s:element minOccurs="0" maxOccurs="1" name="MainTurist" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="TuristCount" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="RouteFrom" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="RouteTo" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsBooking" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="BuyTicket">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="bookId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="secure_sign" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PartnerCode" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="BuyTicketResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="BuyTicketResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="LoadTickets">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="bookId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PartnerCode" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="LoadTicketsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="LoadTicketsResult" type="tns:ArrayOfFileContainer" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfFileContainer">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="FileContainer" nillable="true" type="tns:FileContainer" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="FileContainer">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="FileTitle" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="FilePath" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="Clearing">
         <s:complexType />
       </s:element>
@@ -506,23 +568,23 @@
       </s:element>
     </s:schema>
   </wsdl:types>
-  <wsdl:message name="Search_Full_MomondoSoapIn">
-    <wsdl:part name="parameters" element="tns:Search_Full_Momondo" />
+  <wsdl:message name="DELETE_Search_FullSoapIn">
+    <wsdl:part name="parameters" element="tns:DELETE_Search_Full" />
   </wsdl:message>
-  <wsdl:message name="Search_Full_MomondoSoapOut">
-    <wsdl:part name="parameters" element="tns:Search_Full_MomondoResponse" />
+  <wsdl:message name="DELETE_Search_FullSoapOut">
+    <wsdl:part name="parameters" element="tns:DELETE_Search_FullResponse" />
   </wsdl:message>
-  <wsdl:message name="Search_FullSoapIn">
-    <wsdl:part name="parameters" element="tns:Search_Full" />
+  <wsdl:message name="DELETE_Search_Full_JSONSoapIn">
+    <wsdl:part name="parameters" element="tns:DELETE_Search_Full_JSON" />
   </wsdl:message>
-  <wsdl:message name="Search_FullSoapOut">
-    <wsdl:part name="parameters" element="tns:Search_FullResponse" />
+  <wsdl:message name="DELETE_Search_Full_JSONSoapOut">
+    <wsdl:part name="parameters" element="tns:DELETE_Search_Full_JSONResponse" />
   </wsdl:message>
-  <wsdl:message name="Search_Full_JSONSoapIn">
-    <wsdl:part name="parameters" element="tns:Search_Full_JSON" />
+  <wsdl:message name="DELETE_Search_First_JSONSoapIn">
+    <wsdl:part name="parameters" element="tns:DELETE_Search_First_JSON" />
   </wsdl:message>
-  <wsdl:message name="Search_Full_JSONSoapOut">
-    <wsdl:part name="parameters" element="tns:Search_Full_JSONResponse" />
+  <wsdl:message name="DELETE_Search_First_JSONSoapOut">
+    <wsdl:part name="parameters" element="tns:DELETE_Search_First_JSONResponse" />
   </wsdl:message>
   <wsdl:message name="Search_FirstSoapIn">
     <wsdl:part name="parameters" element="tns:Search_First" />
@@ -535,12 +597,6 @@
   </wsdl:message>
   <wsdl:message name="InitSearchSoapOut">
     <wsdl:part name="parameters" element="tns:InitSearchResponse" />
-  </wsdl:message>
-  <wsdl:message name="Search_First_JSONSoapIn">
-    <wsdl:part name="parameters" element="tns:Search_First_JSON" />
-  </wsdl:message>
-  <wsdl:message name="Search_First_JSONSoapOut">
-    <wsdl:part name="parameters" element="tns:Search_First_JSONResponse" />
   </wsdl:message>
   <wsdl:message name="GetCurrentStateSoapIn">
     <wsdl:part name="parameters" element="tns:GetCurrentState" />
@@ -614,6 +670,24 @@
   <wsdl:message name="CheckFlightsSoapOut">
     <wsdl:part name="parameters" element="tns:CheckFlightsResponse" />
   </wsdl:message>
+  <wsdl:message name="GetTicketInfoSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTicketInfo" />
+  </wsdl:message>
+  <wsdl:message name="GetTicketInfoSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTicketInfoResponse" />
+  </wsdl:message>
+  <wsdl:message name="BuyTicketSoapIn">
+    <wsdl:part name="parameters" element="tns:BuyTicket" />
+  </wsdl:message>
+  <wsdl:message name="BuyTicketSoapOut">
+    <wsdl:part name="parameters" element="tns:BuyTicketResponse" />
+  </wsdl:message>
+  <wsdl:message name="LoadTicketsSoapIn">
+    <wsdl:part name="parameters" element="tns:LoadTickets" />
+  </wsdl:message>
+  <wsdl:message name="LoadTicketsSoapOut">
+    <wsdl:part name="parameters" element="tns:LoadTicketsResponse" />
+  </wsdl:message>
   <wsdl:message name="ClearingSoapIn">
     <wsdl:part name="parameters" element="tns:Clearing" />
   </wsdl:message>
@@ -621,17 +695,17 @@
     <wsdl:part name="parameters" element="tns:ClearingResponse" />
   </wsdl:message>
   <wsdl:portType name="SF_serviceSoap">
-    <wsdl:operation name="Search_Full_Momondo">
-      <wsdl:input message="tns:Search_Full_MomondoSoapIn" />
-      <wsdl:output message="tns:Search_Full_MomondoSoapOut" />
+    <wsdl:operation name="DELETE_Search_Full">
+      <wsdl:input message="tns:DELETE_Search_FullSoapIn" />
+      <wsdl:output message="tns:DELETE_Search_FullSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="Search_Full">
-      <wsdl:input message="tns:Search_FullSoapIn" />
-      <wsdl:output message="tns:Search_FullSoapOut" />
+    <wsdl:operation name="DELETE_Search_Full_JSON">
+      <wsdl:input message="tns:DELETE_Search_Full_JSONSoapIn" />
+      <wsdl:output message="tns:DELETE_Search_Full_JSONSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="Search_Full_JSON">
-      <wsdl:input message="tns:Search_Full_JSONSoapIn" />
-      <wsdl:output message="tns:Search_Full_JSONSoapOut" />
+    <wsdl:operation name="DELETE_Search_First_JSON">
+      <wsdl:input message="tns:DELETE_Search_First_JSONSoapIn" />
+      <wsdl:output message="tns:DELETE_Search_First_JSONSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="Search_First">
       <wsdl:input message="tns:Search_FirstSoapIn" />
@@ -640,10 +714,6 @@
     <wsdl:operation name="InitSearch">
       <wsdl:input message="tns:InitSearchSoapIn" />
       <wsdl:output message="tns:InitSearchSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="Search_First_JSON">
-      <wsdl:input message="tns:Search_First_JSONSoapIn" />
-      <wsdl:output message="tns:Search_First_JSONSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetCurrentState">
       <wsdl:input message="tns:GetCurrentStateSoapIn" />
@@ -693,6 +763,18 @@
       <wsdl:input message="tns:CheckFlightsSoapIn" />
       <wsdl:output message="tns:CheckFlightsSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetTicketInfo">
+      <wsdl:input message="tns:GetTicketInfoSoapIn" />
+      <wsdl:output message="tns:GetTicketInfoSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="BuyTicket">
+      <wsdl:input message="tns:BuyTicketSoapIn" />
+      <wsdl:output message="tns:BuyTicketSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="LoadTickets">
+      <wsdl:input message="tns:LoadTicketsSoapIn" />
+      <wsdl:output message="tns:LoadTicketsSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="Clearing">
       <wsdl:input message="tns:ClearingSoapIn" />
       <wsdl:output message="tns:ClearingSoapOut" />
@@ -700,8 +782,8 @@
   </wsdl:portType>
   <wsdl:binding name="SF_serviceSoap" type="tns:SF_serviceSoap">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
-    <wsdl:operation name="Search_Full_Momondo">
-      <soap:operation soapAction="http://tempuri.org/Search_Full_Momondo" style="document" />
+    <wsdl:operation name="DELETE_Search_Full">
+      <soap:operation soapAction="http://tempuri.org/DELETE_Search_Full" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -709,8 +791,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="Search_Full">
-      <soap:operation soapAction="http://tempuri.org/Search_Full" style="document" />
+    <wsdl:operation name="DELETE_Search_Full_JSON">
+      <soap:operation soapAction="http://tempuri.org/DELETE_Search_Full_JSON" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -718,8 +800,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="Search_Full_JSON">
-      <soap:operation soapAction="http://tempuri.org/Search_Full_JSON" style="document" />
+    <wsdl:operation name="DELETE_Search_First_JSON">
+      <soap:operation soapAction="http://tempuri.org/DELETE_Search_First_JSON" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -738,15 +820,6 @@
     </wsdl:operation>
     <wsdl:operation name="InitSearch">
       <soap:operation soapAction="http://tempuri.org/InitSearch" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="Search_First_JSON">
-      <soap:operation soapAction="http://tempuri.org/Search_First_JSON" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -862,6 +935,33 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetTicketInfo">
+      <soap:operation soapAction="http://tempuri.org/GetTicketInfo" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="BuyTicket">
+      <soap:operation soapAction="http://tempuri.org/BuyTicket" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoadTickets">
+      <soap:operation soapAction="http://tempuri.org/LoadTickets" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="Clearing">
       <soap:operation soapAction="http://tempuri.org/Clearing" style="document" />
       <wsdl:input>
@@ -874,8 +974,8 @@
   </wsdl:binding>
   <wsdl:binding name="SF_serviceSoap12" type="tns:SF_serviceSoap">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
-    <wsdl:operation name="Search_Full_Momondo">
-      <soap12:operation soapAction="http://tempuri.org/Search_Full_Momondo" style="document" />
+    <wsdl:operation name="DELETE_Search_Full">
+      <soap12:operation soapAction="http://tempuri.org/DELETE_Search_Full" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -883,8 +983,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="Search_Full">
-      <soap12:operation soapAction="http://tempuri.org/Search_Full" style="document" />
+    <wsdl:operation name="DELETE_Search_Full_JSON">
+      <soap12:operation soapAction="http://tempuri.org/DELETE_Search_Full_JSON" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -892,8 +992,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="Search_Full_JSON">
-      <soap12:operation soapAction="http://tempuri.org/Search_Full_JSON" style="document" />
+    <wsdl:operation name="DELETE_Search_First_JSON">
+      <soap12:operation soapAction="http://tempuri.org/DELETE_Search_First_JSON" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -912,15 +1012,6 @@
     </wsdl:operation>
     <wsdl:operation name="InitSearch">
       <soap12:operation soapAction="http://tempuri.org/InitSearch" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="Search_First_JSON">
-      <soap12:operation soapAction="http://tempuri.org/Search_First_JSON" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -1029,6 +1120,33 @@
     </wsdl:operation>
     <wsdl:operation name="CheckFlights">
       <soap12:operation soapAction="http://tempuri.org/CheckFlights" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTicketInfo">
+      <soap12:operation soapAction="http://tempuri.org/GetTicketInfo" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="BuyTicket">
+      <soap12:operation soapAction="http://tempuri.org/BuyTicket" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoadTickets">
+      <soap12:operation soapAction="http://tempuri.org/LoadTickets" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

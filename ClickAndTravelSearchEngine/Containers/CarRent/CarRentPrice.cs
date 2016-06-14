@@ -36,7 +36,7 @@ namespace ClickAndTravelSearchEngine.Containers.CarRent
         private KeyValuePair<string, decimal>[] _prices;
 
         [JsonMemberName("price")]
-        public JsonObject Price
+        public object Price
         {
             get
             {

@@ -7,8 +7,8 @@ using System.Data;
 using System.Configuration;
 using ClickAndTravelSearchEngine.Containers.Excursions;
 using ClickAndTravelSearchEngine.MasterTour;
-
 using Jayrock.Json;
+
 namespace ClickAndTravelSearchEngine.ExcursionSearchExt
 {
     public class VizitExcSearcher
@@ -41,7 +41,6 @@ namespace ClickAndTravelSearchEngine.ExcursionSearchExt
             citiesLib.Add(683,  162);//мюнхен
             citiesLib.Add(1106, 726);//мадрид
             citiesLib.Add(1095, 653);//барса
-
             #endregion
         }
 
@@ -71,7 +70,6 @@ namespace ClickAndTravelSearchEngine.ExcursionSearchExt
 
 
             selectQuery = String.Format(selectQuery, beginDate, endDate, cityId, sourcePack);
-
 
             Helpers.Logger.WriteToLog("vizit: " + selectQuery);
 

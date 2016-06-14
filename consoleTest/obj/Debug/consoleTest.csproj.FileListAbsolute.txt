@@ -14,4 +14,3 @@ C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\M
 C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\Megatec.Localizer.dll
 C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\Megatec.Common.dll
 C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\en\Megatec.Localizer.resources.dll
-C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\ClickAndTravelSearchEngine.dll

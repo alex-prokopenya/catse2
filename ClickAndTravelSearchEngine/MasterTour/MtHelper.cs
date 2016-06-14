@@ -50,9 +50,6 @@ namespace ClickAndTravelSearchEngine.MasterTour
             //check redis cache
             string key_for_redis = "courses_"+base_rate+"b"+iso_codes.Aggregate((a,b)=> a+","+b) + "d"+date.ToString();
 
-            //RedisHelper.SetString(key_for_redis,"");
-            //return null;
-
             KeyValuePair<string, decimal>[] res = new KeyValuePair<string, decimal>[iso_codes.Length];
 
             string cache = RedisHelper.GetString(key_for_redis);
@@ -226,7 +223,7 @@ namespace ClickAndTravelSearchEngine.MasterTour
             {
                 
                 SqlCommand com = new SqlCommand(String.Format("insert into [CATSE_Flights] ([ft_ticketid],[ft_route],[ft_date],[ft_price],[ft_turists],[ft_lastdate]) OUTPUT INSERTED.ft_id " +
-                                                        "VALUES ('{0}','{1}','{2}',{3},'{4}')", AntiInject(ticket_id),
+                                                        "VALUES ('{0}','{1}','{2}',{3},'{4}','{5}')", AntiInject(ticket_id),
                                                                                                 searchId,//   ticket.RouteItems[0].Legs[0].DepartureCode + " - " + ticket.RouteItems[0].Legs[0].ArrivalCode,
                                                                                                 ticket.Parts[0].Legs[0].DateBegin.ToString("yyyy-MM-dd"), //дата ПЕРВОГО вылета
                                                                                                 ticket.Price,
@@ -256,6 +253,7 @@ namespace ClickAndTravelSearchEngine.MasterTour
 
         public static int SaveHotelBookingToCache(List<HotelBooking> hotelBookings)
         {
+
             SqlConnection con = new SqlConnection();
 
             if (Manager.ConnectionString == null)

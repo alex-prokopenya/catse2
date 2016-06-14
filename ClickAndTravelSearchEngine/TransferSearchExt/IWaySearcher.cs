@@ -10,14 +10,27 @@ using ClickAndTravelSearchEngine.Containers.Transfers;
 using ClickAndTravelSearchEngine.MasterTour;
 using ClickAndTravelSearchEngine.Responses;
 using ClickAndTravelSearchEngine.ParamsContainers;
-
+using System.Collections.Specialized;
+using System.Configuration;
 namespace ClickAndTravelSearchEngine.TransferSearchExt
 {
     public class IWaySearcher
     {
         private static string url = "https://iwayex.com/rpc";
-        private static int userId = 2464;
+
+        private static int userId = Convert.ToInt32(ConfigurationManager.AppSettings["IwayUserId"]);
+        private static string passengerEmail = ConfigurationManager.AppSettings["IwayPassengerEmail"];
+
         private static string lang = "ru";
+
+        public static void ApplyConfig(NameValueCollection settings, string partnerCode = "")
+        {
+            userId = Convert.ToInt32(settings["IwayUserId"]);
+            passengerEmail = settings["IwayPassengerEmail"];
+
+            Logger.WriteToLog(partnerCode + " config applied to iway");
+        }
+        
         private static JsonRpcClient jsonClient = null;
 
         private static JsonRpcClient GetClient()
@@ -195,7 +208,7 @@ namespace ClickAndTravelSearchEngine.TransferSearchExt
                         var passenger = new JsonObject();
 
                         passenger["phone"] = userInfo.Phone;
-                        passenger["email"] = "info@clickandtravel.ru";
+                        passenger["email"] = passengerEmail;
                         passenger["name"] = turists[j].FirstName + " " + turists[j].Name;
 
                         passengers.Add(passenger);

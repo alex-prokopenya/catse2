@@ -48,12 +48,18 @@ namespace ClickAndTravelSearchEngine
             {
                 var resp = JsonConvert.ExportToString(response2);
 
-                #if DEBUG
+#if DEBUG
                 if (resp.Length > 500)
-                           Logger.WriteToInOutLog(resp.Substring(0, 500));
-                #else
-                           Logger.WriteToInOutLog(resp.Substring(0, 100));
-                #endif
+                    Logger.WriteToInOutLog(resp.Substring(0, 500));
+                else
+                    Logger.WriteToInOutLog(resp);
+#else
+
+                if(resp.Length > 100)
+                    Logger.WriteToInOutLog(resp.Substring(0, 100));
+                else
+                    Logger.WriteToInOutLog(resp);
+#endif
             }
             catch (Exception) { }
             
@@ -74,7 +80,6 @@ namespace ClickAndTravelSearchEngine
             JsonReader paramsReader = null;
             object args = null;
 
-            //reader.
             try
             {
                 reader.ReadToken(JsonTokenClass.Object);
@@ -99,12 +104,6 @@ namespace ClickAndTravelSearchEngine
 
                                 if (paramsReader != null)
                                 {
-                                    //
-                                    // If the parameters were already read in and
-                                    // buffer, then deserialize them now that we know
-                                    // the method we're dealing with.
-                                    //
-
                                     args = ReadParameters(method, paramsReader, importer);
                                     paramsReader = null;
                                 }
@@ -114,13 +113,6 @@ namespace ClickAndTravelSearchEngine
 
                         case "params":
                             {
-                                //
-                                // Is the method already known? If so, then we can
-                                // deserialize the parameters right away. Otherwise
-                                // we record them until hopefully the method is
-                                // encountered.
-                                //
-
                                 if (method != null)
                                 {
                                     args = ReadParameters(method, reader, importer);

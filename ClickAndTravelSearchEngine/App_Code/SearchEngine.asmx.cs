@@ -1,5 +1,4 @@
 //#define DEBUG
-
 using ClickAndTravelSearchEngine.Containers.CarRent;
 using ClickAndTravelSearchEngine.Containers.Excursions;
 using ClickAndTravelSearchEngine.Containers.Hotels;
@@ -20,6 +19,7 @@ using Megatec.MasterTour.DataAccess;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Configuration;
 using System.Linq;
 using System.ServiceModel;
@@ -38,12 +38,12 @@ namespace ClickAndTravelSearchEngine
     [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
 
     // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
-  //  [System.Web.Script.Services.ScriptService]
+    // [System.Web.Script.Services.ScriptService]
     public class SearchEngine : System.Web.Services.WebService
     {
-        private const int child_age_limit = 12;
+        private const int CHILD_AGE_LIMIT = 12;
 
-        private const int passpotDaysLimit = 30;
+        private const int PASSPORT_DAYS_LIMIT = 30;
 
         public static long HOTELS_RESULTS_LIFETIME = Convert.ToInt64(ConfigurationManager.AppSettings["HotelsResultsLifetime"]) * Convert.ToInt64(10000000);
 
@@ -51,7 +51,27 @@ namespace ClickAndTravelSearchEngine
             : base()
         {
             Manager.ConnectionString = ConfigurationManager.AppSettings["MasterTourConnectionString"];
-            //  AppDomainManager.
+        }
+
+        public static void ApplyConfig(string partnerCode) {
+
+            if (!string.IsNullOrEmpty(partnerCode))
+            {
+                var settings = ConfigurationManager.GetSection(partnerCode + "Config") as NameValueCollection;
+
+                if (settings != null)
+                {
+                    Logger.ApplyConfig(settings, partnerCode);
+                    RedisHelper.ApplyConfig(settings, partnerCode);
+
+                    OstrovokSearch.ApplyConfig(settings, partnerCode);
+                    VizitHotelsSearch.ApplyConfig(settings, partnerCode);
+                    WeAtlasExcSearcher.ApplyConfig(settings, partnerCode);
+                    IWaySearcher.ApplyConfig(settings, partnerCode);
+                }
+                else
+                    Logger.WriteToLog("not found config section " + partnerCode + "Config");
+            }
         }
 
         #region Курсы валют
@@ -59,6 +79,7 @@ namespace ClickAndTravelSearchEngine
         [WebMethod]
         public RateCourse[] GetCourses(DateTime CoursesDate)
         {
+            
             var _courses = MtHelper.GetCourses(MtHelper.rate_codes, "RUB", CoursesDate);
 
             List<RateCourse> rateCourses = new List<RateCourse>();
@@ -68,15 +89,12 @@ namespace ClickAndTravelSearchEngine
 
             return rateCourses.ToArray();
         }
-
-
-
         #endregion
 
         #region поиск и бронирование авиабилетов
         //Инициализация поиска авиабилетов
         [WebMethod]
-        public FlightInitSearchResult FlightInitSearch(int Adults, int Children, string ServiceClass, int[] ChildrenAges, Segment[] Segments)
+        public FlightInitSearchResult FlightInitSearch(int Adults, int Children, string ServiceClass, int[] ChildrenAges, Segment[] Segments, string PartnerCode)
         {
             #region check inputs
             //возможные коды ошибок
@@ -105,24 +123,21 @@ namespace ClickAndTravelSearchEngine
             if (startDate > DateTime.Today.AddYears(1))
                 return new FlightInitSearchResult() { ErrorCode = 12, ErrorMessage = "Date " + startDate.ToString("yyyy-MM-dd") + " is too large" };
 
-
             //проверим, есть ли возраст детей
             if (ChildrenAges.Length != Children)
                 return new FlightInitSearchResult() { ErrorCode = 14, ErrorMessage = "Check children_ages array length" };
-
 
             int inf_count = 0;
 
             foreach (int age in ChildrenAges)
             {
-                if ((age > child_age_limit) || (age < 0)) new FlightInitSearchResult() { ErrorCode = 4, ErrorMessage = "Check children_ages array" };
+                if ((age > CHILD_AGE_LIMIT) || (age < 0)) new FlightInitSearchResult() { ErrorCode = 4, ErrorMessage = "Check children_ages array" };
                 if (age < 2)
                 {
                     inf_count++;
                     Children--;
                 }
             }
-
 
             //проверить участки маршрута
             string[] aps = new string[Segments.Length * 2];
@@ -137,11 +152,6 @@ namespace ClickAndTravelSearchEngine
                 aps[2 * i] = Segments[i].DepCode.ToUpper();
                 aps[2 * i + 1] = Segments[i].ArrCode.ToUpper();
             }
-
-            //!!!!!!!!!!!
-            // if (!AirportsChecker.CheckRoutes(aps))
-            //     return new FlightInitSearchResult() { ErrorCode = 16, ErrorMessage = "Route items has invalid iata code" };
-
             #endregion
 
             //init flights search
@@ -160,21 +170,21 @@ namespace ClickAndTravelSearchEngine
                 };
             }
 
-            string searchId = sf_client.InitSearch(route, Adults, Children, inf_count, ServiceClass);
+            string searchId = sf_client.InitSearch(route, Adults, Children, inf_count, ServiceClass, PartnerCode);
 
             return new FlightInitSearchResult() { SearchId = searchId };
         }
 
         //Запрос состояния поиска
         [WebMethod]
-        public FlightSearchState FlightGetSearchState(string SearchId)
+        public FlightSearchState FlightGetSearchState(string SearchId, string PartnerCode)
         {
             //ErrorCode 17 -- не найден searchId
             //TODO: проверить наличие searchId
 
             SF_serviceSoapClient sf_client = new SF_serviceSoapClient();
 
-            SF_service.SearchResultFlights res = sf_client.GetCurrentResultsFlights(SearchId);
+            SF_service.SearchResultFlights res = sf_client.GetCurrentResultsFlights(SearchId, PartnerCode);
 
             if (res == null)
                 return new FlightSearchState() { ErrorCode = 17, ErrorMessage = "Unknown search_id" };
@@ -198,7 +208,7 @@ namespace ClickAndTravelSearchEngine
             return Convert.ToInt32(Math.Floor(SearchId.Length / 10.0));
         }
 
-        private FlightInitSearchResult FlightInitSearch(string SearchId)
+        private FlightInitSearchResult FlightInitSearch(string SearchId, string PartnerCode)
         {
             try
             {
@@ -230,7 +240,7 @@ namespace ClickAndTravelSearchEngine
 
                 int[] ChildrenAges = new int[chd_cnt + inf_cnt].Select((x, indx) => x = indx >= inf_cnt ? chd_age : inf_age).ToArray();
 
-                return FlightInitSearch(ads_cnt, chd_cnt + inf_cnt, service_class, ChildrenAges, segments);
+                return FlightInitSearch(ads_cnt, chd_cnt + inf_cnt, service_class, ChildrenAges, segments, PartnerCode);
             }
             catch (Exception ex)
             {
@@ -240,24 +250,20 @@ namespace ClickAndTravelSearchEngine
 
         //Запрос найденных билетов
         [WebMethod]
-        public FlightSearchResult FlightGetCurrentTickets(string SearchId)
+        public FlightSearchResult FlightGetCurrentTickets(string SearchId, string PartnerCode)
         {
             //TODO: проверить наличие searchId
             //ErrorCode 17 -- не найден searchId
-
-
             SF_serviceSoapClient sf_client = new SF_serviceSoapClient();
 
-            SF_service.SearchResultFlights res = sf_client.GetCurrentResultsFlights(SearchId);
+            SF_service.SearchResultFlights res = sf_client.GetCurrentResultsFlights(SearchId, PartnerCode);
 
             if (res == null) // если не найден актуальный результат поиска
             {
-                // return new FlightSearchResult() { ErrorCode = 17, ErrorMessage = "Unknown search_id" };
-
                 //инициализируем новый поиск
                 try
                 {
-                    FlightInitSearchResult init_res = FlightInitSearch(SearchId);
+                    FlightInitSearchResult init_res = FlightInitSearch(SearchId, PartnerCode);
                     if (init_res.ErrorCode > 0)
                         return new FlightSearchResult() { ErrorCode = init_res.ErrorCode, ErrorMessage = init_res.ErrorMessage };
 
@@ -298,7 +304,6 @@ namespace ClickAndTravelSearchEngine
             else
                 return result;
 
-
             HashSet<string> ticketKeys = new HashSet<string>(); //набор уникальных билетов
             List<Containers.Flights.FlightTicket> ticketsList = new List<Containers.Flights.FlightTicket>();
 
@@ -321,43 +326,25 @@ namespace ClickAndTravelSearchEngine
         }
 
         [WebMethod]
-        public KeyValuePair<string, decimal>[] CheckRedis()
-        {
-            // return new KeyValuePair<string, decimal>[] { new KeyValuePair<string,decimal>("11",11M)};
-            try
-            {
-                KeyValuePair<string, decimal>[] _courses = MtHelper.GetCourses(MtHelper.rate_codes, "RUB", DateTime.Today);
-                return _courses;
-            }
-            catch (Exception ex)
-            {
-                Logger.WriteToLog(ex.Message + " " + ex.StackTrace);
-            }
-            return null;
-            // return ApplyCourses(10, _courses);
-        }
-
-
-        [WebMethod]
-        public FlightSearchResult FlightWaitSearch(string SearchId)
+        public FlightSearchResult FlightWaitSearch(string SearchId , string PartnerCode)
         {
             //TODO: проверить наличие searchId
             //ErrorCode 17 -- не найден searchId
             SF_serviceSoapClient sf_client = new SF_serviceSoapClient();
 
             //ждем завершения поиска
-            int x = sf_client.WaitSearch(SearchId);
+            int x = sf_client.WaitSearch(SearchId, PartnerCode);
 
             //отправляем текущие билеты
-            return this.FlightGetCurrentTickets(SearchId);
+            return this.FlightGetCurrentTickets(SearchId, PartnerCode);
         }
 
         [WebMethod]
-        public SegmentRule FlightGetTicketRules(string SearchId, string TicketId)
+        public SegmentRule FlightGetTicketRules(string SearchId, string TicketId, string PartnerCode)
         {
             SF_serviceSoapClient sf_client = new SF_serviceSoapClient();
 
-            var rules = sf_client.GetFlightRulesByTicketId(Convert.ToInt64(TicketId));
+            var rules = sf_client.GetFlightRulesByTicketId(Convert.ToInt64(TicketId), PartnerCode);
 
             if (rules == null)
                 return new SegmentRule()
@@ -381,17 +368,15 @@ namespace ClickAndTravelSearchEngine
         }
 
         [WebMethod]
-        public FlightCheckTicketResult FlightCheckTicket(string SearchId, string TicketId)
+        public FlightCheckTicketResult FlightCheckTicket(string SearchId, string TicketId, string PartnerCode)
         {
             //!!!!!!!!!!!!!!!
             //TODO: проверить наличие searchId и flightId
             //ErrorCode 17 -- не найден SearchId
             //ErrorCode 18 -- не найден TicketId
-
-
             SF_serviceSoapClient sf_client = new SF_serviceSoapClient();
 
-            SF_service.Flight res = sf_client.GetFlight(TicketId, SearchId);
+            SF_service.Flight res = sf_client.GetFlight(TicketId, SearchId, PartnerCode);
 
             int items_count = getSearchSegmentsCount(SearchId);
 
@@ -421,7 +406,7 @@ namespace ClickAndTravelSearchEngine
         }
 
         [WebMethod]
-        public Containers.Flights.FlightTicket FlightGetTicketInfo(string SearchId, string TicketId)
+        public Containers.Flights.FlightTicket FlightGetTicketInfo(string SearchId, string TicketId, string PartnerCode)
         {
             //!!!!!!!!!!!!!!!
             //TODO: проверить наличие searchId и flightId
@@ -430,7 +415,7 @@ namespace ClickAndTravelSearchEngine
 
             SF_serviceSoapClient sf_client = new SF_serviceSoapClient();
 
-            SF_service.Flight res = sf_client.GetFlight(TicketId, SearchId);
+            SF_service.Flight res = sf_client.GetFlight(TicketId, SearchId, PartnerCode);
 
             int items_count = getSearchSegmentsCount(SearchId);
 
@@ -452,7 +437,7 @@ namespace ClickAndTravelSearchEngine
         }
 
         [WebMethod]
-        public BookResult FlightBookTicket(string SearchId, string TicketId, UserInfo Info, TuristContainer[] turists)
+        public BookResult FlightBookTicket(string SearchId, string TicketId, UserInfo Info, TuristContainer[] turists, string PartnerCode)
         {
             try
             {
@@ -465,7 +450,7 @@ namespace ClickAndTravelSearchEngine
 
                 SF_serviceSoapClient sf_client = new SF_serviceSoapClient();
 
-                SF_service.Flight res = sf_client.GetFlight(TicketId, SearchId);
+                SF_service.Flight res = sf_client.GetFlight(TicketId, SearchId, PartnerCode);
 
                 KeyValuePair<string, decimal>[] _courses = null;
 
@@ -476,7 +461,6 @@ namespace ClickAndTravelSearchEngine
 
                 int items_count = getSearchSegmentsCount(SearchId);
                 Containers.Flights.FlightTicket flightTemp = new Containers.Flights.FlightTicket(res, "", items_count, res.Price);
-
 
                 DateTime lastFlightDate = flightTemp.RouteItems.Last().Legs.Last().ArrivalTime;
 
@@ -501,7 +485,7 @@ namespace ClickAndTravelSearchEngine
 
                     MtHelper.SaveTuristToCache(turists[i]);
 
-                    if ((turists[i].PassportDate > new DateTime(1970, 1, 2)) && (turists[i].PassportDate < lastFlightDate.AddDays(passpotDaysLimit)))
+                    if ((turists[i].PassportDate > new DateTime(1970, 1, 2)) && (turists[i].PassportDate < lastFlightDate.AddDays(PASSPORT_DAYS_LIMIT)))
                         throw new CatseException("pasport date limit", ErrorCodes.TuristCanntPaspDate);
 
                     string turistHash = turists[i].HashSumm;
@@ -519,11 +503,9 @@ namespace ClickAndTravelSearchEngine
 
                 Helpers.Logger.WriteToLog("check " + SearchId + " in " + check_string);
 
-
                 if (!SearchId.Contains(check_string))
                     throw new CatseException("Wrong Turists Ages", ErrorCodes.WrongTuristAges);
-
-
+                
                 List<Passenger> pasangers = new List<Passenger>();
 
                 foreach (TuristContainer tsc in turists)
@@ -536,23 +518,22 @@ namespace ClickAndTravelSearchEngine
                         Name = tsc.FirstName,
 
                         Gender = ((tsc.Sex == 1) ? "M" : "F"),
-                        Passport_expire_date = (tsc.PassportDate < DateTime.Today ? new DateTime(2050, 1, 1) : tsc.PassportDate),
+                        PassportExpireDate = (tsc.PassportDate < DateTime.Today ? new DateTime(2050, 1, 1) : tsc.PassportDate),
                         Pasport = tsc.PassportNum,
                         FrequentFlyerAirline = "",
                         FrequentFlyerNumber = ""
-
                     });
                 }
 
-
                 var bookResult = sf_client.BookFlight(TicketId, //бронирование перелета
-                        new Customer() { Mail = "info@clickandtravel.ru", Name = "Nastasia", Phone = "4957846256" },
+                        new Customer() { Mail = "info@clickandtravel.ru", Name = "Irina", Phone = "4957846256" },
                         pasangers.ToArray(),
-                        lastFlightDate
+                        lastFlightDate,
+                        PartnerCode
                     );
 
                 TicketId = bookResult.code;
-
+                Logger.WriteToInOutLog("book result " + bookResult.code);
 
                 if (TicketId == "Exception")
                     return new BookResult()
@@ -570,8 +551,10 @@ namespace ClickAndTravelSearchEngine
             }
             catch (CatseException ex)
             {
+                Logger.WriteToInOutLog("exception in booking " + ex.Code);
                 return new BookResult()
                 {
+                    
                     ErrorCode = ex.Code,
                     ErrorMessage = ex.Message
                 };
@@ -614,35 +597,13 @@ namespace ClickAndTravelSearchEngine
                 throw new Exceptions.CatseException("Check turists count", 43);
 
             ExcursionSearchResult resp = null;
-            /*    var res = new VizitExcSearcher().SearchExcursions(CityId, MinDate, MaxDate, TuristsCount);
 
-
-                if (res.Length > 0)
-                     resp = new ExcursionSearchResult()
-                     {
-                         SearchId = searchId,
-                         ExcursionVariants = res
-                     };
-                else
-                */
+            resp = new ExcursionSearchResult()
             {
-                /*	res = new ClickExcSearcher().SearchExcursions(CityId, MinDate, MaxDate, TuristsCount);
-
-                    if (res.Length > 0)
-                        resp = new ExcursionSearchResult()
-                        {
-                            SearchId = searchId,
-                            ExcursionVariants = res
-                        };
-                    else
-                    */
-                resp = new ExcursionSearchResult()
-                {
-                    SearchId = searchId,
-                    ExcursionVariants = new WeAtlasExcSearcher().SearchExcursions(CityId, MinDate, MaxDate, TuristsCount)
-                };
-            }
-
+                SearchId = searchId,
+                ExcursionVariants = new WeAtlasExcSearcher().SearchExcursions(CityId, MinDate, MaxDate, TuristsCount)
+            };
+ 
             RedisHelper.SetString("res_" + searchId, JsonConvert.ExportToString(resp), new TimeSpan(HOTELS_RESULTS_LIFETIME));
 
             RedisHelper.SetString("res_book_" + searchId, JsonConvert.ExportToString(resp), new TimeSpan(3 * HOTELS_RESULTS_LIFETIME));
@@ -653,7 +614,6 @@ namespace ClickAndTravelSearchEngine
         //формирует "фейковый" результат для дебага
         private static ExcursionSearchResult ReturnFakeExcursionsResult(DateTime MinDate, DateTime MaxDate, string searchId)
         {
-
             return null;
         }
 
@@ -673,15 +633,7 @@ namespace ClickAndTravelSearchEngine
 
             JsonArray res = null;
 
-            if (ExcursionId < 10000000)
-            {
-                res = new ClickExcSearcher().GetExcursionCalendar(ExcursionId, minDate, maxDate);
-
-                if (res == null)
-                    res = new VizitExcSearcher().GetExcursionCalendar(ExcursionId, minDate, maxDate);
-            }
-            else
-                res = new WeAtlasExcSearcher().GetExcursionCalendar(ExcursionId, minDate, maxDate, Convert.ToInt32(SearchId.Split('-').Last()));
+            res = new WeAtlasExcSearcher().GetExcursionCalendar(ExcursionId, minDate, maxDate, Convert.ToInt32(SearchId.Split('-').Last()));
 
 
             return new ExcursionDatesResult() { excursionDates = res };
@@ -691,8 +643,7 @@ namespace ClickAndTravelSearchEngine
         private static string MakeExcursionOrder(string offerId, int activityId, DateTime startDate, string startTime, TuristContainer[] turists)
         {
             if (activityId > 10000000) //у экскурсий c таким id партнер WeAtlas
-                return new WeAtlasExcSearcher().MakeOrder(offerId, activityId, startDate, startTime, "89850151035", "it@clickandtravel.ru", turists);
-
+                return new WeAtlasExcSearcher().MakeOrder(offerId, activityId, startDate, startTime, turists);
 
             return "";
         }
@@ -745,7 +696,7 @@ namespace ClickAndTravelSearchEngine
                         {
                             MtHelper.SaveTuristToCache(turists[i]);
 
-                            if ((turists[i].PassportDate > new DateTime(1970, 1, 2)) && (turists[i].PassportDate < excursionDate.AddDays(passpotDaysLimit)))
+                            if ((turists[i].PassportDate > new DateTime(1970, 1, 2)) && (turists[i].PassportDate < excursionDate.AddDays(PASSPORT_DAYS_LIMIT)))
                                 throw new CatseException("pasport date limit", ErrorCodes.TuristCanntPaspDate);
 
                             string turistHash = turists[i].HashSumm;
@@ -782,69 +733,6 @@ namespace ClickAndTravelSearchEngine
         }
 
         #endregion
-
-        #region визы по стране
-        //поиск вариантов визы
-        [WebMethod]
-        public VisaSearchResult VisaSearch(string CountryCode,
-                                                DateTime DateFrom,
-                                                DateTime DateTo,
-                                                string CitizenshipCode,
-                                                int Age,
-                                                int CityFromCode)
-        {
-            //ErrorCode 51: неправильный CountryCode
-            //ErrorCode 52: ошибка в датах (меньше сегодня, больше сегодня + год, минимальная дата больше максимальной)
-            //ErrorCode 53: ошибка в гражданстве
-            //ErrorCode 54: ошибка в возрасте (меньше 0, больше 120)
-
-            VisaSearchResult vRes = new VisaSearchResult()
-            {
-                SearchId = "test123",
-                VisaDetails = new VisaDetails()
-                {
-                    Id = 1,
-                    VisaName = "Виза для взрослого",
-                    CountryCode = "CZ",
-                    CitizenshipCode = "RU",
-
-                    TitleCurrency = "60 €",
-                    AgeLimit = Age + 10,
-                    CityId = CityFromCode,
-                    Prices = new KeyValuePair<string, decimal>[] { new KeyValuePair<string, decimal>("RUB", new Decimal(102.2)), new KeyValuePair<string, decimal>("EUR", new Decimal(10)) }
-                }
-            };
-
-            return vRes;
-        }
-
-        //бронирование визы
-        [WebMethod]
-        public BookResult VisaBook(string SearchId, int VisaId, UserInfo Info, TuristContainer Turist)
-        {
-            //ErrorCode 57: не найден SearchId
-            //ErrorCode 58: не найден VisaId
-
-            //ErrorCode 90: неправильный состав туристов (неверное количество, состав взрослые/дети)
-            //ErrorCode 91: ошибка в дате рождения туриста
-            //ErrorCode 92: ошибка в имени/фамилии туриста
-            //ErrorCode 93: ошибка в гражданстве
-            //ErrorCode 94: ошибка в номере паспорта
-            //ErrorCode 95: ошибка в сроке действия паспорта
-            //ErrorCode 96: дублируется турист
-
-            //ErrorCode 98: невалидный и-мэйл пользователя
-            //ErrorCode 99: невалидный телефон пользователя
-
-            return new BookResult()
-            {
-                BookingNumber = 3,
-                Prices = new KeyValuePair<string, decimal>[] {  new KeyValuePair<string, decimal>("USD", new Decimal(3.2)),
-                                                                new KeyValuePair<string, decimal>("RUB", new Decimal(101.2))}
-            };
-        }
-        #endregion
-
 
         #region трансфер
 
@@ -903,13 +791,12 @@ namespace ClickAndTravelSearchEngine
         }
 
         [WebMethod]
-        public Jayrock.Json.JsonObject[] TransferGetInfoMask(string transferID)
+        public object TransferGetInfoMask(string transferID)
         {
             return IWaySearcher.GetInfoMasks(transferID);
         }
 
 
-        //бронирование трансфера
         //бронирование трансфера
         [WebMethod]
         public BookResult TransferBook(string searchId, string transferId, TransferInfo[] transferInfo, UserInfo userInfo, TuristContainer[] turists)
@@ -957,435 +844,11 @@ namespace ClickAndTravelSearchEngine
         }
         #endregion
 
-
-        #region страховка
-        //предварительный расчет страховых полисов
-        [WebMethod]
-        public InsuranceSearchResult InsuranceSearch(int DaysLong, int TuristsCount, bool IsExtraCountry, int PurposeOfTrip)
-        {
-            //ErrorCode 61: неправильная продолжительность
-            //ErrorCode 62: количество туристов больше 10
-            //ErrorCode 63: неизвестная цель поездки
-
-
-            int[] _coverages = new int[] { 1, 2, 3, 4 };
-            int[] _programs = new int[] { 1, 2, 3, 4 };
-
-            InsuranceVariant[] vars = new InsuranceVariant[_coverages.Length * _programs.Length];
-
-            for (int j = 0; j < _programs.Length; j++)
-                for (int i = 0; i < _coverages.Length; i++)
-                    vars[j * _coverages.Length + i] = new InsuranceVariant()
-                    {
-                        Coverage = _coverages[i],
-                        Program = _programs[j],
-                        Prices = new KeyValuePair<string, decimal>[]{
-
-                                                            new KeyValuePair<string, decimal>("EUR", new Decimal(i + j*0.5)),
-                                                            new KeyValuePair<string, decimal>("BYR", new Decimal((i + j*0.5)) * 10500),
-                                                            new KeyValuePair<string, decimal>("USD", new Decimal(i + j*0.5) * 1.35M),
-                                                            new KeyValuePair<string, decimal>("RUB", new Decimal(i + j*0.5) * 44),
-                                                            }
-                    };
-
-
-            return new InsuranceSearchResult()
-            {
-                PurposeId = PurposeOfTrip,
-                SearchId = "exc_search",
-                Variants = vars
-            };
-        }
-
-        [WebMethod]
-        public InsuranceSearchResult InsuranceSearchByCountry(DateTime StartDate, DateTime EndDate, string CountryCode, TuristContainer[] Turists)
-        {
-            //ErrorCode 64: ошибка в датах
-            //ErrorCode 65: неизвестная страна пребывания
-
-            //ErrorCode 91: ошибка в дате рождения туриста
-
-
-            int[] _coverages = new int[] { 1, 2, 3, 4 };
-            int[] _programs = new int[] { 1, 2, 3, 4 };
-
-            InsuranceVariant[] vars = new InsuranceVariant[_coverages.Length * _programs.Length];
-
-            for (int j = 0; j < _programs.Length; j++)
-                for (int i = 0; i < _coverages.Length; i++)
-                    vars[j * _coverages.Length + i] = new InsuranceVariant()
-                    {
-                        Coverage = _coverages[i],
-                        Program = _programs[j],
-                        Prices = new KeyValuePair<string, decimal>[]{
-                                                                new KeyValuePair<string, decimal>("EUR", new Decimal(i + j*0.5)),
-                                                                new KeyValuePair<string, decimal>("BYR", new Decimal(i + j*0.5) * 10500),
-                                                                new KeyValuePair<string, decimal>("USD", new Decimal(i + j*0.5) * 1.35M),
-                                                                new KeyValuePair<string, decimal>("RUB", new Decimal(i + j*0.5) * 44),
-                                                            }
-                    };
-
-
-            return new InsuranceSearchResult()
-            {
-                PurposeId = 1,
-                SearchId = "exc_search_by_country",
-                Variants = vars
-            };
-        }
-
-        [WebMethod]
-        public KeyValuePair<string, decimal>[] InsuranceCalculate(DateTime StartDate, DateTime EndDate, string[] CountryIds, TuristContainer[] Turists, int PurposeOfTrip, int InsuranceProgram, int Coverage)
-        {
-            //ErrorCode 63: неизвестная цель поездки
-            //ErrorCode 64: ошибка в датах
-            //ErrorCode 65: неизвестная страна пребывания
-            //ErrorCode 66: неизвестная программа страхования
-            //ErrorCode 67: неизвестная сумма покрытия
-
-            //ErrorCode 91: ошибка в дате рождения туриста
-
-            return new KeyValuePair<string, decimal>[]{
-                                                                new KeyValuePair<string, decimal>("EUR", new Decimal(PurposeOfTrip + InsuranceProgram*0.5)),
-                                                                new KeyValuePair<string, decimal>("BYR", new Decimal(PurposeOfTrip + InsuranceProgram*0.5) * 10500),
-                                                                new KeyValuePair<string, decimal>("USD", new Decimal(PurposeOfTrip + InsuranceProgram*0.5) * 1.35M),
-                                                                new KeyValuePair<string, decimal>("RUB", new Decimal(PurposeOfTrip + InsuranceProgram*0.5) * 44),
-                                                            };
-
-        }
-
-        [WebMethod]
-        public BookResult InsuranceBook(DateTime StartDate, DateTime EndDate, string[] CountryIds, TuristContainer[] Turists, int PurposeOfTrip, int InsuranceProgram, int Coverage)
-        {
-            //ErrorCode 63: неизвестная цель поездки
-            //ErrorCode 64: ошибка в датах
-            //ErrorCode 65: неизвестная страна пребывания
-            //ErrorCode 66: неизвестная программа страхования
-            //ErrorCode 67: неизвестная сумма покрытия
-
-            //ErrorCode 90: неправильный состав туристов (неверное количество, состав взрослые/дети)
-            //ErrorCode 91: ошибка в дате рождения туриста
-            //ErrorCode 92: ошибка в имени/фамилии туриста
-            //ErrorCode 93: ошибка в гражданстве
-            //ErrorCode 94: ошибка в номере паспорта
-            //ErrorCode 95: ошибка в сроке действия паспорта
-            //ErrorCode 96: дублируется турист
-
-            return new BookResult()
-            {
-                BookingNumber = 4,
-                Prices = new KeyValuePair<string, decimal>[] {  new KeyValuePair<string, decimal>("USD", new Decimal(3.2)),
-                                                                new KeyValuePair<string, decimal>("RUB", new Decimal(101.2))}
-            };
-        }
-        #endregion
-
-        #region Аренда Авто
-        [WebMethod]
-        public CarRentLocation[] CarRentGetPickUpLocations(int CityId)
-        {
-            //ErrorCode 81: неизвестный id города
-
-            return new CarRentLocation[]{
-
-               new CarRentLocation(){
-                    CityId = CityId,
-                    Id = CityId*10 +  1,
-                    Title = "Location 1 for city " + CityId
-               },
-
-               new CarRentLocation(){
-                  CityId = CityId,
-                   Id = CityId*10 +  2,
-                   Title = "Location 2 for city " + CityId
-               },
-
-               new CarRentLocation(){
-                  CityId = CityId,
-                   Id = CityId*10 +  3,
-                   Title = "Location 3 for city " + CityId
-               }
-           };
-
-            //  return null;
-        }
-
-        [WebMethod]
-        public CarRentLocation[] CarRentGetDropOffLocations(int PickUpLocationId)
-        {
-            //ErrorCode 82: неизвестный location Id
-            return new CarRentLocation[]{
-
-               new CarRentLocation(){
-                    CityId = 1,
-                    Id = PickUpLocationId*10 +  1,
-                    Title = "Location 1 for pickup location " + PickUpLocationId
-               },
-
-               new CarRentLocation(){
-                  CityId = 1,
-                   Id = PickUpLocationId*10 +  2,
-                   Title = "Location 2 for pickup location " + PickUpLocationId
-               },
-
-               new CarRentLocation(){
-                  CityId = 1,
-                   Id = PickUpLocationId*10 +  3,
-                   Title = "Location 3 for pickup location " + PickUpLocationId
-               }
-           };
-        }
-
-        [WebMethod]
-        public CarRentSearchResult CarRentSearch(int PickUpLocationId,
-                                                         int DropOffLocationId,
-                                                         DateTime PickUpDateTime,
-                                                         DateTime DropOffDateTime)
-        {
-            //ErrorCode 82: неизвестный location Id
-
-            //ErrorCode 83: несовместимые locations
-            //ErrorCode 84: ошибка в датах
-
-            return new CarRentSearchResult()
-            {
-                SearchId = "cr_search_id",
-                Variants = new CarRentVariant[] {
-
-                    new CarRentVariant(){
-                    Ac = 0,
-                    Doors = 3,
-                    Image = "http://www.cardelmar.de/images/bpcs/287x164/1728.jpg",
-                    Producer = "Renault",
-                    Programs =  new CarRentPrice[]{
-                                    new CarRentPrice(){
-                                    Id =1,
-                                    Incl = new string[]{"-one", "-two", "-three"},
-                                    Name = "All inclusive",
-                                    Prices = new KeyValuePair<string,decimal>[]{
-                                        new KeyValuePair<string, decimal>("BYR", 123453.6M),
-                                        new KeyValuePair<string, decimal>("USD", 15M),
-                                    }
-                                    },
-
-                                    new CarRentPrice(){
-                                    Id =2,
-                                    Incl = new string[]{"-one", "-two", "-three", "-four"},
-                                    Name = "All inclusive plus",
-                                    Prices = new KeyValuePair<string,decimal>[]{
-                                        new KeyValuePair<string, decimal>("BYR", 193453.6M),
-                                        new KeyValuePair<string, decimal>("USD", 22M),
-                                    }
-                                    },
-
-                                },
-
-                                Seats =5,
-                                SupplierId = 101,
-                                SupplierName = "CarFax",
-                                Transmission = 1,
-                                TypeName = "Mini",
-                                VariantId = 1
-                    },
-
-                    new CarRentVariant(){
-
-                    Ac = 1,
-                    Doors = 3,
-                    Image = "http://www.cardelmar.de/images/bpcs/287x164/58.jpg",
-                    Producer = "Renault",
-                    Programs =  new CarRentPrice[]{
-                                    new CarRentPrice(){
-                                    Id =1,
-                                    Incl = new string[]{"-one", "-two", "-three"},
-                                    Name = "All inclusive",
-                                    Prices = new KeyValuePair<string,decimal>[]{
-                                        new KeyValuePair<string, decimal>("BYR", 223453.6M),
-                                        new KeyValuePair<string, decimal>("USD", 23M),
-                                    }
-                                    },
-
-                                    new CarRentPrice(){
-                                    Id =2,
-                                    Incl = new string[]{"-one", "-two", "-three", "-four"},
-                                    Name = "All inclusive plus",
-                                    Prices = new KeyValuePair<string,decimal>[]{
-                                        new KeyValuePair<string, decimal>("BYR", 293453.6M),
-                                        new KeyValuePair<string, decimal>("USD", 35M),
-                                    }
-                                    },
-
-                                },
-
-                                Seats = 5,
-                                SupplierId = 101,
-                                SupplierName = "Hertz",
-                                Transmission = 1,
-                                TypeName = "Standard",
-                                VariantId = 2
-
-                    }
-                }
-            };
-
-            //  return null;
-        }
-
-        [WebMethod]
-        public CarRentStation[] CarRentGetPickUpStations(int LocationId, int SupplierId)
-        {
-            //ErrorCode 82: неизвестный location
-            //ErrorCode 85: неизвестный Supplier
-
-            return new CarRentStation[] {
-                new CarRentStation()
-                {
-                    Id  = 1,
-                    Title = "station1"
-                },
-
-                new CarRentStation()
-                {
-                    Id  = 2,
-                    Title = "station2"
-                },
-            };
-
-
-
-            // return null;
-        }
-
-        //ищем станции получения авто
-        [WebMethod]
-        public CarRentStation[] CarRentGetDropOffStations(int LocationId, int PickUpStationId, int SupplierId)
-        {
-            //ErrorCode 82: неизвестный location
-            //ErrorCode 85: неизвестный Supplier
-            //ErrorCode 86: неизвестный stationId
-
-            return new CarRentStation[] {
-                new CarRentStation()
-                {
-                    Id  = 1,
-                    Title = "station1"
-                },
-
-                new CarRentStation()
-                {
-                    Id  = 2,
-                    Title = "station2"
-                },
-            };
-        }
-
-        [WebMethod]
-        public CarRentStationDetails CarRentGetStationDetails(int StationId, string SearchId)
-        {
-            //ErrorCode 86: неизвестный stationId
-            //ErrorCode 87: неизвестный SearchId
-
-            return new CarRentStationDetails()
-            {
-
-                CityName = "Some city name",
-                Country = "Some country name",
-
-                DropTime = "from 12:00 to 19:00",
-                Fax = "+123453563453",
-                Phone = "+123453563234",
-                PickTime = "from 10:00 to 17:00",
-                Street = "Some street",
-                ZipCode = "121342121"
-            };
-        }
-
-        [WebMethod]
-        public CarRentVerifyCarResult CarRentVerifyCar(string SearchId, int PickUpStationId, int DropOffStationId,
-                                                              DateTime PickUpDateTime, DateTime DropOffDateTime,
-                                                              int VariantId, int PriceId)
-        {
-            //ErrorCode 84: ошибка в датах
-            //ErrorCode 86: неизвестный stationId
-            //ErrorCode 87: неизвестный SearchId
-            //ErrorCode 88: неизвестный VariantId
-            //ErrorCode 89: неизвестный PriceId
-
-            return new CarRentVerifyCarResult()
-            {
-
-                Message = "message text",
-                NewPrices = new KeyValuePair<string, decimal>[]{
-                    new KeyValuePair<string,decimal>("BYR", 120000M),
-                    new KeyValuePair<string,decimal>("USD", 15M),
-                    new KeyValuePair<string,decimal>("EUR", 11.3M)
-                }
-            };
-
-            return null;
-        }
-
-        [WebMethod]
-        public CarRentExtra[] CarRentGetExtras(int SupplierId, DateTime PickUpDate)
-        {
-            //ErrorCode 84: ошибка в датах
-            //ErrorCode 85: неизвестный Supplier
-            return new CarRentExtra[] {
-                new CarRentExtra(){
-                     Id = 1,
-                     Title = "snow chains",
-
-                     Prices  = new KeyValuePair<string,decimal>[]
-                     {
-                         new KeyValuePair<string,decimal>("CZK", 500)
-                     }
-                },
-                new CarRentExtra(){
-                    Id = 2,
-                    Title = "bulbavoz",
-                     Prices  = new KeyValuePair<string,decimal>[]
-                     {
-                         new KeyValuePair<string,decimal>("CZK", 1200)
-                     }
-
-                }
-            };
-
-            return null;
-        }
-
-        [WebMethod]
-        public BookResult CarRentBook(string SearchId, int PickUpStationId, int DropOffStationId, UserInfo UserInfo,
-                                             TuristContainer Turist, int VariantId, int PriceId, CarRentBookExtra[] Extras)
-        {
-            //ErrorCode 86: неизвестный stationId
-            //ErrorCode 87: неизвестный SearchId
-            //ErrorCode 88: неизвестный VariantId
-            //ErrorCode 89: неизвестный PriceId
-
-            //ErrorCode 91: ошибка в дате рождения туриста (старше 25)
-            //ErrorCode 92: ошибка в имени/фамилии туриста
-            //ErrorCode 93: ошибка в гражданстве
-            //ErrorCode 94: ошибка в номере паспорта
-            //ErrorCode 95: ошибка в сроке действия паспорта
-
-            //ErrorCode 98: невалидный и-мэйл пользователя
-            //ErrorCode 99: невалидный телефон пользователя
-
-            return new BookResult()
-            {
-                BookingNumber = 6,
-                Prices = new KeyValuePair<string, decimal>[] {  new KeyValuePair<string, decimal>("USD", new Decimal(3.2)),
-                                                                new KeyValuePair<string, decimal>("RUB", new Decimal(101.2))}
-            };
-
-        }
-        #endregion
-
         #region Отель
         [WebMethod]
         public HotelInitSearchResult HotelInitSearh(int CityId, DateTime StartDate, DateTime EndDate,
-                                                            int[] Stars, int[] Pansions, RequestRoom[] Rooms, string _searchId = "")
+                                                    int[] Stars, int[] Pansions, RequestRoom[] Rooms, 
+                                                    string _searchId = "")
         {
             //ErrorCode 31: неизвестный город
             //ErrorCode 32: ошибка в датах
@@ -1437,7 +900,7 @@ namespace ClickAndTravelSearchEngine
             {
                 //начинаем поиск в новом потоке
                 //стартуем новый поиск
-                Logger.WriteToLog("init__hotel_search");
+                Logger.WriteToLog("init_hotel_search");
                 Thread searchThread = new Thread(() => FindHotels(CityId, StartDate, EndDate, Stars, Pansions, Rooms, searchId));
                 searchThread.Start();
 
@@ -1448,7 +911,9 @@ namespace ClickAndTravelSearchEngine
             return new HotelInitSearchResult() { SearchId = searchId };
         }
 
-        private void FindHotels(int CityId, DateTime StartDate, DateTime EndDate, int[] Stars, int[] Pansions, RequestRoom[] Rooms, string SearchId)
+        private void FindHotels(int CityId, DateTime StartDate, DateTime EndDate, 
+                                int[] Stars, int[] Pansions, RequestRoom[] Rooms, 
+                                string SearchId)
         {
             try
             {
@@ -1461,20 +926,18 @@ namespace ClickAndTravelSearchEngine
 
                 if (ConfigurationManager.AppSettings["SearchHotelsInVizit"] == "true")
                     searchers.Add(new VizitHotelsSearch(CityId, StartDate, EndDate, Stars, Pansions, Rooms[0], SearchId, SearchEngine.HOTELS_RESULTS_LIFETIME));
-                /*
-                            if (ConfigurationManager.AppSettings["SearchHotelsInUts"] == "true")
-                                searchers.Add(new UtsService(CityId, StartDate, EndDate, Stars, Pansions, Rooms, SearchId, SearchEngine.HOTELS_RESULTS_LIFETIME));
-                */
+
                 if (ConfigurationManager.AppSettings["SearchHotelsInOstrovok"] == "true")
                     searchers.Add(new ClickAndTravelSearchEngine.HotelSearchExt.OstrovokSearch(CityId, StartDate, EndDate, Stars, Pansions, Rooms[0], SearchId, SearchEngine.HOTELS_RESULTS_LIFETIME));
 
                 foreach (IHotelExt searcher in searchers)
                     new Thread(new ThreadStart(searcher.FindHotels)).Start();
 
-                int max_iterations_cnt = 100;
+                int max_iterations_cnt = 60;
+
                 while (true)//пройтись по всем серчерам
                 {
-                    Logger.WriteToLog("iteration " + (100 - max_iterations_cnt) + " started");
+                    Logger.WriteToLog("iteration " + (60 - max_iterations_cnt) + " started");
 
                     Thread.Sleep(1000);
 
@@ -1516,7 +979,7 @@ namespace ClickAndTravelSearchEngine
                         RedisHelper.SetString(SearchId + "_state", JsonConvert.ExportToString(res.SearchState), new TimeSpan(HOTELS_RESULTS_LIFETIME));
                     }
 
-                    Logger.WriteToLog("iteration " + (100 - max_iterations_cnt - 1) + " done");
+                    Logger.WriteToLog("iteration " + (60 - max_iterations_cnt - 1) + " done");
 
                     if (!need_wait) break; // если не нужно больше ждать -- уходим
                 }
@@ -2008,18 +1471,7 @@ namespace ClickAndTravelSearchEngine
                                                             (pHash["rooms"] as RequestRoom[])[0],
                                                             SearchId, HOTELS_RESULTS_LIFETIME
                     ));
-
-            /* if (ConfigurationManager.AppSettings["SearchHotelsInUts"] == "true")
-                 searchers.Add(UtsService.id_prefix, new UtsService((int)pHash["cityId"],
-                                                             (DateTime)pHash["dateStart"],
-                                                             (DateTime)pHash["dateEnd"],
-                                                             pHash["stars"] as int[],
-                                                             pHash["pansions"] as int[],
-                                                             pHash["rooms"] as RequestRoom[],
-                                                             SearchId, HOTELS_RESULTS_LIFETIME
-                     ));
- */
-
+          
             if (ConfigurationManager.AppSettings["SearchHotelsInOstrovok"] == "true")
                 searchers.Add(OstrovokSearch.id_prefix, new OstrovokSearch((int)pHash["cityId"],
                                                             (DateTime)pHash["dateStart"],
@@ -2039,7 +1491,6 @@ namespace ClickAndTravelSearchEngine
                 try
                 {
                     HotelPenalties penalty = searchers[parts[0] + "_"].GetHotelPenalties(HotelId, vId);
-
 
                     if (penalty == null)
                         throw new CatseException("unknown variantId", ErrorCodes.HotelUnknownVariantId);
@@ -2073,17 +1524,7 @@ namespace ClickAndTravelSearchEngine
                                                             (pHash["rooms"] as RequestRoom[])[0],
                                                             SearchId, HOTELS_RESULTS_LIFETIME
                     ));
-
-            /* if (ConfigurationManager.AppSettings["SearchHotelsInUts"] == "true")
-                 searchers.Add(UtsService.id_prefix, new UtsService((int)pHash["cityId"],
-                                                             (DateTime)pHash["dateStart"],
-                                                             (DateTime)pHash["dateEnd"],
-                                                             pHash["stars"] as int[],
-                                                             pHash["pansions"] as int[],
-                                                             pHash["rooms"] as RequestRoom[],
-                                                             SearchId, HOTELS_RESULTS_LIFETIME
-                     ));
- */
+      
             if (ConfigurationManager.AppSettings["SearchHotelsInOstrovok"] == "true")
                 searchers.Add(OstrovokSearch.id_prefix, new OstrovokSearch((int)pHash["cityId"],
                                                             (DateTime)pHash["dateStart"],
@@ -2151,7 +1592,6 @@ namespace ClickAndTravelSearchEngine
             int chd = 0;
             List<int> ages = new List<int>();
 
-            //
             foreach (TuristContainer tsc in room.Turists)
             {
                int turistAge = tsc.GetAge(dateEnd);
@@ -2166,7 +1606,7 @@ namespace ClickAndTravelSearchEngine
 
                MtHelper.SaveTuristToCache(tsc);//туристы сохраняются в БД
 
-               if ((tsc.PassportDate > new DateTime(1970, 1, 2)) && (tsc.PassportDate < dateEnd.AddDays(passpotDaysLimit)))
+               if ((tsc.PassportDate > new DateTime(1970, 1, 2)) && (tsc.PassportDate < dateEnd.AddDays(PASSPORT_DAYS_LIMIT)))
                    throw new CatseException("pasport date limit", ErrorCodes.TuristCanntPaspDate);
 
                string turistHash = tsc.HashSumm;
@@ -2191,7 +1631,6 @@ namespace ClickAndTravelSearchEngine
                  throwException = false;
             }
 
-            //		throw new 
             if (throwException)
                 throw new CatseException("check rooms' turists" + checkTuristString + " " + checkStr, ErrorCodes.HotelRoomsTurists);
             else
@@ -2223,7 +1662,7 @@ namespace ClickAndTravelSearchEngine
                                                                 pHash["pansions"] as int[],
                                                                 (pHash["rooms"] as RequestRoom[])[0],
                                                                 SearchId, HOTELS_RESULTS_LIFETIME
-                        ));
+                    ));
 
                 string prefix = bookRooms[0].VariantId.Split('_')[0] + "_";
 
@@ -2261,9 +1700,6 @@ namespace ClickAndTravelSearchEngine
         public string OstrovokBook(int bookId, string dogovorCode)
         {
             return ClickAndTravelSearchEngine.HotelSearchExt.OstrovokSearch.CreateBooking(bookId, dogovorCode);
-
-
-            //  return "";
         }
 
         #endregion
@@ -2581,7 +2017,7 @@ namespace ClickAndTravelSearchEngine
                         }
                     }
                 }
-            }
+                }
 
             };
 
@@ -2762,6 +2198,490 @@ namespace ClickAndTravelSearchEngine
 
         #region Ж/Д
         //0%
+        #endregion
+
+        #region страховка
+        //предварительный расчет страховых полисов
+        [WebMethod]
+        public InsuranceSearchResult InsuranceSearch(int DaysLong, int TuristsCount, bool IsExtraCountry, int PurposeOfTrip)
+        {
+            //ErrorCode 61: неправильная продолжительность
+            //ErrorCode 62: количество туристов больше 10
+            //ErrorCode 63: неизвестная цель поездки
+
+
+            int[] _coverages = new int[] { 1, 2, 3, 4 };
+            int[] _programs = new int[] { 1, 2, 3, 4 };
+
+            InsuranceVariant[] vars = new InsuranceVariant[_coverages.Length * _programs.Length];
+
+            for (int j = 0; j < _programs.Length; j++)
+                for (int i = 0; i < _coverages.Length; i++)
+                    vars[j * _coverages.Length + i] = new InsuranceVariant()
+                    {
+                        Coverage = _coverages[i],
+                        Program = _programs[j],
+                        Prices = new KeyValuePair<string, decimal>[]{
+                                                            new KeyValuePair<string, decimal>("EUR", new Decimal(i + j*0.5)),
+                                                            new KeyValuePair<string, decimal>("BYR", new Decimal((i + j*0.5)) * 10500),
+                                                            new KeyValuePair<string, decimal>("USD", new Decimal(i + j*0.5) * 1.35M),
+                                                            new KeyValuePair<string, decimal>("RUB", new Decimal(i + j*0.5) * 44),
+                                                            }
+                    };
+
+
+            return new InsuranceSearchResult()
+            {
+                PurposeId = PurposeOfTrip,
+                SearchId = "exc_search",
+                Variants = vars
+            };
+        }
+
+        [WebMethod]
+        public InsuranceSearchResult InsuranceSearchByCountry(DateTime StartDate, DateTime EndDate, string CountryCode, TuristContainer[] Turists)
+        {
+            //ErrorCode 64: ошибка в датах
+            //ErrorCode 65: неизвестная страна пребывания
+
+            //ErrorCode 91: ошибка в дате рождения туриста
+
+
+            int[] _coverages = new int[] { 1, 2, 3, 4 };
+            int[] _programs = new int[] { 1, 2, 3, 4 };
+
+            InsuranceVariant[] vars = new InsuranceVariant[_coverages.Length * _programs.Length];
+
+            for (int j = 0; j < _programs.Length; j++)
+                for (int i = 0; i < _coverages.Length; i++)
+                    vars[j * _coverages.Length + i] = new InsuranceVariant()
+                    {
+                        Coverage = _coverages[i],
+                        Program = _programs[j],
+                        Prices = new KeyValuePair<string, decimal>[]{
+                                                                new KeyValuePair<string, decimal>("EUR", new Decimal(i + j*0.5)),
+                                                                new KeyValuePair<string, decimal>("BYR", new Decimal(i + j*0.5) * 10500),
+                                                                new KeyValuePair<string, decimal>("USD", new Decimal(i + j*0.5) * 1.35M),
+                                                                new KeyValuePair<string, decimal>("RUB", new Decimal(i + j*0.5) * 44),
+                                                            }
+                    };
+
+
+            return new InsuranceSearchResult()
+            {
+                PurposeId = 1,
+                SearchId = "exc_search_by_country",
+                Variants = vars
+            };
+        }
+
+        [WebMethod]
+        public KeyValuePair<string, decimal>[] InsuranceCalculate(DateTime StartDate, DateTime EndDate, string[] CountryIds, TuristContainer[] Turists, int PurposeOfTrip, int InsuranceProgram, int Coverage)
+        {
+            //ErrorCode 63: неизвестная цель поездки
+            //ErrorCode 64: ошибка в датах
+            //ErrorCode 65: неизвестная страна пребывания
+            //ErrorCode 66: неизвестная программа страхования
+            //ErrorCode 67: неизвестная сумма покрытия
+
+            //ErrorCode 91: ошибка в дате рождения туриста
+
+            return new KeyValuePair<string, decimal>[]{
+                                                                new KeyValuePair<string, decimal>("EUR", new Decimal(PurposeOfTrip + InsuranceProgram*0.5)),
+                                                                new KeyValuePair<string, decimal>("BYR", new Decimal(PurposeOfTrip + InsuranceProgram*0.5) * 10500),
+                                                                new KeyValuePair<string, decimal>("USD", new Decimal(PurposeOfTrip + InsuranceProgram*0.5) * 1.35M),
+                                                                new KeyValuePair<string, decimal>("RUB", new Decimal(PurposeOfTrip + InsuranceProgram*0.5) * 44),
+                                                            };
+
+        }
+
+        [WebMethod]
+        public BookResult InsuranceBook(DateTime StartDate, DateTime EndDate, string[] CountryIds, TuristContainer[] Turists, int PurposeOfTrip, int InsuranceProgram, int Coverage)
+        {
+            //ErrorCode 63: неизвестная цель поездки
+            //ErrorCode 64: ошибка в датах
+            //ErrorCode 65: неизвестная страна пребывания
+            //ErrorCode 66: неизвестная программа страхования
+            //ErrorCode 67: неизвестная сумма покрытия
+
+            //ErrorCode 90: неправильный состав туристов (неверное количество, состав взрослые/дети)
+            //ErrorCode 91: ошибка в дате рождения туриста
+            //ErrorCode 92: ошибка в имени/фамилии туриста
+            //ErrorCode 93: ошибка в гражданстве
+            //ErrorCode 94: ошибка в номере паспорта
+            //ErrorCode 95: ошибка в сроке действия паспорта
+            //ErrorCode 96: дублируется турист
+
+            return new BookResult()
+            {
+                BookingNumber = 4,
+                Prices = new KeyValuePair<string, decimal>[] {  new KeyValuePair<string, decimal>("USD", new Decimal(3.2)),
+                                                                new KeyValuePair<string, decimal>("RUB", new Decimal(101.2))}
+            };
+        }
+        #endregion
+
+        #region Аренда Авто
+        [WebMethod]
+        public CarRentLocation[] CarRentGetPickUpLocations(int CityId)
+        {
+            //ErrorCode 81: неизвестный id города
+
+            return new CarRentLocation[]{
+
+               new CarRentLocation(){
+                    CityId = CityId,
+                    Id = CityId*10 +  1,
+                    Title = "Location 1 for city " + CityId
+               },
+
+               new CarRentLocation(){
+                  CityId = CityId,
+                   Id = CityId*10 +  2,
+                   Title = "Location 2 for city " + CityId
+               },
+
+               new CarRentLocation(){
+                  CityId = CityId,
+                   Id = CityId*10 +  3,
+                   Title = "Location 3 for city " + CityId
+               }
+           };
+
+            //  return null;
+        }
+
+        [WebMethod]
+        public CarRentLocation[] CarRentGetDropOffLocations(int PickUpLocationId)
+        {
+            //ErrorCode 82: неизвестный location Id
+            return new CarRentLocation[]{
+
+               new CarRentLocation(){
+                    CityId = 1,
+                    Id = PickUpLocationId*10 +  1,
+                    Title = "Location 1 for pickup location " + PickUpLocationId
+               },
+
+               new CarRentLocation(){
+                  CityId = 1,
+                   Id = PickUpLocationId*10 +  2,
+                   Title = "Location 2 for pickup location " + PickUpLocationId
+               },
+
+               new CarRentLocation(){
+                  CityId = 1,
+                   Id = PickUpLocationId*10 +  3,
+                   Title = "Location 3 for pickup location " + PickUpLocationId
+               }
+           };
+        }
+
+        [WebMethod]
+        public CarRentSearchResult CarRentSearch(int PickUpLocationId,
+                                                         int DropOffLocationId,
+                                                         DateTime PickUpDateTime,
+                                                         DateTime DropOffDateTime)
+        {
+            //ErrorCode 82: неизвестный location Id
+
+            //ErrorCode 83: несовместимые locations
+            //ErrorCode 84: ошибка в датах
+
+            return new CarRentSearchResult()
+            {
+                SearchId = "cr_search_id",
+                Variants = new CarRentVariant[] {
+
+                    new CarRentVariant(){
+                    Ac = 0,
+                    Doors = 3,
+                    Image = "http://www.cardelmar.de/images/bpcs/287x164/1728.jpg",
+                    Producer = "Renault",
+                    Programs =  new CarRentPrice[]{
+                                    new CarRentPrice(){
+                                    Id =1,
+                                    Incl = new string[]{"-one", "-two", "-three"},
+                                    Name = "All inclusive",
+                                    Prices = new KeyValuePair<string,decimal>[]{
+                                        new KeyValuePair<string, decimal>("BYR", 123453.6M),
+                                        new KeyValuePair<string, decimal>("USD", 15M),
+                                    }
+                                    },
+
+                                    new CarRentPrice(){
+                                    Id =2,
+                                    Incl = new string[]{"-one", "-two", "-three", "-four"},
+                                    Name = "All inclusive plus",
+                                    Prices = new KeyValuePair<string,decimal>[]{
+                                        new KeyValuePair<string, decimal>("BYR", 193453.6M),
+                                        new KeyValuePair<string, decimal>("USD", 22M),
+                                    }
+                                    },
+
+                                },
+
+                                Seats =5,
+                                SupplierId = 101,
+                                SupplierName = "CarFax",
+                                Transmission = 1,
+                                TypeName = "Mini",
+                                VariantId = 1
+                    },
+
+                    new CarRentVariant(){
+
+                    Ac = 1,
+                    Doors = 3,
+                    Image = "http://www.cardelmar.de/images/bpcs/287x164/58.jpg",
+                    Producer = "Renault",
+                    Programs =  new CarRentPrice[]{
+                                    new CarRentPrice(){
+                                    Id =1,
+                                    Incl = new string[]{"-one", "-two", "-three"},
+                                    Name = "All inclusive",
+                                    Prices = new KeyValuePair<string,decimal>[]{
+                                        new KeyValuePair<string, decimal>("BYR", 223453.6M),
+                                        new KeyValuePair<string, decimal>("USD", 23M),
+                                    }
+                                    },
+
+                                    new CarRentPrice(){
+                                    Id =2,
+                                    Incl = new string[]{"-one", "-two", "-three", "-four"},
+                                    Name = "All inclusive plus",
+                                    Prices = new KeyValuePair<string,decimal>[]{
+                                        new KeyValuePair<string, decimal>("BYR", 293453.6M),
+                                        new KeyValuePair<string, decimal>("USD", 35M),
+                                    }
+                                    },
+
+                                },
+
+                                Seats = 5,
+                                SupplierId = 101,
+                                SupplierName = "Hertz",
+                                Transmission = 1,
+                                TypeName = "Standard",
+                                VariantId = 2
+
+                    }
+                }
+            };
+
+            //  return null;
+        }
+
+        [WebMethod]
+        public CarRentStation[] CarRentGetPickUpStations(int LocationId, int SupplierId)
+        {
+            //ErrorCode 82: неизвестный location
+            //ErrorCode 85: неизвестный Supplier
+
+            return new CarRentStation[] {
+                new CarRentStation()
+                {
+                    Id  = 1,
+                    Title = "station1"
+                },
+
+                new CarRentStation()
+                {
+                    Id  = 2,
+                    Title = "station2"
+                },
+            };
+
+
+
+            // return null;
+        }
+
+        //ищем станции получения авто
+        [WebMethod]
+        public CarRentStation[] CarRentGetDropOffStations(int LocationId, int PickUpStationId, int SupplierId)
+        {
+            //ErrorCode 82: неизвестный location
+            //ErrorCode 85: неизвестный Supplier
+            //ErrorCode 86: неизвестный stationId
+
+            return new CarRentStation[] {
+                new CarRentStation()
+                {
+                    Id  = 1,
+                    Title = "station1"
+                },
+
+                new CarRentStation()
+                {
+                    Id  = 2,
+                    Title = "station2"
+                },
+            };
+        }
+
+        [WebMethod]
+        public CarRentStationDetails CarRentGetStationDetails(int StationId, string SearchId)
+        {
+            //ErrorCode 86: неизвестный stationId
+            //ErrorCode 87: неизвестный SearchId
+
+            return new CarRentStationDetails()
+            {
+
+                CityName = "Some city name",
+                Country = "Some country name",
+
+                DropTime = "from 12:00 to 19:00",
+                Fax = "+123453563453",
+                Phone = "+123453563234",
+                PickTime = "from 10:00 to 17:00",
+                Street = "Some street",
+                ZipCode = "121342121"
+            };
+        }
+
+        [WebMethod]
+        public CarRentVerifyCarResult CarRentVerifyCar(string SearchId, int PickUpStationId, int DropOffStationId,
+                                                              DateTime PickUpDateTime, DateTime DropOffDateTime,
+                                                              int VariantId, int PriceId)
+        {
+            //ErrorCode 84: ошибка в датах
+            //ErrorCode 86: неизвестный stationId
+            //ErrorCode 87: неизвестный SearchId
+            //ErrorCode 88: неизвестный VariantId
+            //ErrorCode 89: неизвестный PriceId
+
+            return new CarRentVerifyCarResult()
+            {
+
+                Message = "message text",
+                NewPrices = new KeyValuePair<string, decimal>[]{
+                    new KeyValuePair<string,decimal>("BYR", 120000M),
+                    new KeyValuePair<string,decimal>("USD", 15M),
+                    new KeyValuePair<string,decimal>("EUR", 11.3M)
+                }
+            };
+
+            return null;
+        }
+
+        [WebMethod]
+        public CarRentExtra[] CarRentGetExtras(int SupplierId, DateTime PickUpDate)
+        {
+            //ErrorCode 84: ошибка в датах
+            //ErrorCode 85: неизвестный Supplier
+            return new CarRentExtra[] {
+                new CarRentExtra(){
+                     Id = 1,
+                     Title = "snow chains",
+
+                     Prices  = new KeyValuePair<string,decimal>[]
+                     {
+                         new KeyValuePair<string,decimal>("CZK", 500)
+                     }
+                },
+                new CarRentExtra(){
+                    Id = 2,
+                    Title = "bulbavoz",
+                     Prices  = new KeyValuePair<string,decimal>[]
+                     {
+                         new KeyValuePair<string,decimal>("CZK", 1200)
+                     }
+
+                }
+            };
+
+            return null;
+        }
+
+        [WebMethod]
+        public BookResult CarRentBook(string SearchId, int PickUpStationId, int DropOffStationId, UserInfo UserInfo,
+                                             TuristContainer Turist, int VariantId, int PriceId, CarRentBookExtra[] Extras)
+        {
+            //ErrorCode 86: неизвестный stationId
+            //ErrorCode 87: неизвестный SearchId
+            //ErrorCode 88: неизвестный VariantId
+            //ErrorCode 89: неизвестный PriceId
+
+            //ErrorCode 91: ошибка в дате рождения туриста (старше 25)
+            //ErrorCode 92: ошибка в имени/фамилии туриста
+            //ErrorCode 93: ошибка в гражданстве
+            //ErrorCode 94: ошибка в номере паспорта
+            //ErrorCode 95: ошибка в сроке действия паспорта
+
+            //ErrorCode 98: невалидный и-мэйл пользователя
+            //ErrorCode 99: невалидный телефон пользователя
+
+            return new BookResult()
+            {
+                BookingNumber = 6,
+                Prices = new KeyValuePair<string, decimal>[] {  new KeyValuePair<string, decimal>("USD", new Decimal(3.2)),
+                                                                new KeyValuePair<string, decimal>("RUB", new Decimal(101.2))}
+            };
+
+        }
+        #endregion
+
+        #region визы по стране
+        //поиск вариантов визы
+        [WebMethod]
+        public VisaSearchResult VisaSearch(string CountryCode,
+                                                DateTime DateFrom,
+                                                DateTime DateTo,
+                                                string CitizenshipCode,
+                                                int Age,
+                                                int CityFromCode)
+        {
+            //ErrorCode 51: неправильный CountryCode
+            //ErrorCode 52: ошибка в датах (меньше сегодня, больше сегодня + год, минимальная дата больше максимальной)
+            //ErrorCode 53: ошибка в гражданстве
+            //ErrorCode 54: ошибка в возрасте (меньше 0, больше 120)
+
+            VisaSearchResult vRes = new VisaSearchResult()
+            {
+                SearchId = "test123",
+                VisaDetails = new VisaDetails()
+                {
+                    Id = 1,
+                    VisaName = "Виза для взрослого",
+                    CountryCode = "CZ",
+                    CitizenshipCode = "RU",
+                    TitleCurrency = "60 €",
+                    AgeLimit = Age + 10,
+                    CityId = CityFromCode,
+                    Prices = new KeyValuePair<string, decimal>[] { new KeyValuePair<string, decimal>("RUB", new Decimal(102.2)), new KeyValuePair<string, decimal>("EUR", new Decimal(10)) }
+                }
+            };
+
+            return vRes;
+        }
+
+        //бронирование визы
+        [WebMethod]
+        public BookResult VisaBook(string SearchId, int VisaId, UserInfo Info, TuristContainer Turist)
+        {
+            //ErrorCode 57: не найден SearchId
+            //ErrorCode 58: не найден VisaId
+
+            //ErrorCode 90: неправильный состав туристов (неверное количество, состав взрослые/дети)
+            //ErrorCode 91: ошибка в дате рождения туриста
+            //ErrorCode 92: ошибка в имени/фамилии туриста
+            //ErrorCode 93: ошибка в гражданстве
+            //ErrorCode 94: ошибка в номере паспорта
+            //ErrorCode 95: ошибка в сроке действия паспорта
+            //ErrorCode 96: дублируется турист
+
+            //ErrorCode 98: невалидный и-мэйл пользователя
+            //ErrorCode 99: невалидный телефон пользователя
+
+            return new BookResult()
+            {
+                BookingNumber = 3,
+                Prices = new KeyValuePair<string, decimal>[] {  new KeyValuePair<string, decimal>("USD", new Decimal(3.2)),
+                                                                new KeyValuePair<string, decimal>("RUB", new Decimal(101.2))}
+            };
+        }
         #endregion
     }
 }

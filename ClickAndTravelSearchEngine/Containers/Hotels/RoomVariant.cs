@@ -60,7 +60,7 @@ namespace ClickAndTravelSearchEngine.Containers.Hotels
         private KeyValuePair<string, decimal>[] _prices = new KeyValuePair<string,decimal>[0];
 
         [JsonMemberName("price")]
-        public JsonObject Price
+        public object Price
         {
             get
             {
@@ -76,9 +76,11 @@ namespace ClickAndTravelSearchEngine.Containers.Hotels
             {
                 List< KeyValuePair<string, decimal>> temp = new List<KeyValuePair<string,decimal>>();//[value.Count];
 
-                foreach (string key in value.Names)
+                JsonObject val = value as JsonObject;
+
+                foreach (string key in val.Names)
                 { 
-                    temp.Add(new KeyValuePair<string,decimal>(key, Convert.ToDecimal( value[key])));
+                    temp.Add(new KeyValuePair<string,decimal>(key, Convert.ToDecimal(val[key])));
                 }
 
                 this._prices = temp.ToArray();
@@ -88,10 +90,10 @@ namespace ClickAndTravelSearchEngine.Containers.Hotels
 
         private JsonObject _penalties;
         [JsonIgnore]
-        public JsonObject Penalties
+        public object Penalties
         {
             get { return _penalties; }
-            set { _penalties = value; }
+            set { _penalties = value as JsonObject; }
         }
 
         [JsonIgnore]

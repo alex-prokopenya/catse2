@@ -22,7 +22,7 @@ namespace ClickAndTravelSearchEngine.Responses
         private KeyValuePair<string, decimal>[] _prices;
 
         [JsonMemberName("price")]
-        public JsonObject PriceObj
+        public object PriceObj
         {
             get { 
                     JsonObject jObj = new JsonObject();

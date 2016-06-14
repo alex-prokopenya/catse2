@@ -15,6 +15,8 @@ using System.Net;
 using System.Net.Security;
 using System.Configuration;
 using MySql.Data.MySqlClient;
+using System.Collections.Specialized;
+
 
 namespace ClickAndTravelSearchEngine.ExcursionSearchExt
 {
@@ -24,13 +26,35 @@ namespace ClickAndTravelSearchEngine.ExcursionSearchExt
 
         private static int cityIdShift = 2000000000;
 
-        private static string serviceUrl = "http://api.weatlas.com/";
+        private static string serviceUrl = ConfigurationManager.AppSettings["WeatlasServiceUrl"];
 
+        private static string AID = ConfigurationManager.AppSettings["WeatlasAid"];
+
+        private static string KEY = ConfigurationManager.AppSettings["WeatlasKey"];
+        private static string PHONE = ConfigurationManager.AppSettings["WeatlasPhone"];
+        private static string EMAIL = ConfigurationManager.AppSettings["WeatlasEmail"];
+
+        private static decimal WEATLAS_COEF = Convert.ToDecimal(ConfigurationManager.AppSettings["WeatlasMargin"]);
+
+        public static void ApplyConfig(NameValueCollection settings, string partnerCode = "")
+        {
+            AID = settings["WeatlasAid"];
+            KEY = settings["WeatlasKey"];
+            serviceUrl = settings["WeatlasServiceUrl"];
+
+            WEATLAS_COEF = Convert.ToDecimal(settings["WeatlasMargin"]);
+
+            PHONE = settings["WeatlasPhone"];
+            EMAIL = settings["WeatlasEmail"];
+
+            Logger.WriteToLog(partnerCode + " config applied to weatlas");
+        }
 
         private static string MakePost(string url, Dictionary<string, string> sendParams)
         {
-            sendParams["aid"] = "12250";
-            sendParams["key"] = "5cf4fa976dc606f18cc10c4ce69b47a3";
+            sendParams["aid"] = AID;
+            sendParams["key"] = KEY;
+
             sendParams["Lang"] = "ru";
             sendParams["mode"] = "json";
 
@@ -58,8 +82,8 @@ namespace ClickAndTravelSearchEngine.ExcursionSearchExt
 
         private static int GetCityId(int CityId)
         {
-            if (CityId > 2000000000)
-                return CityId - 2000000000;
+            if (CityId > cityIdShift)
+                return CityId - cityIdShift;
 
             var selectQuery = "select weatlas_key from cities where id = " + CityId;
 
@@ -77,7 +101,7 @@ namespace ClickAndTravelSearchEngine.ExcursionSearchExt
             if (row == null)
                 return CityId;
             else
-                return Convert.ToInt32(row) - 2000000000;
+                return Convert.ToInt32(row) - cityIdShift;
         }
 
         //поиск экскурсий
@@ -106,7 +130,6 @@ namespace ClickAndTravelSearchEngine.ExcursionSearchExt
 
             var _courses = MtHelper.GetCourses(MtHelper.rate_codes, "RUB", DateTime.Today);
             Logger.WriteToLog("after course");
-
 
             if (searchResult["error"] == null)
             {
@@ -198,9 +221,8 @@ namespace ClickAndTravelSearchEngine.ExcursionSearchExt
             return jObj;
         }
 
-
         //делаем бронь экскурсии
-        public string MakeOrder(string offerId, int activityId, DateTime startDate, string startTime, string phone, string email, TuristContainer[] turists)
+        public string MakeOrder(string offerId, int activityId, DateTime startDate, string startTime,  TuristContainer[] turists)
         {
             var parts = offerId.Split('_');
 
@@ -217,8 +239,8 @@ namespace ClickAndTravelSearchEngine.ExcursionSearchExt
             reqParams.Add("fio", turists[0].Name + " " + turists[0].FirstName); //дата начала
 
             reqParams.Add("Currency", "RUB");   //валюта
-            reqParams.Add("phone", phone);   //телефон
-            reqParams.Add("email", email);   //емэйл
+            reqParams.Add("phone", PHONE);   //телефон
+            reqParams.Add("email", EMAIL);   //емэйл
 
             var resp = MakePost("order/create/", reqParams);//делаем запрос
 

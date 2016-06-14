@@ -17,6 +17,7 @@ using System.Configuration;
 using Jayrock.Json.Conversion;
 using Jayrock.Json;
 using ClickAndTravelSearchEngine.VizitMaster;
+using System.Collections.Specialized;
 
 
 namespace ClickAndTravelSearchEngine.HotelSearchExt
@@ -26,6 +27,8 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
         private string searchId = "";
 
         public static readonly string id_prefix = "ve_";
+
+        private static Decimal VIZIT_COEF = Convert.ToDecimal(ConfigurationManager.AppSettings["VizitMargin"]);
 
         private Hotel[] FindedHotels = null;
         private Room FindedRoom = null;
@@ -37,7 +40,6 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
         private int[] pansions      = new int[0];
 
         private RequestRoom room  = null;
-
         private bool added = false;
 
         private Dictionary<int, int[]> pansionsGroups = new Dictionary<int, int[]>();
@@ -47,10 +49,16 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
 
         private long HOTELS_RESULTS_LIFETIME = 0;
 
-        private Decimal VIZIT_COEF = Convert.ToDecimal(ConfigurationManager.AppSettings["VizitMargin"]);
+        public static void ApplyConfig(NameValueCollection settings, string partnerCode = "")
+        {
+            VIZIT_COEF = Convert.ToDecimal(settings["VizitMargin"]);
+            Logger.WriteToLog(partnerCode + " config applied to vizithotels");
+        }
 
         private VizitHotelsSearch()
-        { }
+        {
+        
+        }
 
         public VizitHotelsSearch(int CityId, DateTime StartDate, DateTime EndDate, int[] Stars, int[] Pansions, RequestRoom Room, string SearchId, long RESULTS_LIFETIME)
         {

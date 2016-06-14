@@ -13,49 +13,13 @@ namespace ClickAndTravelSearchEngine.Containers.Flights
         public FlightTicket()
         { }
 
-        private FlightTicket(SF_service.Flight inp)
-        {
-           // _ticketId = inp.Id;
-            this._serviceClass = inp.Parts[0].Legs[0].ServiceClass;
-            this._airlineCode = inp.AirlineCode;
-
-
-            //!!!FAKE
-            this._timeLimit = DateTime.Now.AddHours(3);
-            this._prices = new KeyValuePair<string, decimal>[] {
-                    new KeyValuePair<string, decimal>("RUB", inp.Price),
-                    new KeyValuePair<string, decimal>("BYR", inp.Price * 275),
-                    new KeyValuePair<string, decimal>("USD", inp.Price / 31),
-                    new KeyValuePair<string, decimal>("EUR", inp.Price / 41),
-            };
-
-            this._routeItems = new RouteItem[inp.Parts.Length];
-
-            for (int i = 0; i < this._routeItems.Length; i++)
-            {
-                this._routeItems[i] = new RouteItem(inp.Parts[i]);
-            }
-
-
-        }
-
         public FlightTicket(SF_service.Flight inp, string id, int route_items_cnt, int ru_price)
         {
             this._ticketId = id;
             this._serviceClass = inp.Parts[0].Legs[0].ServiceClass;
             this._airlineCode = inp.AirlineCode;
 
-
-            //!!!FAKE
             this._timeLimit = DateTime.Now.AddHours(2);
-           /* _prices = new KeyValuePair<string, decimal>[] {
-                    new KeyValuePair<string, decimal>("RUB", inp.Price),
-                    new KeyValuePair<string, decimal>("BYR", inp.Price * 275),
-                    new KeyValuePair<string, decimal>("USD", inp.Price / 31),
-                    new KeyValuePair<string, decimal>("EUR", inp.Price / 41),
-            };
-
-            */
 
             _routeItems = new RouteItem[route_items_cnt];
 
@@ -75,15 +39,6 @@ namespace ClickAndTravelSearchEngine.Containers.Flights
             set { _ticketId = value; }
         }
 
-        //полная стоимость билетов
-        //private int _price;
-
-        //public int Price
-        //{
-        //    get { return _price; }
-        //    set { _price = value; }
-        //}
-
         private int ruPrice;
         [JsonIgnore]
         public int RuPrice
@@ -95,8 +50,8 @@ namespace ClickAndTravelSearchEngine.Containers.Flights
 
         private KeyValuePair<string, decimal>[] _prices;
 
-        [JsonMemberName("price")]
-        public JsonObject Price
+        [JsonIgnore] //[JsonMemberName("price")]
+        public object Price
         {
             get 
             {
@@ -117,7 +72,6 @@ namespace ClickAndTravelSearchEngine.Containers.Flights
             set { _prices = value; }
         }
              
-
         //класс обслуживания E (econom) или B (business)
         private string _serviceClass;
 

@@ -39,7 +39,7 @@ namespace ClickAndTravelSearchEngine.Containers.Inurance
         private KeyValuePair<string, decimal>[] _prices;
 
         [JsonMemberName("price")]
-        public JsonObject Price
+        public object Price
         {
             get
             {

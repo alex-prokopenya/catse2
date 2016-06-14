@@ -18,7 +18,7 @@ namespace ClickAndTravelSearchEngine.Containers.Tours
         }
 
         [JsonMemberName("price")]
-        public JsonObject Price
+        public object Price
         {
             get
             {

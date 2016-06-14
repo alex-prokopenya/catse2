@@ -6,6 +6,7 @@ using Jayrock.Json;
 using Jayrock.JsonRpc;
 using Jayrock.JsonRpc.Web;
 using Jayrock.Json.Conversion;
+using ClickAndTravelSearchEngine.Containers;
 
 using ClickAndTravelSearchEngine.Exceptions;
 
@@ -16,7 +17,7 @@ namespace ClickAndTravelSearchEngine.ParamsContainers
         public UserInfo()
         { }
 
-        public UserInfo(JsonObject inp)
+        public void SetupStuff(JsonObject inp)
         {
             try
             {
@@ -25,7 +26,7 @@ namespace ClickAndTravelSearchEngine.ParamsContainers
             }
             catch (Exception ex)
             {
-                throw new Exception( "Cannot convert " + inp.ToString() + " to UserInfo object", ex);
+                throw new Exception("Cannot convert " + inp.ToString() + " to UserInfo object", ex);
             }
 
             //ErrorCode 98: невалидный и-мэйл пользователя
@@ -34,6 +35,11 @@ namespace ClickAndTravelSearchEngine.ParamsContainers
             if (!Validator.CheckUserMail(_email)) throw new CatseException("Invalid e-mail", ErrorCodes.UserInvalidMail);
 
             if (!Validator.CheckString(_phone, @"^[0-9]{6,20}$")) throw new CatseException("Invalid phone", ErrorCodes.UserInvalidPshone);
+        }
+
+        public UserInfo(JsonObject inp)
+        {
+            SetupStuff(inp);
         }
 
         private string _phone;

@@ -91,7 +91,8 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
 
         public UtsService(int CityId, DateTime StartDate, DateTime EndDate, int[] Stars, int[] Pansions, RequestRoom[] Rooms, string SearchId, long RESULTS_LIFETIME)
         {
-            Logger.WriteToLog("in UtsService");
+            throw new Exception("Клиент UTS устарел и не поддерживает работу партнерского сайта");
+
             //парсим группы по питанию
             for (int i = 0; i < 7; i++)
             {

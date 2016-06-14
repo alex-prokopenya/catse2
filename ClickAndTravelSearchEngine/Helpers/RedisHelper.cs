@@ -7,14 +7,26 @@ using Sider;
 using System.Threading.Tasks;
 using ClickAndTravelSearchEngine.Helpers;
 using System.Threading;
+using System.Collections.Specialized;
+
+
 namespace ClickAndTravelSearchEngine
 {
     public class RedisHelper
     {
+        public static void ApplyConfig(NameValueCollection settings, string paramPartnerCode = "")
+        {
+            partnerCode = paramPartnerCode;
+        }
+
         private static string host = ConfigurationManager.AppSettings["RedisHost"];
+
+        public static string partnerCode = "click";
 
         public static void SetString(string key, string value)
         {
+            key = partnerCode + key;
+
             RedisClient redis_clinet;
 
             #if DEBUG
@@ -50,9 +62,10 @@ namespace ClickAndTravelSearchEngine
 
         public static void SetString(string key, string value, TimeSpan lifetime)
         {
+            key = partnerCode + key;
 
             #if DEBUG
-            Logger.WriteToRedisStuffLog("set lt" + key);
+            Logger.WriteToRedisStuffLog("set with lifetime " + key);
             DateTime start = DateTime.Now;
             #endif
 
@@ -82,11 +95,11 @@ namespace ClickAndTravelSearchEngine
 
         public static string GetString(string key)
         {
-
+            key = partnerCode + key;
 
             #if DEBUG
 
-            Logger.WriteToRedisStuffLog("get lt" + key);
+            Logger.WriteToRedisStuffLog("get with lifetime " + key);
             DateTime start = DateTime.Now;
             #endif
 
@@ -114,9 +127,10 @@ namespace ClickAndTravelSearchEngine
                   }
             }
 
-#if DEBUG
-            Logger.WriteToRedisLog("redis Exception set key:" + key + ", " + (DateTime.Now - start).TotalSeconds);
-#endif
+            #if DEBUG
+                Logger.WriteToRedisLog("redis Exception set key:" + key + ", " + (DateTime.Now - start).TotalSeconds);
+            #endif
+
             throw new Exception("redis get string exception");
         }
     }

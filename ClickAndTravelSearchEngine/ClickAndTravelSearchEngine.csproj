@@ -140,6 +140,12 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
     <None Include="Service References\OktogoService\TravelApiservice.wsdl" />
+    <Content Include="Service References\SF_service\ClickAndTravelSearchEngine.SF_service.FileContainer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\SF_service\ClickAndTravelSearchEngine.SF_service.TicketInfo.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
     <None Include="Service References\SF_service\configuration91.svcinfo" />
     <None Include="Service References\SF_service\configuration.svcinfo" />
     <None Include="Service References\SF_service\Reference.svcmap">
@@ -217,6 +223,9 @@
     <None Include="Service References\VizitMaster\ServiceFormParams.wsdl" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App_Code\SearchEngine.asmx.cs">
+      <SubType>Component</SubType>
+    </None>
     <Compile Include="Containers\CarRent\CarRentBookExtra.cs" />
     <Compile Include="Containers\CarRent\CarRentExtra.cs" />
     <Compile Include="Containers\CarRent\CarRentLocation.cs" />
@@ -241,11 +250,11 @@
     <Compile Include="Containers\Hotels\RoomVariant.cs" />
     <Compile Include="Containers\Inurance\InsuranceVariant.cs" />
     <Compile Include="Containers\Photo.cs" />
-    <Compile Include="Containers\Inurance\Tours\TourHotelRoom.cs" />
-    <Compile Include="Containers\Inurance\Tours\TourRoute.cs" />
-    <Compile Include="Containers\Inurance\Tours\TourDates.cs" />
-    <Compile Include="Containers\Inurance\Tours\TourVariant.cs" />
-    <Compile Include="Containers\Inurance\Tours\TourVariantsGroup.cs" />
+    <Compile Include="Containers\Tours\TourHotelRoom.cs" />
+    <Compile Include="Containers\Tours\TourRoute.cs" />
+    <Compile Include="Containers\Tours\TourDates.cs" />
+    <Compile Include="Containers\Tours\TourVariant.cs" />
+    <Compile Include="Containers\Tours\TourVariantsGroup.cs" />
     <Compile Include="Containers\Transfers\TransferBooking.cs" />
     <Compile Include="Containers\Transfers\TransferDetails.cs" />
     <Compile Include="Containers\Transfers\TransferInfo.cs" />
@@ -255,9 +264,9 @@
     <Compile Include="Containers\Visa\VisaDetails.cs" />
     <Compile Include="ErrorCodes.cs" />
     <Compile Include="Exceptions\CatseException.cs" />
-    <Compile Include="Exceptions\ExcursionSearchExt\ClickExcSearcher.cs" />
-    <Compile Include="Exceptions\ExcursionSearchExt\VizitExcSearcher.cs" />
-    <Compile Include="Exceptions\ExcursionSearchExt\WeAtlasExcSearcher.cs" />
+    <Compile Include="ExcursionSearchExt\ClickExcSearcher.cs" />
+    <Compile Include="ExcursionSearchExt\VizitExcSearcher.cs" />
+    <Compile Include="ExcursionSearchExt\WeAtlasExcSearcher.cs" />
     <Compile Include="Helpers\HashSumm.cs" />
     <Compile Include="Helpers\JsonRpcClient.cs">
       <SubType>Component</SubType>

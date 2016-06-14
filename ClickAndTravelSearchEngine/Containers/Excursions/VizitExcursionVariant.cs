@@ -36,7 +36,7 @@ namespace ClickAndTravelSearchEngine.Containers.Excursions
         private KeyValuePair<string, decimal>[] _prices;
 
         [JsonMemberName("price")]
-        public JsonObject Price
+        public object Price
         {
             get
             {
@@ -50,7 +50,7 @@ namespace ClickAndTravelSearchEngine.Containers.Excursions
             set {
                 List<KeyValuePair<string, decimal>> prices = new List<KeyValuePair<string, decimal>>();
             
-                JsonObject vl = value;
+                JsonObject vl = value as JsonObject;
                 foreach (string name in vl.Names)
                     prices.Add(new KeyValuePair<string,decimal>(name,Convert.ToDecimal(vl[name])));
 

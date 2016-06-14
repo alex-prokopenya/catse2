@@ -11,7 +11,7 @@ namespace ClickAndTravelSearchEngine.Responses
         private KeyValuePair<string, decimal>[] _newPrices;
 
         [JsonMemberName("new_price")]
-        public JsonObject Price
+        public object Price
         {
             get
             {
