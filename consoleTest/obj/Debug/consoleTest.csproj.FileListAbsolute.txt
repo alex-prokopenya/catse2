@@ -11,6 +11,9 @@ C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\M
 C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\ClickAndTravelSearchEngine.pdb
 C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\consoleTest.exe.config
 C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\MySql.Data.dll
-C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\Megatec.Localizer.dll
-C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\Megatec.Common.dll
-C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\en\Megatec.Localizer.resources.dll
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\ClickAndTravelSearchEngine.dll
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\Megatec.Common.BusinessRules.dll
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\Megatec.MasterTour.Model.dll
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\Megatec.Common.Model.dll
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\Megatec.MasterTour.Types.dll
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\consoleTest\bin\Debug\Megatec.Cryptography.dll

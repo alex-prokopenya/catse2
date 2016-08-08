@@ -542,6 +542,13 @@ namespace ClickAndTravelSearchEngine
                         Prices = new KeyValuePair<string, decimal>[0]
                     };
 
+                if (TicketId == "can not book")
+                    return new BookResult()
+                    {
+                        BookingNumber = 0,
+                        Prices = new KeyValuePair<string, decimal>[0]
+                    };
+
                 return new BookResult()
                 {
                     BookingNumber = MtHelper.SaveFlightToCache(turistsIds.ToArray(), res, TicketId, SearchId),
@@ -1249,7 +1256,7 @@ namespace ClickAndTravelSearchEngine
                                             PansionTitle = "Завтрак",
                                             Prices = new KeyValuePair<string,decimal>[]
                                             {
-                                                new KeyValuePair<string,decimal>("BYR", 123550M),
+                                              ///  new KeyValuePair<string,decimal>("BYR", 123550M),
                                                 new KeyValuePair<string,decimal>("USD", 15M),
                                                 new KeyValuePair<string,decimal>("EUR", 11M)
                                             },
@@ -1263,7 +1270,7 @@ namespace ClickAndTravelSearchEngine
                                             PansionTitle = "Все включено",
                                             Prices = new KeyValuePair<string,decimal>[]
                                             {
-                                                new KeyValuePair<string,decimal>("BYR", 5*123550M),
+                                               // new KeyValuePair<string,decimal>("BYR", 5*123550M),
                                                 new KeyValuePair<string,decimal>("USD", 5*15M),
                                                 new KeyValuePair<string,decimal>("EUR", 5*11M)
                                             },
@@ -1875,7 +1882,7 @@ namespace ClickAndTravelSearchEngine
                             VariantId = 1,
                             Prices = new KeyValuePair<string,decimal>[]
                             {
-                                new KeyValuePair<string,decimal>("BYR", 1405.4M),
+                               // new KeyValuePair<string,decimal>("BYR", 1405.4M),
                                 new KeyValuePair<string,decimal>("USD", 105.4M),
                                 new KeyValuePair<string,decimal>("EUR", 15.4M)
                             },
@@ -1909,7 +1916,7 @@ namespace ClickAndTravelSearchEngine
                             VariantId = 2,
                             Prices = new KeyValuePair<string,decimal>[]
                             {
-                                new KeyValuePair<string,decimal>("BYR", 3405.4M),
+                            //    new KeyValuePair<string,decimal>("BYR", 3405.4M),
                                 new KeyValuePair<string,decimal>("USD", 305.4M),
                                 new KeyValuePair<string,decimal>("EUR", 35.4M)
                             },
@@ -1953,7 +1960,7 @@ namespace ClickAndTravelSearchEngine
                             VariantId = 4,
                             Prices = new KeyValuePair<string,decimal>[]
                             {
-                                new KeyValuePair<string,decimal>("BYR", 1405.4M),
+                            //    new KeyValuePair<string,decimal>("BYR", 1405.4M),
                                 new KeyValuePair<string,decimal>("USD", 105.4M),
                                 new KeyValuePair<string,decimal>("EUR", 15.4M)
                             },
@@ -1987,7 +1994,7 @@ namespace ClickAndTravelSearchEngine
                             VariantId = 5,
                             Prices = new KeyValuePair<string,decimal>[]
                             {
-                                new KeyValuePair<string,decimal>("BYR", 3405.4M),
+                          //      new KeyValuePair<string,decimal>("BYR", 3405.4M),
                                 new KeyValuePair<string,decimal>("USD", 305.4M),
                                 new KeyValuePair<string,decimal>("EUR", 35.4M)
                             },
@@ -2053,7 +2060,7 @@ namespace ClickAndTravelSearchEngine
                                 DaysLong = 8,
                                 MinPrices = new KeyValuePair<string,decimal>[]
                                 {
-                                     new KeyValuePair<string,decimal>("BYR", 14234M),
+                                 //    new KeyValuePair<string,decimal>("BYR", 14234M),
                                      new KeyValuePair<string,decimal>("USD", 234M),
                                      new KeyValuePair<string,decimal>("EUR", 34M)
                                 },
@@ -2064,7 +2071,7 @@ namespace ClickAndTravelSearchEngine
                                 DaysLong = 8,
                                 MinPrices = new KeyValuePair<string,decimal>[]
                                 {
-                                     new KeyValuePair<string,decimal>("BYR", 14234M),
+                                //     new KeyValuePair<string,decimal>("BYR", 14234M),
                                      new KeyValuePair<string,decimal>("USD", 234M),
                                      new KeyValuePair<string,decimal>("EUR", 34M)
                                 },
@@ -2075,7 +2082,7 @@ namespace ClickAndTravelSearchEngine
                                 DaysLong = 7,
                                 MinPrices = new KeyValuePair<string,decimal>[]
                                 {
-                                     new KeyValuePair<string,decimal>("BYR", 14234M),
+                                 //    new KeyValuePair<string,decimal>("BYR", 14234M),
                                      new KeyValuePair<string,decimal>("USD", 234M),
                                      new KeyValuePair<string,decimal>("EUR", 34M)
                                 },
@@ -2223,7 +2230,7 @@ namespace ClickAndTravelSearchEngine
                         Program = _programs[j],
                         Prices = new KeyValuePair<string, decimal>[]{
                                                             new KeyValuePair<string, decimal>("EUR", new Decimal(i + j*0.5)),
-                                                            new KeyValuePair<string, decimal>("BYR", new Decimal((i + j*0.5)) * 10500),
+                                                           // new KeyValuePair<string, decimal>("BYR", new Decimal((i + j*0.5)) * 10500),
                                                             new KeyValuePair<string, decimal>("USD", new Decimal(i + j*0.5) * 1.35M),
                                                             new KeyValuePair<string, decimal>("RUB", new Decimal(i + j*0.5) * 44),
                                                             }
@@ -2260,7 +2267,7 @@ namespace ClickAndTravelSearchEngine
                         Program = _programs[j],
                         Prices = new KeyValuePair<string, decimal>[]{
                                                                 new KeyValuePair<string, decimal>("EUR", new Decimal(i + j*0.5)),
-                                                                new KeyValuePair<string, decimal>("BYR", new Decimal(i + j*0.5) * 10500),
+                                                              //  new KeyValuePair<string, decimal>("BYR", new Decimal(i + j*0.5) * 10500),
                                                                 new KeyValuePair<string, decimal>("USD", new Decimal(i + j*0.5) * 1.35M),
                                                                 new KeyValuePair<string, decimal>("RUB", new Decimal(i + j*0.5) * 44),
                                                             }
@@ -2288,7 +2295,7 @@ namespace ClickAndTravelSearchEngine
 
             return new KeyValuePair<string, decimal>[]{
                                                                 new KeyValuePair<string, decimal>("EUR", new Decimal(PurposeOfTrip + InsuranceProgram*0.5)),
-                                                                new KeyValuePair<string, decimal>("BYR", new Decimal(PurposeOfTrip + InsuranceProgram*0.5) * 10500),
+                                                          //      new KeyValuePair<string, decimal>("BYR", new Decimal(PurposeOfTrip + InsuranceProgram*0.5) * 10500),
                                                                 new KeyValuePair<string, decimal>("USD", new Decimal(PurposeOfTrip + InsuranceProgram*0.5) * 1.35M),
                                                                 new KeyValuePair<string, decimal>("RUB", new Decimal(PurposeOfTrip + InsuranceProgram*0.5) * 44),
                                                             };
@@ -2404,7 +2411,7 @@ namespace ClickAndTravelSearchEngine
                                     Incl = new string[]{"-one", "-two", "-three"},
                                     Name = "All inclusive",
                                     Prices = new KeyValuePair<string,decimal>[]{
-                                        new KeyValuePair<string, decimal>("BYR", 123453.6M),
+                                    //    new KeyValuePair<string, decimal>("BYR", 123453.6M),
                                         new KeyValuePair<string, decimal>("USD", 15M),
                                     }
                                     },
@@ -2414,7 +2421,7 @@ namespace ClickAndTravelSearchEngine
                                     Incl = new string[]{"-one", "-two", "-three", "-four"},
                                     Name = "All inclusive plus",
                                     Prices = new KeyValuePair<string,decimal>[]{
-                                        new KeyValuePair<string, decimal>("BYR", 193453.6M),
+                                    //    new KeyValuePair<string, decimal>("BYR", 193453.6M),
                                         new KeyValuePair<string, decimal>("USD", 22M),
                                     }
                                     },
@@ -2441,7 +2448,7 @@ namespace ClickAndTravelSearchEngine
                                     Incl = new string[]{"-one", "-two", "-three"},
                                     Name = "All inclusive",
                                     Prices = new KeyValuePair<string,decimal>[]{
-                                        new KeyValuePair<string, decimal>("BYR", 223453.6M),
+                                      //  new KeyValuePair<string, decimal>("BYR", 223453.6M),
                                         new KeyValuePair<string, decimal>("USD", 23M),
                                     }
                                     },
@@ -2451,7 +2458,7 @@ namespace ClickAndTravelSearchEngine
                                     Incl = new string[]{"-one", "-two", "-three", "-four"},
                                     Name = "All inclusive plus",
                                     Prices = new KeyValuePair<string,decimal>[]{
-                                        new KeyValuePair<string, decimal>("BYR", 293453.6M),
+                                      //  new KeyValuePair<string, decimal>("BYR", 293453.6M),
                                         new KeyValuePair<string, decimal>("USD", 35M),
                                     }
                                     },
@@ -2557,7 +2564,7 @@ namespace ClickAndTravelSearchEngine
 
                 Message = "message text",
                 NewPrices = new KeyValuePair<string, decimal>[]{
-                    new KeyValuePair<string,decimal>("BYR", 120000M),
+                   // new KeyValuePair<string,decimal>("BYR", 120000M),
                     new KeyValuePair<string,decimal>("USD", 15M),
                     new KeyValuePair<string,decimal>("EUR", 11.3M)
                 }

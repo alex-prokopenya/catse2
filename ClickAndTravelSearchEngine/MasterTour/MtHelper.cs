@@ -26,7 +26,7 @@ namespace ClickAndTravelSearchEngine.MasterTour
 {
     public class MtHelper
     {
-        public static string[] rate_codes = new string[] { "RUB", "USD", "EUR", "BYR", "UAH", "KZT" };
+        public static string[] rate_codes = new string[] { "RUB", "USD", "EUR", "UAH", "KZT" };
 
         public static KeyValuePair<string, decimal>[] ApplyCourses(decimal price, KeyValuePair<string, decimal>[] courses)
         {
@@ -36,10 +36,8 @@ namespace ClickAndTravelSearchEngine.MasterTour
 
             for (int i = 0; i < courses.Length; i++)
             {
-                if(courses[i].Key != "BYR")
-                    res[i] = new KeyValuePair<string, decimal>(courses[i].Key, Math.Round(price / courses[i].Value));
-                else
-                    res[i] = new KeyValuePair<string, decimal>(courses[i].Key, Math.Round(price / courses[i].Value / 1000) * 1000);
+                res[i] = new KeyValuePair<string, decimal>(courses[i].Key, Math.Round(price / courses[i].Value));
+                
             }
 
             return res;

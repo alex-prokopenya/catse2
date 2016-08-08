@@ -46,11 +46,9 @@ namespace ClickAndTravelSearchEngine.Containers.Flights
             get { return ruPrice; }
             set { ruPrice = value; }
         }
-
-
+        
         private KeyValuePair<string, decimal>[] _prices;
-
-        [JsonIgnore] //[JsonMemberName("price")]
+        [JsonMemberName("price")]
         public object Price
         {
             get 

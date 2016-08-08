@@ -18,3 +18,7 @@ C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\ClickAndTravelSearchEng
 C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\ClickAndTravelSearchEngine\obj\Release\ClickAndTravelSearchEngine.dll
 C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\ClickAndTravelSearchEngine\obj\Release\ClickAndTravelSearchEngine.pdb
 C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\ClickAndTravelSearchEngine\obj\Release\ClickAndTravelSearchEngine.csprojResolveAssemblyReference.cache
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\ClickAndTravelSearchEngine\bin\Megatec.Common.Model.dll
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\ClickAndTravelSearchEngine\bin\Megatec.Cryptography.dll
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\ClickAndTravelSearchEngine\bin\Megatec.MasterTour.Model.dll
+C:\Users\svs\Documents\Visual Studio 2013\Projects\CATSE\ClickAndTravelSearchEngine\bin\Megatec.MasterTour.Types.dll

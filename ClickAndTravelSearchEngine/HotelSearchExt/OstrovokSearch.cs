@@ -39,7 +39,7 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
 
         private static readonly int OstrovokHotelIdShift = 30000000;
 
-        private Hotel[] FoundHotels = null;
+        private List<Hotel> FoundHotels = new List<Hotel>();
         private Containers.Hotels.Room FoundRoom = null;
 
         private Dictionary<string, int> hotelsDictionary = new Dictionary<string, int>();
@@ -54,7 +54,7 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
             OS_AUTH = settings["OstrovokAuth"];
             OSTROVOK_COEF = Convert.ToDecimal(settings["OstrovokMargin"]);
 
-            Logger.WriteToLog(partnerCode+ " config applied to ostrovok");
+            Logger.WriteToLog(partnerCode + " config applied to ostrovok");
         }
 
         public OstrovokSearch(int CityId, DateTime StartDate, DateTime EndDate, int[] Stars, int[] Pansions, RequestRoom Room, string SearchId, long RESULTS_LIFETIME)
@@ -128,11 +128,160 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
             jObj["children"] = childAges;
             jObj["format"] = "json";
             jObj["lang"] = "ru";
-            jObj["page"] = page;
+            jObj["currency"] = "RUB";
+
+            if (page > 0)
+                jObj["page"] = page;
+
+
             jObj["include"] = new string[] { "room_description", "value_adds", "rate_price", "room_name", "availability_hash", "cancellation_info" };
 
             return jObj;
         }
+
+        private JsonObject GetCurrentStatus(string sessionKey, int page) {
+
+            JsonObject data = new JsonObject();
+            data["session_id"] = sessionKey;
+            data["page"] = page;
+
+            var tmp = Guid.NewGuid();
+
+            var url = OS_URL + "/api/b2b/v2/serp/session/status?data=" + data;
+
+            Logger.WriteToOstrovokLog(tmp.ToString() + ": " + url);
+
+            var statusResponse = CreateOstrovokClient().DownloadString(url);
+
+            JsonObject jObj = JsonConvert.Import<JsonObject>(statusResponse);
+
+            Logger.WriteToOstrovokLog(tmp.ToString() + ": " + (jObj["result"] as JsonObject).ToString());
+
+            return jObj["result"] as JsonObject;
+        }
+
+        private void GetPageHotels(string sessionKey, int page, int ads, int[] childAges) {
+
+            //создаем анонимный объект для поискового запроса
+            var dataForUrl = new JsonObject();
+            dataForUrl["session_id"] = sessionKey;
+            dataForUrl["page"] = page;
+
+            var tmp = Guid.NewGuid();
+
+            var url = OS_URL + "/api/b2b/v2/serp/session/page?data=" + dataForUrl;
+
+            Logger.WriteToOstrovokLog(tmp.ToString() + ": " + url);
+
+            var pageResponse = CreateOstrovokClient().DownloadString(url);
+            
+            JsonObject jObj = JsonConvert.Import<JsonObject>(pageResponse);
+
+            Logger.WriteToOstrovokLog(tmp.ToString() + ": " + (jObj["result"] as JsonArray).Length + " items");
+
+            //получить отели со страницы
+            var hotels = ComposeHotelsResults(jObj["result"] as JsonArray, ads, childAges);
+
+            if (this.FoundHotels.Count == 0)
+            {
+                //сохраняем временный результат
+                this.FoundHotels = new List<Hotel>(hotels);
+
+                //кладем в редис информацию по аннуляциям и verify
+                var redisCache = new JsonObject();
+                var cancelationCache = new JsonObject();
+
+                foreach (Hotel hotel in hotels)
+                {
+                    redisCache["hotel" + hotel.HotelId + "_" + hotel.Rooms[0].Variants[0].VariantId] = hotel.Rooms[0].Variants[0].Price;
+
+                    cancelationCache["hotel" + hotel.HotelId + "_" + hotel.Rooms[0].Variants[0].VariantId] = hotel.Rooms[0].Variants[0].Penalties;
+                }
+
+                RedisHelper.SetString("hotel_verify_cache_" + searchId, JsonConvert.ExportToString(redisCache), new TimeSpan(0, 30, 0));
+                RedisHelper.SetString("hotel_penalty_cache_" + searchId, JsonConvert.ExportToString(cancelationCache), new TimeSpan(0, 30, 0));
+            }
+            else
+            {
+                this.FoundHotels.AddRange(hotels);
+            }
+
+        }
+
+        //найти результаты первых страниц
+        private Hotel[] GetHotelsByRoomStream(int cityId, int ads, int[] childAges, string checkin, string checkout)
+        {
+            try
+            {
+                //создаем анонимный объект для поискового запроса
+                var dataForUrl = GenerateRequestData(cityId, ads, childAges, checkin, checkout, -1);
+
+                var url = OS_URL + "/api/b2b/v2/serp/session/create?data=" + dataForUrl;
+
+#if DEBUG
+                var tmp = Guid.NewGuid();
+                Logger.WriteToOstrovokLog("id " + tmp.ToString() + "request:" + url);
+#endif
+                var createSessionResponse = CreateOstrovokClient().DownloadString(url);//делаем запрос первой страницы
+
+#if DEBUG
+                Logger.WriteToOstrovokLog("id " + tmp.ToString()+": " + createSessionResponse);
+#endif
+
+                JsonObject jObj = JsonConvert.Import<JsonObject>(createSessionResponse);
+
+                //сохраняем ключ
+                var sessionKey = (jObj["result"] as JsonObject)["session_id"].ToString();
+
+                int currentPage = 0;
+
+                bool finished = false;
+                //опрашиваем состояние
+
+                var max_wait = 90;
+
+                while (max_wait-- > 0 && !finished)
+                {
+                    Thread.Sleep(1000);
+
+                    var status = GetCurrentStatus(sessionKey, currentPage);
+
+                    //идем по статусам страниц
+                    //если есть done, забираем данные
+                    int checkPage = currentPage;
+
+                    while (status.Contains(checkPage.ToString()))
+                    {
+                        if (status[checkPage.ToString()].ToString() == "pending")
+                            break;
+
+                        if (status[checkPage.ToString()].ToString() == "last")
+                        {
+                            finished = true;
+                            break;
+                        }
+
+                        if (status[checkPage.ToString()].ToString() == "done")
+                        {
+                            //загрузить цены
+                            GetPageHotels(sessionKey, checkPage, ads, childAges);
+                            currentPage = checkPage + 1;
+                        }
+
+                        checkPage++;
+                    }
+                }
+
+                return this.FoundHotels.ToArray();
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteToOstrovokLog(ex.Message + " " + ex.StackTrace);
+            }
+
+            return null;
+        }
+
 
         //найти результаты первых страниц
         private Hotel[] GetHotelsByRoom(int cityId, int ads, int[] childAges, string checkin, string checkout)
@@ -148,7 +297,6 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
                 var tmp = Guid.NewGuid();
                 Logger.WriteToOstrovokLog("id " + tmp.ToString() + "request:" + url);
 #endif
-
                 var firstPageResponse = CreateOstrovokClient().DownloadString(url);//делаем запрос первой страницы
 
 #if DEBUG
@@ -160,10 +308,10 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
                 //добавляем результаты в общий список
                 List<Hotel> hotels = new List<Hotel>();
 
-                hotels.AddRange(ComposeHotelsResults(jObj["result"] as JsonObject, ads, childAges));
+                hotels.AddRange(ComposeHotelsResults((jObj["result"] as JsonObject)["hotels"] as JsonArray, ads, childAges));
 
                 //сохраняем временный результат
-                this.FoundHotels = hotels.ToArray();
+                this.FoundHotels = hotels;
 
                 //кладем в редис информацию по аннуляциям и verify
                 var redisCache = new JsonObject();
@@ -212,7 +360,7 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
 
                     JsonObject jsonRes = JsonConvert.Import<JsonObject>(response);
 
-                    var hotelsTemp = ComposeHotelsResults(jsonRes["result"] as JsonObject, ads, childAges);
+                    var hotelsTemp = ComposeHotelsResults((jsonRes["result"] as JsonObject)["hotels"] as JsonArray, ads, childAges);
 
                     if (hotelsTemp.Length > 0)
                     {
@@ -221,7 +369,7 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
                         Logger.WriteToOstrovokLog("id " + tmp.ToString() + "hotels.count " + hotelsTemp.Length);
 #endif
                         hotels.AddRange(hotelsTemp);
-                        this.FoundHotels = hotels.ToArray();
+                        this.FoundHotels = hotels;
                         continue;
                     }
                     else if (nohotelsCount++ > 2)
@@ -420,7 +568,7 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
         {
             if (this.cityId == 0)
             {
-                this.FoundHotels = new Hotel[0];
+                this.FoundHotels = new List<Hotel>();
                 this.isFinished = true;
                 this.added = true;
                 return;
@@ -431,36 +579,35 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
                 //выгружаем справочник отелей по городу
                 var fillHotelsLibTask = Task.Factory.StartNew(() => FillHotelsDict(this.cityId));
 
-                //получить ищем отели по комнате
-                //первые резульататы ищутся синхронно
-                var hotels = GetHotelsByRoom(this.cityId, room.Adults, room.ChildrenAges,
+                // ищем отели по комнате
+                //первые результаты ищутся синхронно
+                GetHotelsByRoomStream(this.cityId, room.Adults, room.ChildrenAges,
                                                startDate.ToString("yyyy-MM-dd"),
                                                endDate.ToString("yyyy-MM-dd"));
                 
                 fillHotelsLibTask.Wait();
 
                 //парсим ответ, сохраняем результаты в редис
-                this.FoundHotels = MergeRoomsResults(hotels);
+                this.FoundHotels = new List<Hotel>( AddVariantInfoToRedis(this.FoundHotels.ToArray()));
             }
             catch (Exception ex)
             {
                 Logger.WriteToLog(ex.Message + " " + ex.StackTrace );
 
-                this.FoundHotels = new Hotel[0];
+                this.FoundHotels = new List<Hotel>();
                 this.added = true;
             }
 
             this.isFinished = true;
         }
 
-        //объединяем результаты по разным комнатам в один массив отелей
-        private Hotel[] MergeRoomsResults(Hotel[] roomHotels)
+
+        private Hotel[] AddVariantInfoToRedis(Hotel[] roomHotels)
         {
             var redisCache = new JsonObject();
 
             var cancelationCache = new JsonObject();
 
-            //если искали только одну комнату, объединять нечего
             if(roomHotels.Length ==0 || roomHotels[0] == null) return new Hotel[0];
                 
             foreach (Hotel hotel in roomHotels)
@@ -479,18 +626,18 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
             return roomHotels;
         }
 
-        private Hotel[] ComposeHotelsResults(JsonObject resp, int ads, int[] childAges)
+        private Hotel[] ComposeHotelsResults(JsonArray rates, int ads, int[] childAges)
         {
             var result = new List<Hotel>();
 
-            if (resp["hotels"] != null)
+            if (rates != null)
             {
-                Logger.WriteToInOutLog("found " + (resp["hotels"] as JsonArray).Count + " in ostrovok");
+                Logger.WriteToInOutLog("found " + rates.Count + " in ostrovok");
                 //идем по списку результатов
 
                 var notFoundIds = new List<string>();
 
-                foreach (JsonObject hotelRS in resp["hotels"] as JsonArray)
+                foreach (JsonObject hotelRS in rates)
                 {
                     int hotelId = GetHotelId(hotelRS["id"].ToString() + "_ostrvk");
 
@@ -501,7 +648,7 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
                 if (notFoundIds.Count > 0)
                     LoadAdditionalHotels(notFoundIds);
 
-                foreach (JsonObject hotelRS in resp["hotels"] as JsonArray)
+                foreach (JsonObject hotelRS in rates)
                 {
                     //парсим отели по одному
                     var hotel = ComposeHotel(hotelRS, ads, childAges);
@@ -655,7 +802,7 @@ namespace ClickAndTravelSearchEngine.HotelSearchExt
 
         public Hotel[] GetHotels()
         {
-            return this.FoundHotels;
+            return this.FoundHotels.ToArray();
         }
 
         public Containers.Hotels.Room GetRoom()
